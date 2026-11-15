@@ -1,0 +1,22 @@
+name: Deploy to calc.elgarhy.uk
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /var/www/ai-evolution-lab
+            git pull origin main
+            venv/bin/pip install -q -r requirements.txt
+            systemctl restart ai-evolution-lab
+            echo "Deployed gen $(grep -m1 'gen:' EVOLUTION.md | awk '{print $2}')"

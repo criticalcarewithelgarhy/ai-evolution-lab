@@ -47,13 +47,13 @@ def test_anion_gap_elevated():
 
 
 def test_crcl_male():
-    # 50yo, 70kg, Cr 1.0 → 97.2
-    assert creatinine_clearance(50, 70, 1.0, "male") == 97.2
+    # 50yo, 70kg, Cr 1.0 → 87.5  (Cockcroft-Gault: (90×70)/72)
+    assert creatinine_clearance(50, 70, 1.0, "male") == 87.5
 
 
 def test_crcl_female():
-    # Same but female → 82.6
-    assert creatinine_clearance(50, 70, 1.0, "female") == 82.6
+    # Same but female → 74.4  (87.5 × 0.85)
+    assert creatinine_clearance(50, 70, 1.0, "female") == 74.4
 
 
 def test_crcl_bad_creatinine():

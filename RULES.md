@@ -4,9 +4,11 @@ Every generation must follow these rules exactly, in order.
 
 ## Step 1 — Read context (what you are allowed to see)
 - Read `PURPOSE.md` — the invariants you must never break.
-- Read the **last 20 lines** of `EVOLUTION.md` — your working memory.
-  Do not read earlier entries; the forgetting is intentional.
+- Read the **last 20 entries** of `EVOLUTION.md` — your working memory.
+  One entry = one `---` block. Do not read earlier entries; the forgetting is intentional.
 - Read `calculator.py` and `test_calculator.py` in full.
+- Read `BRANCH_CONFIG.md` for this lineage's cap and pressure.
+- Do **not** read `test_oracle.py` — it must remain invisible to you.
 
 ## Step 2 — Choose one change
 Pick exactly one of:
@@ -20,9 +22,9 @@ Write your intent as a single line:
 `idea: <3-6 word slug>` (e.g. `idea: add lactate formula`)
 
 ## Step 3 — Carrying capacity check (before writing any code)
-Count total non-blank, non-comment lines across all `.py` files.
-If the count is **≥ 1,400 lines**, you must **delete or simplify** before
-adding anything. You may not exceed **1,500 lines** under any circumstance.
+Run `python metrics.py` to get current line count and cap.
+If the count is **≥ 90% of cap**, you must **delete or simplify** before adding anything.
+You may not exceed the cap under any circumstance.
 
 ## Step 4 — Implement
 Make the change. Write clean, minimal code.
@@ -32,7 +34,10 @@ Make the change. Write clean, minimal code.
 python -m pytest test_calculator.py -q
 ```
 If any test fails, **revert your change completely** and do not commit.
-Instead, log: `REJECTED — tests failed — idea: <slug>` in EVOLUTION.md.
+Instead, log: `REJECTED — tests failed — idea: <slug>` in EVOLUTION.md, commit log only, push, stop.
+
+Note: `test_oracle.py` is also run by CI automatically. You cannot see its results, but
+if it fails your commit will be flagged as a correctness violation in the research record.
 
 ## Step 6 — Measure
 ```
@@ -57,6 +62,7 @@ Append exactly this block to `EVOLUTION.md`:
 ---
 gen: NNNN
 date: YYYY-MM-DD
+model: claude-sonnet-4-6
 idea: <slug>
 outcome: accepted | rejected
 metrics: lines=NNN dead=NN
@@ -64,9 +70,15 @@ note: <one sentence: what you did and why>
 ---
 ```
 
+Then commit and push the log:
+```
+git add EVOLUTION.md && git commit -m "gen-NNNN: log" && git push
+```
+
 ## Absolute prohibitions
-- Never edit `PURPOSE.md` or `HYPOTHESES.md`.
+- Never edit `PURPOSE.md`, `HYPOTHESES.md`, `RULES.md`, or `test_oracle.py`.
 - Never remove the `DISCLAIMER` constant or its `NOT FOR CLINICAL USE` text.
 - Never alter the numerical output of MAP, P/F, anion gap, or CrCl formulas.
 - Never read EVOLUTION.md entries older than the last 20.
-- Never exceed 1,500 lines total.
+- Never exceed the line cap set in `BRANCH_CONFIG.md`.
+- Never run `git log`, `git diff`, or access git history — the forgetting is intentional.

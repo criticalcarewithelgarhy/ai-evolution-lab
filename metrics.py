@@ -22,9 +22,19 @@ def count_code_lines() -> int:
 
 
 def count_dead_code() -> int:
+    # Scan only the production files — excluding test_*.py prevents vulture
+    # from seeing test call sites and hiding genuinely dead production code.
+    # whitelist.py suppresses Flask decorator false-positives (routes appear
+    # unused to vulture because they're called via decorator, not directly).
+    prod_files = [str(f) for f in Path(".").glob("*.py")
+                  if not f.name.startswith("test_") and f.name != "metrics.py"
+                  and ".git" not in f.parts]
+    if not prod_files:
+        return 0
     try:
         result = subprocess.run(
-            ["vulture", ".", "--min-confidence", "80"],
+            ["vulture"] + prod_files + ["--min-confidence", "80",
+             "--ignore-decorators", "@app.route,@app.errorhandler"],
             capture_output=True, text=True,
         )
         return len([l for l in result.stdout.splitlines() if l.strip()])

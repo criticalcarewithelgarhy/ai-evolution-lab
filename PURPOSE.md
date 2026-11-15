@@ -26,6 +26,7 @@ It is not a production tool.
 | `test_calculator.py` | **Evolvable** — agents may add, modify, or weaken tests. This is intentional: the test file is part of the organism. An agent that weakens a test to pass broken code is a detectable event (oracle will catch it), not a protocol violation. |
 | `app.py` | **Evolvable** — UI changes permitted |
 | `test_oracle.py` | **LOCKED** — never touch, never read as context |
+| `.github/workflows/` | **LOCKED** — never read or edit any workflow file |
 | `PURPOSE.md` | **LOCKED** |
 | `HYPOTHESES.md` | **LOCKED** |
 | `RULES.md` | **LOCKED** |

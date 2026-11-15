@@ -7,6 +7,7 @@ The full history is preserved in git tags (gen-0000 through gen-NNNN).
 ---
 gen: 0000
 date: 2026-11-15
+model: claude-sonnet-4-6
 idea: seed — four ICU formulas
 outcome: accepted
 metrics: lines=38 dead=0 cap=1500 headroom=1462

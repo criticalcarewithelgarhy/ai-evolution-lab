@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Evolution Lab</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e;
+    --blue: #58a6ff; --orange: #f0883e; --green: #3fb950;
+    --red: #ff7b72; --purple: #d2a8ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    padding: 32px 24px; max-width: 1200px; margin: 0 auto;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header { margin-bottom: 32px; }
+  header h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; }
+  header p { color: var(--muted); font-size: 0.875rem; margin-top: 4px; }
+  .meta { display: flex; align-items: center; gap: 16px; margin-top: 12px; font-size: 0.8rem; color: var(--muted); flex-wrap: wrap; }
+  .refresh-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 4px 12px; border-radius: 6px;
+    cursor: pointer; font-size: 0.8rem;
+  }
+  .refresh-btn:hover { border-color: var(--blue); }
+
+  .stats-row {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 12px; margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px;
+  }
+  .stat-card .label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .stat-card .value { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-card .sub { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+  @media (max-width: 700px) { .chart-grid { grid-template-columns: 1fr; } }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+  .chart-card h3 { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+  .chart-wrap { position: relative; height: 220px; }
+
+  .branches-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 12px; margin-bottom: 28px;
+  }
+  .branch-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px; border-left: 3px solid;
+  }
+  .branch-card .bname { font-size: 0.72rem; font-family: monospace; color: var(--muted); }
+  .branch-card .blabel { font-size: 1rem; font-weight: 600; margin: 4px 0 2px; }
+  .branch-card .bgen { font-size: 1.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .branch-card .blines { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .branch-card .bidea {
+    margin-top: 10px; font-size: 0.75rem; background: var(--bg);
+    border-radius: 4px; padding: 7px 9px; font-family: monospace;
+    color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .accept-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.72rem; color: var(--muted); }
+  .accept-bar { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .accept-bar-fill { height: 100%; border-radius: 2px; background: var(--green); transition: width .4s; }
+  .no-data { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
+
+  .section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 10px; }
+  .ideas-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: auto; margin-bottom: 28px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  th { background: var(--bg); padding: 10px 14px; text-align: left; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); font-family: monospace; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.015); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.68rem; font-family: sans-serif; }
+  .badge-accepted { background: rgba(63,185,80,.15); color: var(--green); }
+  .badge-rejected { background: rgba(255,123,114,.15); color: var(--red); }
+  .note-cell { color: var(--muted); max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: sans-serif; }
+
+  .loading { color: var(--muted); font-size: 0.875rem; padding: 32px; text-align: center; }
+
+  footer {
+    margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border);
+    font-size: 0.72rem; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>AI Evolution Lab</h1>
+  <p>Unsupervised AI-directed code evolution · ICU calculator · 5 lineages · ~1,460 generations / year</p>
+  <div class="meta">
+    <span id="last-updated">Loading…</span>
+    <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+    <a href="https://github.com/criticalcarewithelgarhy/ai-evolution-lab" target="_blank">GitHub ↗</a>
+    <a href="https://github.com/criticalcarewithelgarhy/ai-evolution-lab/blob/main/HYPOTHESES.md" target="_blank">Hypotheses ↗</a>
+  </div>
+</header>
+
+<div class="stats-row" id="stats-row">
+  <div class="loading" style="grid-column:1/-1">Loading data…</div>
+</div>
+
+<div class="chart-grid">
+  <div class="chart-card">
+    <h3>Lines of Code — All Lineages</h3>
+    <div class="chart-wrap"><canvas id="chart-lines"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h3>Dead Code % — All Lineages</h3>
+    <div class="chart-wrap"><canvas id="chart-dead"></canvas></div>
+  </div>
+</div>
+
+<div class="branches-grid" id="branches-row"></div>
+
+<div class="section-title">Recent Mutations</div>
+<div class="ideas-wrap" id="ideas-wrap">
+  <div class="loading">Loading…</div>
+</div>
+
+<footer>
+  <span>Experiment started 2026-11-15 · Seed: MAP · P/F ratio · Anion gap · CrCl</span>
+  <span id="footer-total"></span>
+</footer>
+
+<script>
+const REPO = 'criticalcarewithelgarhy/ai-evolution-lab';
+const BRANCHES = [
+  { name: 'main',             label: 'Control',  color: '#58a6ff', cap: 1500, pressure: 'neutral' },
+  { name: 'lineage/wild',     label: 'Wild',     color: '#f0883e', cap: null, pressure: 'neutral, no cap' },
+  { name: 'lineage/breadth',  label: 'Breadth',  color: '#3fb950', cap: null, pressure: 'add formulas' },
+  { name: 'lineage/robust',   label: 'Robust',   color: '#ff7b72', cap: 800,  pressure: 'error handling' },
+  { name: 'lineage/accuracy', label: 'Accuracy', color: '#d2a8ff', cap: 2500, pressure: 'precision' },
+];
+
+let allData = {};
+let linesChart, deadChart;
+
+function parseEvolutionLog(text) {
+  return text.split(/^---$/m)
+    .map(b => b.trim()).filter(Boolean)
+    .map(block => {
+      const get = k => { const m = block.match(new RegExp(`^${k}:\\s*(.+)`, 'm')); return m ? m[1].trim() : null; };
+      const gen = parseInt(get('gen'));
+      if (isNaN(gen)) return null;
+      const metrics = get('metrics') || '';
+      const lm = metrics.match(/lines=(\d+)/), dm = metrics.match(/dead=(\d+)/);
+      return {
+        gen, date: get('date'), idea: get('idea'),
+        outcome: (get('outcome') || 'accepted').toLowerCase(),
+        lines: lm ? parseInt(lm[1]) : null,
+        dead: dm ? parseInt(dm[1]) : null,
+        note: get('note'),
+      };
+    }).filter(Boolean);
+}
+
+async function fetchBranch(branch) {
+  const url = `https://raw.githubusercontent.com/${REPO}/refs/heads/${branch.name}/EVOLUTION.md?t=${Date.now()}`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return { branch, entries: [], error: r.status };
+    return { branch, entries: parseEvolutionLog(await r.text()) };
+  } catch(e) { return { branch, entries: [], error: e.message }; }
+}
+
+function mkChart(id, datasets, yLabel) {
+  const ctx = document.getElementById(id);
+  return new Chart(ctx, {
+    type: 'line', data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: { legend: { labels: { color: '#8b949e', boxWidth: 10, font: { size: 11 } } } },
+      scales: {
+        x: { type: 'linear',
+             ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' },
+             title: { display: true, text: 'Generation', color: '#8b949e', font: { size: 11 } } },
+        y: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' },
+             title: { display: true, text: yLabel, color: '#8b949e', font: { size: 11 } } },
+      }
+    }
+  });
+}
+
+function updateCharts() {
+  const lds = [], dds = [];
+  for (const b of BRANCHES) {
+    const d = allData[b.name];
+    if (!d?.entries?.length) continue;
+    const base = { borderColor: b.color, backgroundColor: b.color + '18', borderWidth: 2, pointRadius: 2, tension: 0.3, fill: false };
+    lds.push({ label: b.label, ...base, data: d.entries.filter(e => e.lines != null).map(e => ({ x: e.gen, y: e.lines })) });
+    dds.push({ label: b.label, ...base,
+      data: d.entries.filter(e => e.lines > 0 && e.dead != null)
+                     .map(e => ({ x: e.gen, y: +(e.dead / e.lines * 100).toFixed(1) })) });
+  }
+  if (linesChart) linesChart.destroy();
+  if (deadChart) deadChart.destroy();
+  linesChart = mkChart('chart-lines', lds, 'Lines');
+  deadChart  = mkChart('chart-dead',  dds, 'Dead %');
+}
+
+function updateBranchCards() {
+  document.getElementById('branches-row').innerHTML = BRANCHES.map(b => {
+    const d = allData[b.name];
+    if (!d?.entries?.length || d.error) {
+      return `<div class="branch-card" style="border-left-color:${b.color}">
+        <div class="bname">${b.name}</div>
+        <div class="blabel">${b.label}</div>
+        <div class="no-data">${d?.error === 404 ? 'Branch not yet created' : 'No data yet'}</div>
+      </div>`;
+    }
+    const e = d.entries;
+    const last = e[e.length - 1];
+    const accepted = e.filter(x => x.outcome === 'accepted').length;
+    const rate = Math.round(accepted / e.length * 100);
+    return `<div class="branch-card" style="border-left-color:${b.color}">
+      <div class="bname">${b.name}</div>
+      <div class="blabel">${b.label}</div>
+      <div class="bgen">gen-${String(last.gen).padStart(4,'0')}</div>
+      <div class="blines">${last.lines ?? '—'} lines · ${b.cap ? 'cap '+b.cap : 'no cap'} · ${b.pressure}</div>
+      <div class="bidea">${last.idea ?? '—'}</div>
+      <div class="accept-row">
+        <span>${rate}% accepted</span>
+        <div class="accept-bar"><div class="accept-bar-fill" style="width:${rate}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats() {
+  const all = Object.values(allData);
+  const total = all.reduce((s, d) => s + (d?.entries?.length ?? 0), 0);
+  const accepted = all.reduce((s, d) => s + (d?.entries?.filter(e => e.outcome === 'accepted').length ?? 0), 0);
+  const maxGen = all.reduce((m, d) => { const l = d?.entries?.slice(-1)[0]; return l ? Math.max(m, l.gen) : m; }, 0);
+  const wildLast = allData['lineage/wild']?.entries?.slice(-1)[0];
+  const active = all.filter(d => d?.entries?.length > 1).length;
+
+  document.getElementById('stats-row').innerHTML = [
+    { label: 'Total Commits',   value: total,            sub: 'across all lineages' },
+    { label: 'Latest Gen',      value: `gen-${String(maxGen).padStart(4,'0')}`, sub: 'leading lineage' },
+    { label: 'Accept Rate',     value: total > 0 ? `${Math.round(accepted/total*100)}%` : '—', sub: 'tests passed' },
+    { label: 'Wild Lines',      value: wildLast?.lines ?? '—', sub: 'uncapped growth' },
+    { label: 'Active Lineages', value: active,            sub: 'of 5 total' },
+  ].map(s => `<div class="stat-card">
+    <div class="label">${s.label}</div>
+    <div class="value">${s.value}</div>
+    <div class="sub">${s.sub}</div>
+  </div>`).join('');
+
+  document.getElementById('footer-total').textContent = `${total} total generations logged`;
+}
+
+function updateTable() {
+  const rows = [];
+  for (const b of BRANCHES) {
+    const d = allData[b.name];
+    if (!d?.entries) continue;
+    for (const e of d.entries) {
+      if (e.gen === 0) continue;
+      rows.push({ ...e, blabel: b.label, bcolor: b.color });
+    }
+  }
+  rows.sort((a, b) => b.gen - a.gen || a.blabel.localeCompare(b.blabel));
+  const recent = rows.slice(0, 40);
+  if (!recent.length) {
+    document.getElementById('ideas-wrap').innerHTML = '<div class="loading">No mutations yet — first generation runs soon.</div>';
+    return;
+  }
+  document.getElementById('ideas-wrap').innerHTML = `<table>
+    <thead><tr><th>Branch</th><th>Gen</th><th>Idea</th><th>Outcome</th><th>Lines</th><th>Note</th></tr></thead>
+    <tbody>${recent.map(e => `<tr>
+      <td style="color:${e.bcolor}">${e.blabel}</td>
+      <td>${String(e.gen).padStart(4,'0')}</td>
+      <td>${e.idea ?? '—'}</td>
+      <td><span class="badge badge-${e.outcome}">${e.outcome}</span></td>
+      <td>${e.lines ?? '—'}</td>
+      <td class="note-cell" title="${(e.note||'').replace(/"/g,"'")}">${e.note ?? '—'}</td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+async function loadAll() {
+  document.getElementById('last-updated').textContent = 'Refreshing…';
+  const results = await Promise.all(BRANCHES.map(fetchBranch));
+  for (const r of results) allData[r.branch.name] = r;
+  updateStats();
+  updateCharts();
+  updateBranchCards();
+  updateTable();
+  document.getElementById('last-updated').textContent = `Updated ${new Date().toLocaleTimeString()}`;
+}
+
+loadAll();
+</script>
+</body>
+</html>

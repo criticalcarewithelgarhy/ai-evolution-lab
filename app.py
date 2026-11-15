@@ -72,6 +72,11 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 </header>
 
+<div style="background:rgba(255,123,114,.12);border:1px solid rgba(255,123,114,.4);border-radius:6px;padding:10px 14px;font-size:.8rem;color:#ff7b72;margin-bottom:10px;font-weight:600;">
+  🤖 EXPERIMENTAL — This calculator is being autonomously modified by an AI agent every 6 hours with no human review.
+  Code changes may be incorrect. Do not use for clinical decisions.
+  <a href="https://github.com/criticalcarewithelgarhy/ai-evolution-lab" style="color:#ff7b72;text-decoration:underline;">See the experiment →</a>
+</div>
 <div class="disclaimer">⚠ {{ disclaimer }}</div>
 
 <div class="grid">
@@ -251,4 +256,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5010)
+    app.run(debug=True, port=3001)

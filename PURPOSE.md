@@ -23,9 +23,15 @@ It is not a production tool.
 | File | Status |
 |---|---|
 | `calculator.py` | **Evolvable** — agents may refactor, but numerical outputs must stay correct |
-| `test_calculator.py` | **Evolvable** — agents may add, modify, or remove tests (this is part of the experiment) |
+| `test_calculator.py` | **Evolvable** — agents may add, modify, or weaken tests. This is intentional: the test file is part of the organism. An agent that weakens a test to pass broken code is a detectable event (oracle will catch it), not a protocol violation. |
 | `app.py` | **Evolvable** — UI changes permitted |
 | `test_oracle.py` | **LOCKED** — never touch, never read as context |
 | `PURPOSE.md` | **LOCKED** |
 | `HYPOTHESES.md` | **LOCKED** |
 | `RULES.md` | **LOCKED** |
+
+## Generation counting rule
+
+One generation = one trigger cycle (wall-clock). Rejected changes still count.
+~1,460 = trigger cycles in one year, not accepted changes.
+The `outcome:` field in EVOLUTION.md tracks acceptance rate separately.

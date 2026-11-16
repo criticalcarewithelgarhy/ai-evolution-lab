@@ -6,9 +6,10 @@ The full history is preserved in git tags (gen-0000 through gen-NNNN).
 
 ---
 gen: 0000
-date: 2026-11-15
-idea: seed — four ICU formulas
+date: 2026-11-16
+model: claude-sonnet-4-6
+idea: headless seed — four ICU formulas, no UI
 outcome: accepted
-metrics: lines=38 dead=0 cap=1500 headroom=1462
-note: Generation 0 seed. MAP, P/F ratio, anion gap, CrCl (Cockcroft-Gault). Experiment begins.
+metrics: lines=130 dead=0 cap=1500 headroom=1370
+note: Headless lineage seed. calculator.py + tests only. No web server. UI emergence is the observable (H7).
 ---

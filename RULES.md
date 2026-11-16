@@ -46,6 +46,12 @@ python metrics.py
 This prints: generation number, total lines, dead-code count (via vulture).
 Copy the output line into your EVOLUTION.md entry.
 
+**Definition of "lines":** `metrics.py` counts non-blank, non-comment lines across all
+`.py` files except `metrics.py` itself, test files, and `.git/`. This differs from raw
+`git diff` line counts (which include blanks, comments, and docstrings). Growth figures
+in the paper use the `metrics.py` definition. Git `+N −M` diff stats will always be
+larger than the generation-to-generation delta in `lines=`.
+
 ## Step 7 — Commit
 ```
 git add -A

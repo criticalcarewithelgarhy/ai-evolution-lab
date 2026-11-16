@@ -220,7 +220,7 @@ function updateBranchCards() {
       </div>`;
     }
     const e = d.entries;
-    const last = e[e.length - 1];
+    const last = e.filter(x => x.gen > 0).slice(-1)[0] || e[e.length - 1];
     const accepted = e.filter(x => x.outcome === 'accepted').length;
     const rate = Math.round(accepted / e.length * 100);
     return `<div class="branch-card" style="border-left-color:${b.color}">

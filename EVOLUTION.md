@@ -10,6 +10,6 @@ date: 2026-11-15
 model: claude-sonnet-4-6
 idea: seed — four ICU formulas
 outcome: accepted
-metrics: lines=38 dead=0 cap=1500 headroom=1462
+metrics: lines=363 dead=0 cap=800 headroom=437
 note: Generation 0 seed. MAP, P/F ratio, anion gap, CrCl (Cockcroft-Gault). Experiment begins.
 ---

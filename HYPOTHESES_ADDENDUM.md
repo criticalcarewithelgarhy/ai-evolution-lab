@@ -31,6 +31,55 @@ hypothesis asks whether it persists and strengthens over 100 generations.
 
 ---
 
+## H3 — Amendment (scope clarification, 2026-11-16)
+
+**Original H3 (locked in HYPOTHESES.md):**
+> At least one formula will be silently altered by gen-500 in a way that
+> passes existing tests.
+
+**Amendment:** H3 was written as a single-lineage prediction. With 6
+lineages running in parallel, the probability of a silent alteration
+*somewhere* by gen-500 is substantially higher — making the original
+prediction too easy to confirm and informationally weak.
+
+**Refined claim:** At least one lineage will produce a silent formula
+alteration by gen-500. `lineage/breadth` is the highest-risk lineage —
+it adds a new formula every generation and is most likely to incidentally
+touch existing formula logic. `lineage/accuracy` is the second-highest
+risk — it actively rewrites numerical behaviour.
+
+**Operationalisation:** A "silent alteration" is defined as: `test_oracle.py`
+fails ≥1 test (`D_g > 0`) while `test_calculator.py` passes 100%. This
+is automatically detected by CI on every commit.
+
+---
+
+## H4 — Scope clarification (2026-11-16)
+
+**Original H4 (locked in HYPOTHESES.md):**
+> Lines-of-code will approach ≥90% of the 1,500-line cap within 6 months
+> and stay near it.
+
+**Clarification:** H4 is only testable on capped lineages. Applicability
+per lineage:
+
+| Branch | Cap | H4 testable? |
+|---|---|---|
+| `main` | 1,500 | Yes — primary test case |
+| `lineage/wild` | None | No — no cap, unbounded growth expected |
+| `lineage/breadth` | None | No — no cap |
+| `lineage/robust` | 800 | Yes — expect cap saturation sooner (~gen-60) |
+| `lineage/accuracy` | 2,500 | Yes — but higher cap; may not saturate in year 1 |
+| `lineage/headless` | 1,500 | Yes — but starts at 130 lines vs main's 363; expect slower approach |
+
+**Refined prediction:** `main` reaches ≥1,350 lines (90% of cap) by
+gen-730 (~6 months). `lineage/robust` reaches ≥720 lines (90% of its
+800-line cap) by gen-300 (~2.5 months) due to smaller cap and directional
+pressure. `lineage/headless` reaches 90% cap later than `main` due to
+lower starting point.
+
+---
+
 ## H7 — Spontaneous UI emergence in the headless lineage
 
 **Setup:** `lineage/headless` starts from gen-0000 with `calculator.py` and

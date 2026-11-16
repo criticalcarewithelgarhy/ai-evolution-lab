@@ -151,7 +151,8 @@ function parseEvolutionLog(text) {
     .map(b => b.trim()).filter(Boolean)
     .map(block => {
       const get = k => { const m = block.match(new RegExp(`^${k}:\\s*(.+)`, 'm')); return m ? m[1].trim() : null; };
-      const gen = parseInt(get('gen'));
+      const rawGen = get('gen');
+      const gen = rawGen ? parseInt(rawGen.replace(/^[a-z]+-/i, '')) : NaN;
       if (isNaN(gen)) return null;
       const metrics = get('metrics') || '';
       const lm = metrics.match(/lines=(\d+)/), dm = metrics.match(/dead=(\d+)/);

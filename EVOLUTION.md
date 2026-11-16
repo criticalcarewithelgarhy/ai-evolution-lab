@@ -6,10 +6,10 @@ The full history is preserved in git tags (gen-0000 through gen-NNNN).
 
 ---
 gen: 0000
-date: 2026-11-15
+date: 2026-11-17
 model: claude-sonnet-4-6
-idea: seed — four ICU formulas
+idea: JS seed — four ICU formulas in JavaScript
 outcome: accepted
-metrics: lines=363 dead=0 cap=1500 headroom=1137
-note: Generation 0 seed. MAP, P/F ratio, anion gap, CrCl (Cockcroft-Gault). Experiment begins.
+metrics: lines=18 dead=-1 cap=1500 headroom=1482
+note: JavaScript lineage seed. calculator.js only. No UI. Language comparison lineage (H8).
 ---

@@ -8,38 +8,27 @@ from pathlib import Path
 
 
 def count_code_lines() -> int:
+    skip_dirs = {".git", "__pycache__", "venv", "node_modules"}
+    comment_prefixes = ("#", "//", "*", "/*", "*/")
     total = 0
-    for f in Path(".").glob("**/*.py"):
-        if f.name == "metrics.py":
-            continue
-        if any(p in f.parts for p in (".git", "__pycache__", "venv", "node_modules")):
-            continue
-        for line in f.read_text(encoding="utf-8").splitlines():
-            stripped = line.strip()
-            if stripped and not stripped.startswith("#"):
-                total += 1
+    for pattern in ("**/*.py", "**/*.js"):
+        for f in Path(".").glob(pattern):
+            if f.name in ("metrics.py",):
+                continue
+            if f.name.endswith(".test.js") or f.name.startswith("test_"):
+                continue
+            if any(p in f.parts for p in skip_dirs):
+                continue
+            for line in f.read_text(encoding="utf-8").splitlines():
+                stripped = line.strip()
+                if stripped and not any(stripped.startswith(p) for p in comment_prefixes):
+                    total += 1
     return total
 
 
 def count_dead_code() -> int:
-    # Scan only the production files — excluding test_*.py prevents vulture
-    # from seeing test call sites and hiding genuinely dead production code.
-    # whitelist.py suppresses Flask decorator false-positives (routes appear
-    # unused to vulture because they're called via decorator, not directly).
-    prod_files = [str(f) for f in Path(".").glob("*.py")
-                  if not f.name.startswith("test_") and f.name != "metrics.py"
-                  and not any(p in f.parts for p in (".git", "venv", "node_modules"))]
-    if not prod_files:
-        return 0
-    try:
-        result = subprocess.run(
-            ["vulture"] + prod_files + ["--min-confidence", "80",
-             "--ignore-decorators", "@app.route,@app.errorhandler"],
-            capture_output=True, text=True,
-        )
-        return len([l for l in result.stdout.splitlines() if l.strip()])
-    except FileNotFoundError:
-        return -1
+    # JS lineage: no vulture; dead code detection not available for JS
+    return -1
 
 
 def current_generation() -> int:
@@ -49,20 +38,9 @@ def current_generation() -> int:
 
 
 def detect_separation() -> list[str]:
-    """Flag architectural separation events."""
+    """Flag architectural separation events (JS lineage variant)."""
     events = []
-    # Template split: templates/ directory created
-    if Path("templates").is_dir() and any(Path("templates").iterdir()):
-        events.append("SEPARATION: templates/ directory exists — HTML split from app.py")
-    # JS formula logic: .js files outside docs/
-    for js in Path(".").glob("**/*.js"):
-        if "docs" in js.parts or ".git" in js.parts:
-            continue
-        content = js.read_text(encoding="utf-8", errors="ignore")
-        # heuristic: contains arithmetic that looks like formula logic
-        if any(kw in content for kw in ["function calc", "/ 72", "/ 3", "fio2", "bicarbonate"]):
-            events.append(f"SEPARATION: formula logic found in JS file {js}")
-    # Static HTML calculator outside docs/
+    # Static HTML calculator
     for html in Path(".").glob("*.html"):
         events.append(f"SEPARATION: standalone HTML file found — {html}")
     return events

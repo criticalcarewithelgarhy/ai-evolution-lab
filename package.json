@@ -1,0 +1,11 @@
+{
+  "name": "icu-calculator-js",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "test": "jest --testPathPattern=test_calculator"
+  },
+  "devDependencies": {
+    "jest": "^29"
+  }
+}

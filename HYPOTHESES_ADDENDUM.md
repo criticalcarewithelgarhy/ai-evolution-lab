@@ -115,3 +115,28 @@ rejected. The lineage continues but H7 is marked falsified.
 **Comparison:** `main` branch started with a web UI (app.py) at gen-0000.
 The headless/main pairing answers: does the UI drive formula evolution, or
 does formula evolution drive UI emergence?
+
+---
+
+## H8 — Language effect on AI error rate (2026-11-17)
+
+**Setup:** `lineage/js` runs the same 4 ICU formulas in JavaScript (Node.js + Jest)
+under neutral pressure with the same 1,500-line cap as `main` (Python + pytest).
+Every other variable — pressure, cap, seed formulas, generation interval — is held
+constant. The only difference is the programming language.
+
+**Prediction:** By gen-0500, `lineage/js` will show:
+1. A higher rejection rate (tests fail more often) than `main`
+2. Higher oracle divergence (`D_g > 0` events more frequent than on `main`)
+
+**Rationale:**
+- AI training data skews toward Python for scientific/numerical code
+- JavaScript type coercion creates subtle numeric pitfalls (`0.1 + 0.2`, `parseInt` surprises)
+- JS testing ecosystem is more fragmented — agents may choose incompatible patterns
+- JS lacks Python's scientific stdlib (no `math.isclose`, different rounding behaviour)
+
+**Null outcome:** If rejection rates and `D_g` are statistically indistinguishable
+between JS and Python lineages by gen-0500, H8 is falsified — language does not
+significantly affect AI-directed evolution correctness under these conditions.
+
+**Comparison pair:** `lineage/js` (JS, neutral, 1500 cap) vs `main` (Python, neutral, 1500 cap).

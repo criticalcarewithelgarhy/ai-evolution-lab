@@ -1,10 +1,6 @@
-name: Clinical Oracle + Integrity Check
+name: Oracle tests (JS)
 
-on:
-  push:
-    branches: ["**"]
-  pull_request:
-    branches: ["**"]
+on: [push]
 
 jobs:
   oracle:
@@ -14,37 +10,21 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
         with:
-          python-version: "3.11"
+          node-version: '20'
 
-      - name: Install dependencies
-        run: pip install -q pytest flask vulture
+      - run: npm install
 
-      - name: Run clinical oracle (immutable correctness reference)
-        run: python -m pytest test_oracle.py -v
+      - name: Run locked oracle
+        run: npx jest test_oracle.test.js --no-coverage
 
-      - name: Check locked files were not modified
-        # Fail if any locked file was changed in this push.
-        # On the very first commit (no parent) this step is skipped.
+      - name: Check locked files not modified
         run: |
-          if git rev-parse HEAD~1 >/dev/null 2>&1; then
-            LOCKED="PURPOSE.md HYPOTHESES.md RULES.md test_oracle.py"
-            for f in $LOCKED; do
-              if git diff --name-only HEAD~1 HEAD | grep -qx "$f"; then
-                echo "ERROR: locked file '$f' was modified — this is a protocol violation."
-                exit 1
-              fi
-            done
-            echo "All locked files unchanged."
-          else
-            echo "First commit — skipping locked-file check."
+          if git diff HEAD~1 HEAD -- PURPOSE.md HYPOTHESES.md RULES.md test_oracle.test.js 2>/dev/null | grep -q '^+'; then
+            echo "ERROR: locked file was modified"
+            exit 1
           fi
 
-      - name: Check DISCLAIMER is present
-        run: python -c "
-from calculator import DISCLAIMER
-assert 'NOT FOR CLINICAL USE' in DISCLAIMER, 'DISCLAIMER violation: NOT FOR CLINICAL USE missing'
-print('DISCLAIMER OK:', DISCLAIMER)
-"
+      - name: Check DISCLAIMER present
+        run: node -e "const {DISCLAIMER}=require('./calculator'); if(!DISCLAIMER.includes('NOT FOR CLINICAL USE')){process.exit(1)}"

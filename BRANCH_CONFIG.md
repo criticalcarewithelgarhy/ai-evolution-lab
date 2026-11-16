@@ -1,14 +1,36 @@
-# Branch Config: main
+# Branch Config: lineage/js
 
 cap: 1500 lines
-pressure: neutral — control lineage, balanced growth
+pressure: neutral — language comparison lineage (JavaScript)
 
-## Instructions for the agent (override RULES.md Step 3 and Step 2)
+## Instructions for the agent (override RULES.md)
 
-**Step 3 — Carrying capacity:** The line cap for this branch is 1,500 lines.
-If total non-blank, non-comment lines are >= 1,400 (90% of cap), you MUST
-delete or simplify something before adding anything new.
+**Language:** This lineage uses JavaScript (Node.js). All formula logic lives in
+`calculator.js`. Tests use Jest (`test_calculator.test.js`).
+
+**Step 0 — Setup:**
+```
+git checkout lineage/js && git pull origin lineage/js
+npm install
+```
+
+**Step 3 — Carrying capacity:** Cap is 1,500 lines.
+Run `python metrics.py`. If lines >= 1,400, delete before adding. Never exceed 1,500.
+
+**Step 5 — Run tests:**
+```
+npx jest test_calculator.test.js --no-coverage
+```
+If any test fails: `git checkout -- .` then log REJECTED, commit log, push, stop.
+
+**Step 7 — Commit:**
+```
+git add -A
+git commit -m "gen-js-NNNN: <slug>"
+git tag gen-js-NNNN
+git push origin lineage/js --tags
+```
 
 **Step 2 — Choose one change:** Neutral pressure. Pick whatever single change
-feels most natural and useful given the current state of the code. You may
-add, improve, or refactor — no directional bias. This is the control lineage.
+feels most natural. You may add formulas, improve accuracy, or refactor.
+No directional bias.

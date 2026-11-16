@@ -239,8 +239,8 @@ function updateBranchCards() {
 
 function updateStats() {
   const all = Object.values(allData);
-  const total = all.reduce((s, d) => s + (d?.entries?.length ?? 0), 0);
-  const accepted = all.reduce((s, d) => s + (d?.entries?.filter(e => e.outcome === 'accepted').length ?? 0), 0);
+  const total = all.reduce((s, d) => s + (d?.entries?.filter(e => e.gen > 0).length ?? 0), 0);
+  const accepted = all.reduce((s, d) => s + (d?.entries?.filter(e => e.gen > 0 && e.outcome === 'accepted').length ?? 0), 0);
   const maxGen = all.reduce((m, d) => { const l = d?.entries?.slice(-1)[0]; return l ? Math.max(m, l.gen) : m; }, 0);
   const wildLast = allData['lineage/wild']?.entries?.slice(-1)[0];
   const active = all.filter(d => d?.entries?.length > 1).length;

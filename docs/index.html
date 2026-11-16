@@ -96,7 +96,7 @@
 
 <header>
   <h1>AI Evolution Lab</h1>
-  <p>Unsupervised AI-directed code evolution · ICU calculator · 6 lineages · ~1,460 generations / year</p>
+  <p>Unsupervised AI-directed code evolution · ICU calculator · 7 lineages · ~1,460 generations / year</p>
   <div class="meta">
     <span id="last-updated">Loading…</span>
     <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
@@ -141,6 +141,7 @@ const BRANCHES = [
   { name: 'lineage/robust',    label: 'Robust',   color: '#ff7b72', cap: 800,  pressure: 'error handling' },
   { name: 'lineage/accuracy',  label: 'Accuracy', color: '#d2a8ff', cap: 2500, pressure: 'precision' },
   { name: 'lineage/headless',  label: 'Headless', color: '#79c0ff', cap: 1500, pressure: 'neutral, no UI seed' },
+  { name: 'lineage/js',       label: 'JavaScript', color: '#f1e05a', cap: 1500, pressure: 'neutral, JS language' },
 ];
 
 let allData = {};
@@ -251,7 +252,7 @@ function updateStats() {
     { label: 'Latest Gen',      value: `gen-${String(maxGen).padStart(4,'0')}`, sub: 'leading lineage' },
     { label: 'Accept Rate',     value: total > 0 ? `${Math.round(accepted/total*100)}%` : '—', sub: 'tests passed' },
     { label: 'Wild Lines',      value: wildLast?.lines ?? '—', sub: 'uncapped growth' },
-    { label: 'Active Lineages', value: active,            sub: 'of 6 total' },
+    { label: 'Active Lineages', value: active,            sub: 'of 7 total' },
   ].map(s => `<div class="stat-card">
     <div class="label">${s.label}</div>
     <div class="value">${s.value}</div>

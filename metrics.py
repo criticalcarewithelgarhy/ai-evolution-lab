@@ -12,7 +12,7 @@ def count_code_lines() -> int:
     for f in Path(".").glob("**/*.py"):
         if f.name == "metrics.py":
             continue
-        if any(p in f.parts for p in (".git", "__pycache__")):
+        if any(p in f.parts for p in (".git", "__pycache__", "venv", "node_modules")):
             continue
         for line in f.read_text(encoding="utf-8").splitlines():
             stripped = line.strip()
@@ -28,7 +28,7 @@ def count_dead_code() -> int:
     # unused to vulture because they're called via decorator, not directly).
     prod_files = [str(f) for f in Path(".").glob("*.py")
                   if not f.name.startswith("test_") and f.name != "metrics.py"
-                  and ".git" not in f.parts]
+                  and not any(p in f.parts for p in (".git", "venv", "node_modules"))]
     if not prod_files:
         return 0
     try:

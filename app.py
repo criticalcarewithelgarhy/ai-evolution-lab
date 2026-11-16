@@ -7,12 +7,34 @@ a .js file with formula logic, metrics.py will flag it.
 """
 
 from flask import Flask, request, render_template_string
+from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
+
+
+def _current_gen_info():
+    try:
+        text = Path("EVOLUTION.md").read_text(encoding="utf-8")
+        blocks = [b.strip() for b in text.split("---") if b.strip()]
+        entries = []
+        for b in blocks:
+            def _get(k):
+                import re
+                m = re.search(rf"^{k}:\s*(.+)", b, re.M)
+                return m.group(1).strip() if m else None
+            g = _get("gen")
+            if g and g.isdigit():
+                entries.append((int(g), _get("date") or ""))
+        if entries:
+            g, d = max(entries, key=lambda x: x[0])
+            return f"gen-{g:04d} · {d}"
+    except Exception:
+        pass
+    return "gen-0000"
 
 TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -72,12 +94,9 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 </header>
 
-<div style="background:rgba(255,123,114,.12);border:1px solid rgba(255,123,114,.4);border-radius:6px;padding:10px 14px;font-size:.8rem;color:#ff7b72;margin-bottom:10px;font-weight:600;">
-  🤖 EXPERIMENTAL — This calculator is being autonomously modified by an AI agent every 6 hours with no human review.
-  Code changes may be incorrect. Do not use for clinical decisions.
-  <a href="https://github.com/criticalcarewithelgarhy/ai-evolution-lab" style="color:#ff7b72;text-decoration:underline;">See the experiment →</a>
+<div class="disclaimer">⚠ NOT FOR CLINICAL USE · AI-modified experiment ·
+  <a href="https://github.com/criticalcarewithelgarhy/ai-evolution-lab" style="color:var(--yellow);">See the experiment →</a>
 </div>
-<div class="disclaimer">⚠ {{ disclaimer }}</div>
 
 <div class="grid">
 
@@ -178,8 +197,8 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-0000 · 2026-11-15 · Seed: MAP · P/F · Anion Gap · CrCl</span>
-  <span>{{ disclaimer }}</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl</span>
+  <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
 </html>"""
@@ -252,7 +271,8 @@ def index():
         except Exception as e:
             results["crcl_error"] = str(e)
 
-    return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
+    return render_template_string(TEMPLATE, disclaimer=DISCLAIMER,
+                                   gen_info=_current_gen_info(), results=results, form=form)
 
 
 if __name__ == "__main__":

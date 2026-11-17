@@ -43,3 +43,13 @@ outcome: accepted
 metrics: lines=381 dead=0
 note: calculator.py and test_calculator.py had been committed with literal "\n" escapes instead of newlines (SyntaxError, zero tests could run); decoded them back to valid Python with no change to any formula output.
 ---
+
+---
+gen: accuracy-0004
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: validate-crcl-sex-input
+outcome: accepted
+metrics: lines=390 dead=0
+note: creatinine_clearance silently applied the male formula to any unrecognised sex string (e.g. "fem"), overestimating CrCl by ~18% for misentered females; it now normalises case/whitespace and raises ValueError for anything other than m/male/f/female.
+---

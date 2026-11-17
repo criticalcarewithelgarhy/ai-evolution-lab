@@ -9,7 +9,7 @@ a .js file with formula logic, metrics.py will flag it.
 from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
-    creatinine_clearance, DISCLAIMER,
+    albumin_corrected_anion_gap, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -134,12 +134,20 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" name="cl" value="{{ form.cl or '' }}" placeholder="104"></div>
       <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L)</label>
         <input type="number" name="hco3" value="{{ form.hco3 or '' }}" placeholder="24"></div>
+      <div class="field"><label>Albumin (g/dL, optional — for correction)</label>
+        <input type="number" name="albumin" step="0.1" value="{{ form.albumin or '' }}" placeholder="4.0"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
     {% if results.ag is defined %}
     <div class="result" id="ag">
       <span class="val">{{ results.ag }}</span><span class="unit">mEq/L</span>
       <div class="interp {{ results.ag_cls }}">{{ results.ag_interp }}</div>
+      {% if results.ag_corrected is defined %}
+      <div style="margin-top:8px;font-size:.8rem;color:var(--muted)">
+        Albumin-corrected: <strong style="color:var(--blue)">{{ results.ag_corrected }}</strong> mEq/L
+        <span class="interp {{ results.ag_corrected_cls }}">{{ results.ag_corrected_interp }}</span>
+      </div>
+      {% endif %}
     </div>
     {% elif results.ag_error is defined %}
     <div class="error">{{ results.ag_error }}</div>
@@ -178,7 +186,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-0000 · 2026-11-15 · Seed: MAP · P/F · Anion Gap · CrCl</span>
+  <span>gen-wild-0001 · 2026-11-17 · Added: albumin-corrected anion gap</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -235,9 +243,15 @@ def index():
 
     elif calc == "ag":
         try:
-            v = anion_gap(float(form["na"]), float(form["cl"]), float(form["hco3"]))
+            na, cl, hco3 = float(form["na"]), float(form["cl"]), float(form["hco3"])
+            v = anion_gap(na, cl, hco3)
             interp, cls = _ag_interp(v)
             results.update(ag=v, ag_interp=interp, ag_cls=cls)
+            albumin_str = form.get("albumin", "").strip()
+            if albumin_str:
+                vc = albumin_corrected_anion_gap(na, cl, hco3, float(albumin_str))
+                interpc, clsc = _ag_interp(vc)
+                results.update(ag_corrected=vc, ag_corrected_interp=interpc, ag_corrected_cls=clsc)
         except Exception as e:
             results["ag_error"] = str(e)
 

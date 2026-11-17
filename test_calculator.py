@@ -81,5 +81,15 @@ def test_crcl_bad_creatinine():
         creatinine_clearance(50, 70, 0, "male")
 
 
+def test_crcl_nonpositive_weight():
+    with pytest.raises(ValueError):
+        creatinine_clearance(50, 0, 1.0, "male")
+
+
+def test_crcl_age_out_of_range():
+    with pytest.raises(ValueError):
+        creatinine_clearance(150, 70, 1.0, "male")
+
+
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER

@@ -43,8 +43,15 @@ def count_dead_code() -> int:
 
 
 def current_generation() -> int:
+    import re
     log = Path("EVOLUTION.md").read_text(encoding="utf-8")
-    gens = [int(l.split(":")[1].strip()) for l in log.splitlines() if l.startswith("gen:")]
+    gens = []
+    for l in log.splitlines():
+        if l.startswith("gen:"):
+            val = l.split(":", 1)[1].strip()
+            m = re.search(r"(\d+)$", val)
+            if m:
+                gens.append(int(m.group(1)))
     return max(gens) if gens else 0
 
 

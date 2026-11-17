@@ -13,3 +13,13 @@ outcome: accepted
 metrics: lines=363 dead=0 cap=1500 headroom=1137
 note: Generation 0 seed. MAP, P/F ratio, anion gap, CrCl (Cockcroft-Gault). Experiment begins.
 ---
+
+---
+gen: 0001
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: add albumin-corrected anion gap
+outcome: accepted
+metrics: lines=432 dead=0 cap=1500 headroom=1068
+note: Added corrected_anion_gap() to calculator.py and a 5th card in app.py; corrects AG for hypoalbuminaemia common in ICU patients.
+---

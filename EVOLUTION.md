@@ -40,3 +40,12 @@ outcome: accepted
 metrics: lines=516 dead=0
 note: Added corrected_calcium(); corrects measured calcium for hypoalbuminaemia using Ca + 0.8×(4.0−albumin), with UI card and interpretation.
 ---
+---
+gen: wild-0004
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: add winters formula
+outcome: accepted
+metrics: lines=568 dead=0
+note: Added winters_formula() returning expected PaCO2 range (1.5×HCO3+8 ±2) with a UI card that classifies an optional measured PaCO2 as appropriate or mixed disorder.
+---

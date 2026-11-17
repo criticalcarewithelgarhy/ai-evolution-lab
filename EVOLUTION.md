@@ -13,3 +13,13 @@ outcome: accepted
 metrics: lines=130 dead=0 cap=1500 headroom=1370
 note: Headless lineage seed. calculator.py + tests only. No web server. UI emergence is the observable (H7).
 ---
+
+---
+gen: 0001
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: validate creatinine clearance inputs
+outcome: accepted
+metrics: lines=137 dead=0 cap=1500 headroom=1363
+note: Added validation for age, weight, and sex parameters in creatinine_clearance; previously invalid sex silently applied the male formula.
+---

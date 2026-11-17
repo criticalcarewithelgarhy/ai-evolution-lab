@@ -13,3 +13,13 @@ outcome: accepted
 metrics: lines=363 dead=0 cap=800 headroom=437
 note: Generation 0 seed. MAP, P/F ratio, anion gap, CrCl (Cockcroft-Gault). Experiment begins.
 ---
+
+---
+gen: robust-0001
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: guard-map-sbp-gt-dbp
+outcome: accepted
+metrics: lines=373 dead=0
+note: Added ValueError guards to mean_arterial_pressure for non-positive values and systolic ≤ diastolic, preventing physiologically impossible inputs.
+---

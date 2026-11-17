@@ -29,3 +29,11 @@ outcome: accepted
 metrics: lines=72 dead=-1 cap=1500 headroom=1428
 note: Added deltaRatio ((AG−12)/(24−HCO3)) with two tests; four original formulas untouched, oracle 16/16 passing.
 ---
+gen: 0003
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: winters-formula
+outcome: accepted
+metrics: lines=82 dead=-1 cap=1500 headroom=1418
+note: Added wintersExpectedPco2 (1.5×HCO3+8 ±2) returning expected/low/high with two tests; four original formulas untouched, oracle 16/16 passing.
+---

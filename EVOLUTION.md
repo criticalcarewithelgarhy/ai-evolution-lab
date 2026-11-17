@@ -13,3 +13,13 @@ outcome: accepted
 metrics: lines=363 dead=0 cap=none headroom=∞
 note: Generation 0 seed. MAP, P/F ratio, anion gap, CrCl (Cockcroft-Gault). Experiment begins.
 ---
+
+---
+gen: breadth-0001
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: add CURB-65 pneumonia score
+outcome: accepted
+metrics: lines=439 dead=0
+note: Added CURB-65 pneumonia severity score (5 criteria: confusion, urea, RR, BP, age) with Flask card and severity interpretation.
+---

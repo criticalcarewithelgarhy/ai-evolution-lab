@@ -69,6 +69,17 @@ def corrected_calcium(calcium: float, albumin: float) -> float:
     return round(calcium + 0.8 * (4.0 - albumin), 1)
 
 
+def winters_formula(bicarbonate: float) -> tuple:
+    """
+    Winter's formula: expected PaCO2 = 1.5 × HCO3 + 8 (± 2) mmHg.
+    Returns (low, high) expected PaCO2 range for compensated metabolic acidosis.
+    """
+    if bicarbonate <= 0:
+        raise ValueError("Bicarbonate must be positive")
+    centre = 1.5 * bicarbonate + 8
+    return round(centre - 2, 1), round(centre + 2, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

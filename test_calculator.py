@@ -12,6 +12,7 @@ from calculator import (
     albumin_corrected_anion_gap,
     osmolar_gap,
     corrected_calcium,
+    winters_formula,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -102,6 +103,16 @@ def test_corrected_calcium_bad_albumin():
 def test_corrected_calcium_bad_calcium():
     with pytest.raises(ValueError):
         corrected_calcium(-1, 4.0)
+
+
+def test_winters_formula_typical():
+    # HCO3 12 → 1.5×12+8 = 26 → range 24–28
+    assert winters_formula(12) == (24.0, 28.0)
+
+
+def test_winters_formula_bad_bicarbonate():
+    with pytest.raises(ValueError):
+        winters_formula(0)
 
 
 def test_crcl_male():

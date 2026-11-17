@@ -9,7 +9,8 @@ a .js file with formula logic, metrics.py will flag it.
 from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
-    albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, creatinine_clearance, DISCLAIMER,
+    albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
+    creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -201,6 +202,29 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Winter's Formula</h2>
+    <div class="formula">Expected PaCO₂ = 1.5 × HCO₃⁻ + 8 (± 2)</div>
+    <form method="POST" action="/#wf">
+      <input type="hidden" name="calc" value="wf">
+      <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L)</label>
+        <input type="number" name="wf_hco3" step="0.1" value="{{ form.wf_hco3 or '' }}" placeholder="12"></div>
+      <div class="field"><label>Measured PaCO₂ (mmHg, optional)</label>
+        <input type="number" name="wf_paco2" step="0.1" value="{{ form.wf_paco2 or '' }}" placeholder="26"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.wf is defined %}
+    <div class="result" id="wf">
+      <span class="val">{{ results.wf }}</span><span class="unit">mmHg expected</span>
+      {% if results.wf_interp is defined %}
+      <div class="interp {{ results.wf_cls }}">{{ results.wf_interp }}</div>
+      {% endif %}
+    </div>
+    {% elif results.wf_error is defined %}
+    <div class="error">{{ results.wf_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -232,7 +256,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0003 · 2026-11-17 · Added: corrected calcium</span>
+  <span>gen-wild-0004 · 2026-11-17 · Added: Winter's formula</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -266,6 +290,11 @@ def _ca_interp(v):
     if v < 8.5:  return "Low — hypocalcaemia", "warn"
     if v <= 10.5: return "Normal (8.5–10.5 mg/dL)", "normal"
     return "Elevated — hypercalcaemia", "warn"
+
+def _wf_interp(paco2, low, high):
+    if paco2 < low:  return "Below expected — concomitant respiratory alkalosis", "warn"
+    if paco2 > high: return "Above expected — concomitant respiratory acidosis", "crit"
+    return "Appropriate respiratory compensation", "normal"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -329,6 +358,17 @@ def index():
             results.update(ca=v, ca_interp=interp, ca_cls=cls)
         except Exception as e:
             results["ca_error"] = str(e)
+
+    elif calc == "wf":
+        try:
+            low, high = winters_formula(float(form["wf_hco3"]))
+            results["wf"] = f"{low}–{high}"
+            paco2_str = form.get("wf_paco2", "").strip()
+            if paco2_str:
+                interp, cls = _wf_interp(float(paco2_str), low, high)
+                results.update(wf_interp=interp, wf_cls=cls)
+        except Exception as e:
+            results["wf_error"] = str(e)
 
     elif calc == "crcl":
         try:

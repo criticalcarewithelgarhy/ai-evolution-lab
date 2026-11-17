@@ -18,6 +18,11 @@ function anionGap(na, cl, hco3) {
     return Math.round((na - cl - hco3) * 10) / 10;
 }
 
+function correctedAnionGap(na, cl, hco3, albumin) {
+    // Figge correction: AG + 2.5 × (4.0 − albumin[g/dL])
+    return Math.round((na - cl - hco3 + 2.5 * (4.0 - albumin)) * 10) / 10;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -25,4 +30,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, creatinineClearance };

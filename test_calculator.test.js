@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -32,6 +32,15 @@ test("anion gap normal", () => {
 
 test("anion gap elevated", () => {
     expect(anionGap(138, 98, 10)).toBe(30.0);
+});
+
+test("corrected anion gap low albumin", () => {
+    // AG 12 + 2.5 × (4.0 − 2.0) = 17.0
+    expect(correctedAnionGap(140, 104, 24, 2.0)).toBe(17.0);
+});
+
+test("corrected anion gap normal albumin", () => {
+    expect(correctedAnionGap(140, 104, 24, 4.0)).toBe(12.0);
 });
 
 test("CrCl male", () => {

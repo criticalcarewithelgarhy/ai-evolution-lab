@@ -9,6 +9,7 @@ from calculator import (
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
+    albumin_corrected_anion_gap,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -44,6 +45,21 @@ def test_anion_gap_normal():
 def test_anion_gap_elevated():
     # DKA-like: Na 138, Cl 98, HCO3 10 → 30
     assert anion_gap(138, 98, 10) == 30.0
+
+
+def test_albumin_corrected_ag_normal_albumin():
+    # albumin = 4.0 (normal) → correction = 0, same as standard AG
+    assert albumin_corrected_anion_gap(140, 104, 24, 4.0) == 12.0
+
+
+def test_albumin_corrected_ag_low_albumin():
+    # albumin = 2.0 → correction = 2.5 × (4-2) = 5.0, corrected AG = 17.0
+    assert albumin_corrected_anion_gap(140, 104, 24, 2.0) == 17.0
+
+
+def test_albumin_corrected_ag_bad_albumin():
+    with pytest.raises(ValueError):
+        albumin_corrected_anion_gap(140, 104, 24, -1)
 
 
 def test_crcl_male():

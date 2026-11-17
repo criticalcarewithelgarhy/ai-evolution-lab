@@ -21,3 +21,11 @@ outcome: accepted
 metrics: lines=62 dead=-1 cap=1500 headroom=1438
 note: Added correctedAnionGap (Figge albumin correction) with two regression tests; all four original formulas untouched.
 ---
+gen: 0002
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: delta-ratio
+outcome: accepted
+metrics: lines=72 dead=-1 cap=1500 headroom=1428
+note: Added deltaRatio ((AG−12)/(24−HCO3)) with two tests; four original formulas untouched, oracle 16/16 passing.
+---

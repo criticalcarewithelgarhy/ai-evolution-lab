@@ -11,6 +11,7 @@ from calculator import (
     anion_gap,
     albumin_corrected_anion_gap,
     osmolar_gap,
+    corrected_calcium,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -81,6 +82,26 @@ def test_osmolar_gap_negative_glucose():
 def test_osmolar_gap_negative_bun():
     with pytest.raises(ValueError):
         osmolar_gap(295, 140, 90, -1)
+
+
+def test_corrected_calcium_normal_albumin():
+    # albumin = 4.0 (normal) → no correction, Ca stays same
+    assert corrected_calcium(8.5, 4.0) == 8.5
+
+
+def test_corrected_calcium_low_albumin():
+    # albumin = 2.0 → correction = 0.8 × (4-2) = 1.6, corrected Ca = 10.1
+    assert corrected_calcium(8.5, 2.0) == 10.1
+
+
+def test_corrected_calcium_bad_albumin():
+    with pytest.raises(ValueError):
+        corrected_calcium(8.5, -1)
+
+
+def test_corrected_calcium_bad_calcium():
+    with pytest.raises(ValueError):
+        corrected_calcium(-1, 4.0)
 
 
 def test_crcl_male():

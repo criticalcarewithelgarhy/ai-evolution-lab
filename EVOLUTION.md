@@ -31,3 +31,12 @@ outcome: accepted
 metrics: lines=425 dead=0
 note: Added osmolar_gap(); calculates measured minus calculated osmolality (2×Na + glucose/18 + BUN/2.8) to screen for toxic alcohols.
 ---
+---
+gen: wild-0003
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: corrected calcium for hypoalbuminemia
+outcome: accepted
+metrics: lines=516 dead=0
+note: Added corrected_calcium(); corrects measured calcium for hypoalbuminaemia using Ca + 0.8×(4.0−albumin), with UI card and interpretation.
+---

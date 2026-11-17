@@ -56,6 +56,19 @@ def osmolar_gap(
     return round(measured_osmolality - calc, 1)
 
 
+def corrected_calcium(calcium: float, albumin: float) -> float:
+    """
+    Corrected calcium for hypoalbuminaemia.
+    Corrected Ca = measured Ca + 0.8 × (4.0 − albumin)
+    calcium and result in mg/dL, albumin in g/dL.
+    """
+    if calcium < 0:
+        raise ValueError("Calcium must be non-negative")
+    if albumin < 0:
+        raise ValueError("Albumin must be non-negative")
+    return round(calcium + 0.8 * (4.0 - albumin), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

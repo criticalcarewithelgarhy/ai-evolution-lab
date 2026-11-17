@@ -9,7 +9,7 @@ a .js file with formula logic, metrics.py will flag it.
 from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
-    albumin_corrected_anion_gap, osmolar_gap, creatinine_clearance, DISCLAIMER,
+    albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -180,6 +180,27 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Corrected Calcium</h2>
+    <div class="formula">Ca_corr = Ca + 0.8 × (4.0 − albumin)</div>
+    <form method="POST" action="/#ca">
+      <input type="hidden" name="calc" value="ca">
+      <div class="field"><label>Measured Calcium (mg/dL)</label>
+        <input type="number" name="calcium" step="0.1" value="{{ form.calcium or '' }}" placeholder="8.5"></div>
+      <div class="field"><label>Albumin (g/dL)</label>
+        <input type="number" name="ca_albumin" step="0.1" value="{{ form.ca_albumin or '' }}" placeholder="4.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.ca is defined %}
+    <div class="result" id="ca">
+      <span class="val">{{ results.ca }}</span><span class="unit">mg/dL</span>
+      <div class="interp {{ results.ca_cls }}">{{ results.ca_interp }}</div>
+    </div>
+    {% elif results.ca_error is defined %}
+    <div class="error">{{ results.ca_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -211,7 +232,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0002 · 2026-11-17 · Added: osmolar gap</span>
+  <span>gen-wild-0003 · 2026-11-17 · Added: corrected calcium</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -240,6 +261,11 @@ def _og_interp(v):
     if v < 10:   return "Normal (< 10 mOsm/kg)", "normal"
     if v < 20:   return "Borderline elevated (10–20)", "warn"
     return "Elevated — consider toxic alcohol", "crit"
+
+def _ca_interp(v):
+    if v < 8.5:  return "Low — hypocalcaemia", "warn"
+    if v <= 10.5: return "Normal (8.5–10.5 mg/dL)", "normal"
+    return "Elevated — hypercalcaemia", "warn"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -295,6 +321,14 @@ def index():
             results.update(og=v, og_interp=interp, og_cls=cls)
         except Exception as e:
             results["og_error"] = str(e)
+
+    elif calc == "ca":
+        try:
+            v = corrected_calcium(float(form["calcium"]), float(form["ca_albumin"]))
+            interp, cls = _ca_interp(v)
+            results.update(ca=v, ca_interp=interp, ca_cls=cls)
+        except Exception as e:
+            results["ca_error"] = str(e)
 
     elif calc == "crcl":
         try:

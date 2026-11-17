@@ -43,3 +43,13 @@ outcome: accepted
 metrics: lines=383 dead=0
 note: Added ValueError guard to anion_gap for non-positive Na/Cl and negative HCO3 (output unchanged for valid inputs); metrics.py crashes parsing "robust-" gen labels, so metrics were computed via its count functions directly.
 ---
+
+---
+gen: robust-0004
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: guard-crcl-age-weight
+outcome: accepted
+metrics: lines=393 dead=0
+note: Added ValueError guards to creatinine_clearance for non-positive weight and age outside 0–140 (which yielded negative clearance); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels so metrics were computed via its count functions.
+---

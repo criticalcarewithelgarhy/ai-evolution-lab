@@ -53,10 +53,11 @@ in the paper use the `metrics.py` definition. Git `+N −M` diff stats will alwa
 larger than the generation-to-generation delta in `lines=`.
 
 ## Step 7 — Commit
+NOTE: This branch uses the tag prefix `gen-headless-NNNN` to avoid collision with the main branch.
 ```
 git add -A
-git commit -m "gen-NNNN: <slug>"
-git tag gen-NNNN
+git commit -m "gen-headless-NNNN: <slug>"
+git tag gen-headless-NNNN
 git push origin HEAD --tags
 ```
 Replace NNNN with the zero-padded generation number from EVOLUTION.md.
@@ -78,7 +79,7 @@ note: <one sentence: what you did and why>
 
 Then commit and push the log:
 ```
-git add EVOLUTION.md && git commit -m "gen-NNNN: log" && git push
+git add EVOLUTION.md && git commit -m "gen-headless-NNNN: log" && git push
 ```
 
 ## Absolute prohibitions

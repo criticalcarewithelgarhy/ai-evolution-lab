@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
-    creatinine_clearance, DISCLAIMER,
+    corrected_anion_gap, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -194,10 +194,35 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Corrected Anion Gap</h2>
+    <div class="formula">AG<sub>corr</sub> = AG + 2.5 × (4 − Albumin)</div>
+    <form method="POST" action="/#cag">
+      <input type="hidden" name="calc" value="cag">
+      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
+        <input type="number" name="cag_na" value="{{ form.cag_na or '' }}" placeholder="140"></div>
+      <div class="field"><label>Chloride Cl⁻ (mEq/L)</label>
+        <input type="number" name="cag_cl" value="{{ form.cag_cl or '' }}" placeholder="104"></div>
+      <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L)</label>
+        <input type="number" name="cag_hco3" value="{{ form.cag_hco3 or '' }}" placeholder="24"></div>
+      <div class="field"><label>Albumin (g/dL)</label>
+        <input type="number" name="albumin" step="0.1" value="{{ form.albumin or '' }}" placeholder="4.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.cag is defined %}
+    <div class="result" id="cag">
+      <span class="val">{{ results.cag }}</span><span class="unit">mEq/L</span>
+      <div class="interp {{ results.cag_cls }}">{{ results.cag_interp }}</div>
+    </div>
+    {% elif results.cag_error is defined %}
+    <div class="error">{{ results.cag_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -219,6 +244,12 @@ def _pf_interp(v):
 def _ag_interp(v):
     if v < 8:    return "Low (< 8) — hypoalbuminaemia?", "warn"
     if v <= 12:  return "Normal (8–12 mEq/L)", "normal"
+    if v <= 20:  return "Elevated — high AG acidosis", "warn"
+    return "Markedly elevated", "crit"
+
+def _cag_interp(v):
+    if v < 8:    return "Low corrected AG — check albumin", "warn"
+    if v <= 12:  return "Normal corrected AG (8–12 mEq/L)", "normal"
     if v <= 20:  return "Elevated — high AG acidosis", "warn"
     return "Markedly elevated", "crit"
 
@@ -259,6 +290,17 @@ def index():
             results.update(ag=v, ag_interp=interp, ag_cls=cls)
         except Exception as e:
             results["ag_error"] = str(e)
+
+    elif calc == "cag":
+        try:
+            v = corrected_anion_gap(
+                float(form["cag_na"]), float(form["cag_cl"]),
+                float(form["cag_hco3"]), float(form["albumin"]),
+            )
+            interp, cls = _cag_interp(v)
+            results.update(cag=v, cag_interp=interp, cag_cls=cls)
+        except Exception as e:
+            results["cag_error"] = str(e)
 
     elif calc == "crcl":
         try:

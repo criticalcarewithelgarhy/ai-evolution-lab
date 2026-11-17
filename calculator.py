@@ -23,6 +23,20 @@ def anion_gap(sodium: float, chloride: float, bicarbonate: float) -> float:
     return round(sodium - (chloride + bicarbonate), 1)
 
 
+def corrected_anion_gap(
+    sodium: float, chloride: float, bicarbonate: float, albumin: float
+) -> float:
+    """
+    Albumin-corrected anion gap: AG + 2.5 * (4.0 - albumin)
+    Corrects for hypoalbuminaemia, common in ICU patients.
+    albumin in g/dL (normal ~4.0).
+    """
+    if albumin < 0:
+        raise ValueError("Albumin must be non-negative")
+    ag = sodium - (chloride + bicarbonate)
+    return round(ag + 2.5 * (4.0 - albumin), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

@@ -29,6 +29,12 @@ function deltaRatio(na, cl, hco3) {
     return Math.round(((na - cl - hco3 - 12) / (24 - hco3)) * 100) / 100;
 }
 
+function wintersExpectedPco2(hco3) {
+    // Winter's formula: expected PaCO2 = 1.5 × HCO3 + 8 (± 2) for metabolic acidosis
+    const mid = 1.5 * hco3 + 8;
+    return { expected: Math.round(mid * 10) / 10, low: Math.round((mid - 2) * 10) / 10, high: Math.round((mid + 2) * 10) / 10 };
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -36,4 +42,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, creatinineClearance };

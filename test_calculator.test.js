@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -50,6 +50,16 @@ test("delta ratio pure HAGMA", () => {
 
 test("delta ratio bad HCO3", () => {
     expect(() => deltaRatio(140, 104, 24)).toThrow();
+});
+
+test("Winter's formula HCO3 10", () => {
+    // 1.5 × 10 + 8 = 23 (21–25)
+    expect(wintersExpectedPco2(10)).toEqual({ expected: 23.0, low: 21.0, high: 25.0 });
+});
+
+test("Winter's formula HCO3 15", () => {
+    // 1.5 × 15 + 8 = 30.5 (28.5–32.5)
+    expect(wintersExpectedPco2(15)).toEqual({ expected: 30.5, low: 28.5, high: 32.5 });
 });
 
 test("CrCl male", () => {

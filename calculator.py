@@ -36,6 +36,26 @@ def albumin_corrected_anion_gap(
     return round(ag + 2.5 * (4.0 - albumin), 1)
 
 
+def osmolar_gap(
+    measured_osmolality: float,
+    sodium: float,
+    glucose: float,
+    bun: float,
+) -> float:
+    """
+    Osmolar gap = measured osmolality − calculated osmolality.
+    Calculated osmolality = 2×Na + glucose/18 + BUN/2.8
+    glucose and BUN in mg/dL, osmolality in mOsm/kg.
+    Normal OG < 10 mOsm/kg; elevated OG suggests toxic alcohols.
+    """
+    if glucose < 0:
+        raise ValueError("Glucose must be non-negative")
+    if bun < 0:
+        raise ValueError("BUN must be non-negative")
+    calc = 2 * sodium + glucose / 18 + bun / 2.8
+    return round(measured_osmolality - calc, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

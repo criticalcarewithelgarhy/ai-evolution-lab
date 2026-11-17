@@ -9,7 +9,7 @@ a .js file with formula logic, metrics.py will flag it.
 from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
-    albumin_corrected_anion_gap, creatinine_clearance, DISCLAIMER,
+    albumin_corrected_anion_gap, osmolar_gap, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -155,6 +155,31 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Osmolar Gap</h2>
+    <div class="formula">OG = Osm_measured − (2×Na + glucose/18 + BUN/2.8)</div>
+    <form method="POST" action="/#og">
+      <input type="hidden" name="calc" value="og">
+      <div class="field"><label>Measured Osmolality (mOsm/kg)</label>
+        <input type="number" name="osm" value="{{ form.osm or '' }}" placeholder="290"></div>
+      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
+        <input type="number" name="og_na" value="{{ form.og_na or '' }}" placeholder="140"></div>
+      <div class="field"><label>Glucose (mg/dL)</label>
+        <input type="number" name="og_glucose" value="{{ form.og_glucose or '' }}" placeholder="90"></div>
+      <div class="field"><label>BUN (mg/dL)</label>
+        <input type="number" name="og_bun" value="{{ form.og_bun or '' }}" placeholder="14"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.og is defined %}
+    <div class="result" id="og">
+      <span class="val">{{ results.og }}</span><span class="unit">mOsm/kg</span>
+      <div class="interp {{ results.og_cls }}">{{ results.og_interp }}</div>
+    </div>
+    {% elif results.og_error is defined %}
+    <div class="error">{{ results.og_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -186,7 +211,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0001 · 2026-11-17 · Added: albumin-corrected anion gap</span>
+  <span>gen-wild-0002 · 2026-11-17 · Added: osmolar gap</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -210,6 +235,11 @@ def _ag_interp(v):
     if v <= 12:  return "Normal (8–12 mEq/L)", "normal"
     if v <= 20:  return "Elevated — high AG acidosis", "warn"
     return "Markedly elevated", "crit"
+
+def _og_interp(v):
+    if v < 10:   return "Normal (< 10 mOsm/kg)", "normal"
+    if v < 20:   return "Borderline elevated (10–20)", "warn"
+    return "Elevated — consider toxic alcohol", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -254,6 +284,17 @@ def index():
                 results.update(ag_corrected=vc, ag_corrected_interp=interpc, ag_corrected_cls=clsc)
         except Exception as e:
             results["ag_error"] = str(e)
+
+    elif calc == "og":
+        try:
+            v = osmolar_gap(
+                float(form["osm"]), float(form["og_na"]),
+                float(form["og_glucose"]), float(form["og_bun"]),
+            )
+            interp, cls = _og_interp(v)
+            results.update(og=v, og_interp=interp, og_cls=cls)
+        except Exception as e:
+            results["og_error"] = str(e)
 
     elif calc == "crcl":
         try:

@@ -10,6 +10,7 @@ from calculator import (
     pf_ratio,
     anion_gap,
     albumin_corrected_anion_gap,
+    osmolar_gap,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -60,6 +61,26 @@ def test_albumin_corrected_ag_low_albumin():
 def test_albumin_corrected_ag_bad_albumin():
     with pytest.raises(ValueError):
         albumin_corrected_anion_gap(140, 104, 24, -1)
+
+
+def test_osmolar_gap_normal():
+    # Na=140, glucose=90, BUN=14 → calc=280+5+5=290; measured=295 → OG=5.0
+    assert osmolar_gap(295, 140, 90, 14) == 5.0
+
+
+def test_osmolar_gap_elevated():
+    # Same electrolytes, measured=330 → OG=40.0 (toxic alcohol pattern)
+    assert osmolar_gap(330, 140, 90, 14) == 40.0
+
+
+def test_osmolar_gap_negative_glucose():
+    with pytest.raises(ValueError):
+        osmolar_gap(295, 140, -1, 14)
+
+
+def test_osmolar_gap_negative_bun():
+    with pytest.raises(ValueError):
+        osmolar_gap(295, 140, 90, -1)
 
 
 def test_crcl_male():

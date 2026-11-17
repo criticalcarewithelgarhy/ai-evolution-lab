@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -41,6 +41,15 @@ test("corrected anion gap low albumin", () => {
 
 test("corrected anion gap normal albumin", () => {
     expect(correctedAnionGap(140, 104, 24, 4.0)).toBe(12.0);
+});
+
+test("delta ratio pure HAGMA", () => {
+    // AG 30, HCO3 10 → (30−12)/(24−10) = 1.29
+    expect(deltaRatio(138, 98, 10)).toBe(1.29);
+});
+
+test("delta ratio bad HCO3", () => {
+    expect(() => deltaRatio(140, 104, 24)).toThrow();
 });
 
 test("CrCl male", () => {

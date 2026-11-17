@@ -23,6 +23,12 @@ function correctedAnionGap(na, cl, hco3, albumin) {
     return Math.round((na - cl - hco3 + 2.5 * (4.0 - albumin)) * 10) / 10;
 }
 
+function deltaRatio(na, cl, hco3) {
+    // Delta-delta: (AG − 12) / (24 − HCO3)
+    if (hco3 >= 24) throw new Error("HCO3 must be < 24 for delta ratio");
+    return Math.round(((na - cl - hco3 - 12) / (24 - hco3)) * 100) / 100;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -30,4 +36,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, creatinineClearance };

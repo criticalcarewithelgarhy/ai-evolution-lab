@@ -86,5 +86,16 @@ def test_crcl_bad_weight_zero():
         creatinine_clearance(50, 0, 1.0, "male")
 
 
+def test_crcl_sex_case_and_whitespace():
+    assert creatinine_clearance(50, 70, 1.0, " Female ") == 74.4
+    assert creatinine_clearance(50, 70, 1.0, "M") == 87.5
+
+
+def test_crcl_bad_sex():
+    # Unknown sex must not silently default to the male formula
+    with pytest.raises(ValueError):
+        creatinine_clearance(50, 70, 1.0, "fem")
+
+
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER

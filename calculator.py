@@ -77,3 +77,16 @@ def curb65(confusion: int, urea_high: int, resp_rate: float, sbp: float, dbp: fl
     score += 1 if (sbp < 90 or dbp <= 60) else 0
     score += 1 if age >= 65 else 0
     return score
+
+
+def corrected_calcium(total_ca: float, albumin: float) -> float:
+    """
+    Albumin-corrected calcium (Payne formula).
+    corrected_Ca = total_Ca + 0.8 × (4.0 − albumin)
+    calcium in mg/dL, albumin in g/dL.
+    """
+    if total_ca < 0:
+        raise ValueError("Calcium must be non-negative")
+    if albumin < 0:
+        raise ValueError("Albumin must be non-negative")
+    return round(total_ca + 0.8 * (4.0 - albumin), 1)

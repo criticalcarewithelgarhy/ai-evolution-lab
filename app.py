@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, DISCLAIMER,
+    corrected_sodium, corrected_calcium, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -279,10 +279,31 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Corrected Calcium</h2>
+    <div class="formula">Ca_corr = Ca_total + 0.8 × (4.0 − Albumin)</div>
+    <form method="POST" action="/#corrca">
+      <input type="hidden" name="calc" value="corrca">
+      <div class="field"><label>Total Calcium (mg/dL)</label>
+        <input type="number" name="total_ca" step="0.1" value="{{ form.total_ca or '' }}" placeholder="9.0"></div>
+      <div class="field"><label>Serum Albumin (g/dL)</label>
+        <input type="number" name="albumin" step="0.1" value="{{ form.albumin or '' }}" placeholder="4.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.corrca is defined %}
+    <div class="result" id="corrca">
+      <span class="val">{{ results.corrca }}</span><span class="unit">mg/dL</span>
+      <div class="interp {{ results.corrca_cls }}">{{ results.corrca_interp }}</div>
+    </div>
+    {% elif results.corrca_error is defined %}
+    <div class="error">{{ results.corrca_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0003 · 2026-11-17 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na</span>
+  <span>gen-breadth-0003 · 2026-11-17 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -329,6 +350,13 @@ def _corrna_interp(v):
     if v <= 145: return f"{v} mEq/L — Normal range", "normal"
     if v <= 155: return f"{v} mEq/L — Mild hypernatraemia", "warn"
     return f"{v} mEq/L — Severe hypernatraemia", "crit"
+
+def _corrca_interp(v):
+    if v < 7.5:   return f"{v} mg/dL — Severe hypocalcaemia", "crit"
+    if v < 8.5:   return f"{v} mg/dL — Hypocalcaemia (corrected)", "warn"
+    if v <= 10.5: return f"{v} mg/dL — Normal range (8.5–10.5)", "normal"
+    if v < 14:    return f"{v} mg/dL — Hypercalcaemia", "warn"
+    return f"{v} mg/dL — Severe hypercalcaemia (≥ 14)", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -406,6 +434,14 @@ def index():
             results.update(corrna=v, corrna_interp=interp, corrna_cls=cls)
         except Exception as e:
             results["corrna_error"] = str(e)
+
+    elif calc == "corrca":
+        try:
+            v = corrected_calcium(float(form["total_ca"]), float(form["albumin"]))
+            interp, cls = _corrca_interp(v)
+            results.update(corrca=v, corrca_interp=interp, corrca_cls=cls)
+        except Exception as e:
+            results["corrca_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

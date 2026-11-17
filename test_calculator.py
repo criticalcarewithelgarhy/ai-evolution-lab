@@ -13,6 +13,7 @@ from calculator import (
     glasgow_coma_scale,
     curb65,
     corrected_sodium,
+    corrected_calcium,
     DISCLAIMER,
 )
 
@@ -134,3 +135,23 @@ def test_corrected_na_severe():
 def test_corrected_na_negative_glucose():
     with pytest.raises(ValueError):
         corrected_sodium(135, -1)
+
+
+def test_corrected_ca_normal_albumin():
+    # Albumin 4.0 → no correction
+    assert corrected_calcium(9.5, 4.0) == 9.5
+
+
+def test_corrected_ca_hypoalbuminaemia():
+    # Ca 7.6, albumin 2.0 → 7.6 + 0.8 × 2.0 = 9.2
+    assert corrected_calcium(7.6, 2.0) == 9.2
+
+
+def test_corrected_ca_high_albumin():
+    # Ca 10.0, albumin 5.0 → 10.0 − 0.8 = 9.2
+    assert corrected_calcium(10.0, 5.0) == 9.2
+
+
+def test_corrected_ca_negative_albumin():
+    with pytest.raises(ValueError):
+        corrected_calcium(9.0, -1)

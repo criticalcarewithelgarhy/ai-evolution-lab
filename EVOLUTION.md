@@ -13,3 +13,11 @@ outcome: accepted
 metrics: lines=18 dead=-1 cap=1500 headroom=1482
 note: JavaScript lineage seed. calculator.js only. No UI. Language comparison lineage (H8).
 ---
+gen: 0001
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: albumin-corrected-anion-gap
+outcome: accepted
+metrics: lines=62 dead=-1 cap=1500 headroom=1438
+note: Added correctedAnionGap (Figge albumin correction) with two regression tests; all four original formulas untouched.
+---

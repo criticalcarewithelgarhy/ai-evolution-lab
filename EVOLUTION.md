@@ -33,3 +33,11 @@ outcome: accepted
 metrics: lines=481 dead=0 cap=1500 headroom=1019
 note: Added corrected_sodium() (Katz 1973) to calculator.py and a 6th card in app.py; corrects measured Na for hyperglycaemia common in ICU/DKA.
 ---
+gen: 0003
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: test corrected anion gap
+outcome: accepted
+metrics: lines=489 dead=0 cap=1500 headroom=1011
+note: Added three regression tests for corrected_anion_gap() (normal albumin, hypoalbuminaemia, negative albumin) which had shipped in gen-0001 with no test coverage; tag gen-0003 could not be pushed (git proxy refused tag push).
+---

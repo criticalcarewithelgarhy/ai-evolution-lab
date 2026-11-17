@@ -14,6 +14,7 @@ from calculator import (
     curb65,
     corrected_sodium,
     corrected_calcium,
+    serum_osmolality,
     DISCLAIMER,
 )
 
@@ -155,3 +156,18 @@ def test_corrected_ca_high_albumin():
 def test_corrected_ca_negative_albumin():
     with pytest.raises(ValueError):
         corrected_calcium(9.0, -1)
+
+
+def test_osm_normal():
+    # Na 140, glucose 90, BUN 14 → 280 + 5 + 5 = 290
+    assert serum_osmolality(140, 90, 14) == 290.0
+
+
+def test_osm_hyperglycaemia():
+    # Na 130, glucose 900, BUN 28 → 260 + 50 + 10 = 320
+    assert serum_osmolality(130, 900, 28) == 320.0
+
+
+def test_osm_negative_input():
+    with pytest.raises(ValueError):
+        serum_osmolality(140, -5, 14)

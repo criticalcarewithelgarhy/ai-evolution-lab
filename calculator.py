@@ -90,3 +90,14 @@ def corrected_calcium(total_ca: float, albumin: float) -> float:
     if albumin < 0:
         raise ValueError("Albumin must be non-negative")
     return round(total_ca + 0.8 * (4.0 - albumin), 1)
+
+
+def serum_osmolality(sodium: float, glucose: float, bun: float) -> float:
+    """
+    Calculated serum osmolality.
+    Osm = 2 × Na + glucose / 18 + BUN / 2.8
+    sodium in mEq/L, glucose and BUN in mg/dL; result in mOsm/kg.
+    """
+    if sodium < 0 or glucose < 0 or bun < 0:
+        raise ValueError("Sodium, glucose and BUN must be non-negative")
+    return round(2 * sodium + glucose / 18 + bun / 2.8, 1)

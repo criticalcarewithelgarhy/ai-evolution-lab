@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -300,10 +300,33 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Serum Osmolality</h2>
+    <div class="formula">Osm = 2 × Na⁺ + Glucose / 18 + BUN / 2.8</div>
+    <form method="POST" action="/#osm">
+      <input type="hidden" name="calc" value="osm">
+      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
+        <input type="number" name="osm_na" step="0.1" value="{{ form.osm_na or '' }}" placeholder="140"></div>
+      <div class="field"><label>Serum Glucose (mg/dL)</label>
+        <input type="number" name="osm_glucose" value="{{ form.osm_glucose or '' }}" placeholder="90"></div>
+      <div class="field"><label>BUN (mg/dL)</label>
+        <input type="number" name="osm_bun" step="0.1" value="{{ form.osm_bun or '' }}" placeholder="14"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.osm is defined %}
+    <div class="result" id="osm">
+      <span class="val">{{ results.osm }}</span><span class="unit">mOsm/kg</span>
+      <div class="interp {{ results.osm_cls }}">{{ results.osm_interp }}</div>
+    </div>
+    {% elif results.osm_error is defined %}
+    <div class="error">{{ results.osm_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0003 · 2026-11-17 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca</span>
+  <span>gen-breadth-0004 · 2026-11-17 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -357,6 +380,12 @@ def _corrca_interp(v):
     if v <= 10.5: return f"{v} mg/dL — Normal range (8.5–10.5)", "normal"
     if v < 14:    return f"{v} mg/dL — Hypercalcaemia", "warn"
     return f"{v} mg/dL — Severe hypercalcaemia (≥ 14)", "crit"
+
+def _osm_interp(v):
+    if v < 275:  return f"{v} mOsm/kg — Hypo-osmolar (< 275)", "warn"
+    if v <= 295: return f"{v} mOsm/kg — Normal range (275–295)", "normal"
+    if v < 320:  return f"{v} mOsm/kg — Hyperosmolar", "warn"
+    return f"{v} mOsm/kg — Severe hyperosmolality (≥ 320, HHS range)", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -442,6 +471,14 @@ def index():
             results.update(corrca=v, corrca_interp=interp, corrca_cls=cls)
         except Exception as e:
             results["corrca_error"] = str(e)
+
+    elif calc == "osm":
+        try:
+            v = serum_osmolality(float(form["osm_na"]), float(form["osm_glucose"]), float(form["osm_bun"]))
+            interp, cls = _osm_interp(v)
+            results.update(osm=v, osm_interp=interp, osm_cls=cls)
+        except Exception as e:
+            results["osm_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

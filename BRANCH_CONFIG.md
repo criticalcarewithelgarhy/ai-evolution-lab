@@ -12,3 +12,8 @@ delete or simplify something before adding anything new.
 **Step 2 — Choose one change:** Neutral pressure. Pick whatever single change
 feels most natural and useful given the current state of the code. You may
 add, improve, or refactor — no directional bias. This is a control lineage.
+
+## Tag format
+Tags for this branch use the prefix `gen-headless-NNNN` (not `gen-NNNN`) to avoid
+collision with the main branch which shares the same neutral pressure.
+Commit messages follow the same pattern: `gen-headless-NNNN: <slug>` and `gen-headless-NNNN: log`.

@@ -48,6 +48,17 @@ def corrected_sodium(sodium: float, glucose: float) -> float:
     return round(sodium + 1.6 * (glucose - 100) / 100, 1)
 
 
+def winters_formula(bicarbonate: float) -> float:
+    """
+    Winter's formula: expected PaCO2 = 1.5 × HCO3 + 8 (± 2 mmHg).
+    Assesses respiratory compensation in metabolic acidosis.
+    bicarbonate in mEq/L.
+    """
+    if bicarbonate < 0:
+        raise ValueError("Bicarbonate must be non-negative")
+    return round(1.5 * bicarbonate + 8, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

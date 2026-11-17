@@ -10,7 +10,8 @@ from flask import Flask, request, render_template_string
 from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
-    corrected_anion_gap, corrected_sodium, creatinine_clearance, DISCLAIMER,
+    corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
+    DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -240,10 +241,31 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Winter's Formula</h2>
+    <div class="formula">Expected PaCO₂ = 1.5 × HCO₃⁻ + 8 ± 2</div>
+    <form method="POST" action="/#win">
+      <input type="hidden" name="calc" value="win">
+      <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L)</label>
+        <input type="number" name="win_hco3" step="0.1" value="{{ form.win_hco3 or '' }}" placeholder="12"></div>
+      <div class="field"><label>Measured PaCO₂ (mmHg, optional)</label>
+        <input type="number" name="win_paco2" step="0.1" value="{{ form.win_paco2 or '' }}" placeholder="26"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.win is defined %}
+    <div class="result" id="win">
+      <span class="val">{{ results.win }}</span><span class="unit">mmHg (± 2)</span>
+      <div class="interp {{ results.win_cls }}">{{ results.win_interp }}</div>
+    </div>
+    {% elif results.win_error is defined %}
+    <div class="error">{{ results.win_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -279,6 +301,12 @@ def _cna_interp(v):
     if v <= 145: return "Normal (135–145 mEq/L)", "normal"
     if v <= 150: return "Mild hypernatraemia", "warn"
     return "Severe hypernatraemia (> 150 mEq/L)", "crit"
+
+def _win_interp(expected, measured):
+    if measured is None: return f"Expected range {expected - 2:.1f}–{expected + 2:.1f} mmHg", "normal"
+    if measured > expected + 2: return "PaCO₂ above expected — concomitant respiratory acidosis", "crit"
+    if measured < expected - 2: return "PaCO₂ below expected — concomitant respiratory alkalosis", "warn"
+    return "Appropriate respiratory compensation", "normal"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -336,6 +364,15 @@ def index():
             results.update(cna=v, cna_interp=interp, cna_cls=cls)
         except Exception as e:
             results["cna_error"] = str(e)
+
+    elif calc == "win":
+        try:
+            v = winters_formula(float(form["win_hco3"]))
+            measured = float(form["win_paco2"]) if form.get("win_paco2") else None
+            interp, cls = _win_interp(v, measured)
+            results.update(win=v, win_interp=interp, win_cls=cls)
+        except Exception as e:
+            results["win_error"] = str(e)
 
     elif calc == "crcl":
         try:

@@ -12,6 +12,7 @@ from calculator import (
     corrected_anion_gap,
     corrected_sodium,
     creatinine_clearance,
+    winters_formula,
     DISCLAIMER,
 )
 
@@ -91,6 +92,21 @@ def test_corrected_sodium_hyperglycaemia():
 def test_corrected_sodium_bad_glucose():
     with pytest.raises(ValueError):
         corrected_sodium(140, -1)
+
+
+def test_winters_dka():
+    # HCO3 10: 1.5 * 10 + 8 = 23
+    assert winters_formula(10) == 23.0
+
+
+def test_winters_fractional():
+    # HCO3 15.5: 1.5 * 15.5 + 8 = 31.25 → 31.2
+    assert winters_formula(15.5) == 31.2
+
+
+def test_winters_bad_bicarbonate():
+    with pytest.raises(ValueError):
+        winters_formula(-1)
 
 
 def test_disclaimer_present():

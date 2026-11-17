@@ -23,3 +23,13 @@ outcome: accepted
 metrics: lines=373 dead=0
 note: Added ValueError guards to mean_arterial_pressure for non-positive values and systolic ≤ diastolic, preventing physiologically impossible inputs.
 ---
+
+---
+gen: robust-0002
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: guard-pao2-positive
+outcome: accepted
+metrics: lines=378 dead=0
+note: Added ValueError guard to pf_ratio for non-positive PaO2; also restored calculator.py to proper newlines after prior generation stored it as a single escaped line.
+---

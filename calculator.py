@@ -39,6 +39,22 @@ def creatinine_clearance(
     return round(result, 1)
 
 
+def glasgow_coma_scale(eye: int, verbal: int, motor: int) -> int:
+    """
+    Glasgow Coma Scale: total score 3–15.
+    eye: 1–4 (none=1, to pain=2, to voice=3, spontaneous=4)
+    verbal: 1–5 (none=1, sounds=2, words=3, confused=4, oriented=5)
+    motor: 1–6 (none=1, extension=2, flexion=3, withdrawal=4, localises=5, obeys=6)
+    """
+    if not (1 <= eye <= 4):
+        raise ValueError("Eye response must be between 1 and 4")
+    if not (1 <= verbal <= 5):
+        raise ValueError("Verbal response must be between 1 and 5")
+    if not (1 <= motor <= 6):
+        raise ValueError("Motor response must be between 1 and 6")
+    return eye + verbal + motor
+
+
 def curb65(confusion: int, urea_high: int, resp_rate: float, sbp: float, dbp: float, age: float) -> int:
     """
     CURB-65 pneumonia severity score (0–5).

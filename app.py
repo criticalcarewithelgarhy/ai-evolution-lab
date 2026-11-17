@@ -9,7 +9,7 @@ a .js file with formula logic, metrics.py will flag it.
 from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
-    creatinine_clearance, curb65, DISCLAIMER,
+    creatinine_clearance, glasgow_coma_scale, curb65, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -177,6 +177,50 @@ TEMPLATE = """<!DOCTYPE html>
 
 
   <div class="card">
+    <h2>Glasgow Coma Scale</h2>
+    <div class="formula">GCS = Eye (1–4) + Verbal (1–5) + Motor (1–6)</div>
+    <form method="POST" action="/#gcs">
+      <input type="hidden" name="calc" value="gcs">
+      <div class="field"><label>Eye Opening</label>
+        <select name="gcs_eye">
+          <option value="1" {% if form.gcs_eye == '1' %}selected{% endif %}>1 — None</option>
+          <option value="2" {% if form.gcs_eye == '2' %}selected{% endif %}>2 — To Pain</option>
+          <option value="3" {% if form.gcs_eye == '3' %}selected{% endif %}>3 — To Voice</option>
+          <option value="4" {% if form.gcs_eye == '4' %}selected{% endif %}>4 — Spontaneous</option>
+        </select>
+      </div>
+      <div class="field"><label>Verbal Response</label>
+        <select name="gcs_verbal">
+          <option value="1" {% if form.gcs_verbal == '1' %}selected{% endif %}>1 — None</option>
+          <option value="2" {% if form.gcs_verbal == '2' %}selected{% endif %}>2 — Sounds</option>
+          <option value="3" {% if form.gcs_verbal == '3' %}selected{% endif %}>3 — Words</option>
+          <option value="4" {% if form.gcs_verbal == '4' %}selected{% endif %}>4 — Confused</option>
+          <option value="5" {% if form.gcs_verbal == '5' %}selected{% endif %}>5 — Oriented</option>
+        </select>
+      </div>
+      <div class="field"><label>Motor Response</label>
+        <select name="gcs_motor">
+          <option value="1" {% if form.gcs_motor == '1' %}selected{% endif %}>1 — None</option>
+          <option value="2" {% if form.gcs_motor == '2' %}selected{% endif %}>2 — Extension</option>
+          <option value="3" {% if form.gcs_motor == '3' %}selected{% endif %}>3 — Flexion</option>
+          <option value="4" {% if form.gcs_motor == '4' %}selected{% endif %}>4 — Withdrawal</option>
+          <option value="5" {% if form.gcs_motor == '5' %}selected{% endif %}>5 — Localises Pain</option>
+          <option value="6" {% if form.gcs_motor == '6' %}selected{% endif %}>6 — Obeys Commands</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.gcs is defined %}
+    <div class="result" id="gcs">
+      <span class="val">{{ results.gcs }}</span><span class="unit">/ 15</span>
+      <div class="interp {{ results.gcs_cls }}">{{ results.gcs_interp }}</div>
+    </div>
+    {% elif results.gcs_error is defined %}
+    <div class="error">{{ results.gcs_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>CURB-65</h2>
     <div class="formula">Pneumonia severity: Confusion · Urea · RR · BP · Age≥65</div>
     <form method="POST" action="/#curb65">
@@ -216,7 +260,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-breadth-0001 · 2026-11-17 · MAP · P/F · Anion Gap · CrCl · CURB-65</span>
+  <span>gen-breadth-0002 · 2026-11-17 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -247,6 +291,11 @@ def _crcl_interp(v):
     if v < 60:   return "Stage 3 CKD — moderate", "warn"
     if v < 90:   return "Stage 2 CKD — mild", "warn"
     return "Normal (≥ 90 mL/min)", "normal"
+
+def _gcs_interp(v):
+    if v <= 8:   return f"Score {v} — Severe (coma threshold ≤ 8)", "crit"
+    if v <= 12:  return f"Score {v} — Moderate impairment", "warn"
+    return f"Score {v} — Mild / normal (13–15)", "normal"
 
 def _curb65_interp(v):
     if v <= 1:   return f"Score {v} — Low risk (consider outpatient)", "normal"
@@ -294,6 +343,18 @@ def index():
             results.update(crcl=v, crcl_interp=interp, crcl_cls=cls)
         except Exception as e:
             results["crcl_error"] = str(e)
+
+    elif calc == "gcs":
+        try:
+            v = glasgow_coma_scale(
+                int(form.get("gcs_eye", 4)),
+                int(form.get("gcs_verbal", 5)),
+                int(form.get("gcs_motor", 6)),
+            )
+            interp, cls = _gcs_interp(v)
+            results.update(gcs=v, gcs_interp=interp, gcs_cls=cls)
+        except Exception as e:
+            results["gcs_error"] = str(e)
 
     elif calc == "curb65":
         try:

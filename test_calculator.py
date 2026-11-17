@@ -10,6 +10,7 @@ from calculator import (
     pf_ratio,
     anion_gap,
     creatinine_clearance,
+    glasgow_coma_scale,
     curb65,
     DISCLAIMER,
 )
@@ -64,6 +65,29 @@ def test_crcl_bad_creatinine():
 
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER
+
+
+def test_gcs_max():
+    assert glasgow_coma_scale(4, 5, 6) == 15
+
+
+def test_gcs_min():
+    assert glasgow_coma_scale(1, 1, 1) == 3
+
+
+def test_gcs_typical_coma():
+    # E2V2M4 = 8, severe TBI threshold
+    assert glasgow_coma_scale(2, 2, 4) == 8
+
+
+def test_gcs_bad_eye():
+    with pytest.raises(ValueError):
+        glasgow_coma_scale(5, 5, 6)
+
+
+def test_gcs_bad_motor():
+    with pytest.raises(ValueError):
+        glasgow_coma_scale(4, 5, 7)
 
 
 def test_curb65_zero():

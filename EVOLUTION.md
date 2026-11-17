@@ -23,3 +23,13 @@ outcome: accepted
 metrics: lines=439 dead=0
 note: Added CURB-65 pneumonia severity score (5 criteria: confusion, urea, RR, BP, age) with Flask card and severity interpretation.
 ---
+
+---
+gen: breadth-0002
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: add Glasgow Coma Scale
+outcome: accepted
+metrics: lines=400 dead=0
+note: Added GCS (eye 1–4, verbal 1–5, motor 1–6) with validation, 5 regression tests, and Flask card with coma severity interpretation.
+---

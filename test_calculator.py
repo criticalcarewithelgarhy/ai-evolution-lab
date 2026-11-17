@@ -61,6 +61,11 @@ def test_anion_gap_elevated():
     assert anion_gap(138, 98, 10) == 30.0
 
 
+def test_anion_gap_negative_input():
+    with pytest.raises(ValueError):
+        anion_gap(140, -104, 24)
+
+
 def test_crcl_male():
     # 50yo, 70kg, Cr 1.0 → 87.5  (Cockcroft-Gault: (90×70)/72)
     assert creatinine_clearance(50, 70, 1.0, "male") == 87.5

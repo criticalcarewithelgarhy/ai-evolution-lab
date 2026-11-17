@@ -26,6 +26,8 @@ def pf_ratio(pao2: float, fio2: float) -> float:
 
 def anion_gap(sodium: float, chloride: float, bicarbonate: float) -> float:
     """AG = Na - (Cl + HCO3)"""
+    if sodium <= 0 or chloride <= 0 or bicarbonate < 0:
+        raise ValueError("Electrolyte values must be positive")
     return round(sodium - (chloride + bicarbonate), 1)
 
 

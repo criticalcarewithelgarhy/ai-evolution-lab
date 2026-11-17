@@ -33,3 +33,13 @@ outcome: accepted
 metrics: lines=141 dead=0 cap=1500 headroom=1359
 note: Added positive-value and systolic>=diastolic guards to mean_arterial_pressure; previously invalid pressures silently produced nonsensical results.
 ---
+
+---
+gen: 0003
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: restore calculator newlines
+outcome: accepted
+metrics: gen=0002 lines=141 dead=0 cap=1500 headroom=1359
+note: calculator.py had been committed with literal "\n" sequences instead of newlines, making it a SyntaxError and failing all tests; restored real newlines with no logic change.
+---

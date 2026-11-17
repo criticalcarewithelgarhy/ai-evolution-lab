@@ -43,3 +43,13 @@ outcome: accepted
 metrics: gen=0002 lines=141 dead=0 cap=1500 headroom=1359
 note: calculator.py had been committed with literal "\n" sequences instead of newlines, making it a SyntaxError and failing all tests; restored real newlines with no logic change.
 ---
+
+---
+gen: 0004
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: validate PaO2 in pf_ratio
+outcome: accepted
+metrics: gen=0003 lines=146 dead=0 cap=1500 headroom=1354
+note: Added a positive-PaO2 guard (plus test) to pf_ratio; previously zero or negative PaO2 silently returned a meaningless ratio.
+---

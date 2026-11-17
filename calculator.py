@@ -37,6 +37,17 @@ def corrected_anion_gap(
     return round(ag + 2.5 * (4.0 - albumin), 1)
 
 
+def corrected_sodium(sodium: float, glucose: float) -> float:
+    """
+    Corrected sodium for hyperglycaemia (Katz, 1973).
+    corrected Na = measured Na + 1.6 × (glucose − 100) / 100
+    sodium in mEq/L, glucose in mg/dL.
+    """
+    if glucose < 0:
+        raise ValueError("Glucose must be non-negative")
+    return round(sodium + 1.6 * (glucose - 100) / 100, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

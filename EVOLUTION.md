@@ -23,3 +23,13 @@ outcome: accepted
 metrics: lines=432 dead=0 cap=1500 headroom=1068
 note: Added corrected_anion_gap() to calculator.py and a 5th card in app.py; corrects AG for hypoalbuminaemia common in ICU patients.
 ---
+
+---
+gen: 0002
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: add corrected sodium hyperglycemia
+outcome: accepted
+metrics: lines=481 dead=0 cap=1500 headroom=1019
+note: Added corrected_sodium() (Katz 1973) to calculator.py and a 6th card in app.py; corrects measured Na for hyperglycaemia common in ICU/DKA.
+---

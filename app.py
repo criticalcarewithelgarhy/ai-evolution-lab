@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
-    corrected_anion_gap, creatinine_clearance, DISCLAIMER,
+    corrected_anion_gap, corrected_sodium, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -219,10 +219,31 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Corrected Sodium</h2>
+    <div class="formula">Na<sub>corr</sub> = Na<sub>meas</sub> + 1.6 × (Glucose − 100) / 100</div>
+    <form method="POST" action="/#cna">
+      <input type="hidden" name="calc" value="cna">
+      <div class="field"><label>Measured Sodium Na⁺ (mEq/L)</label>
+        <input type="number" name="cna_na" value="{{ form.cna_na or '' }}" placeholder="135"></div>
+      <div class="field"><label>Blood Glucose (mg/dL)</label>
+        <input type="number" name="glucose" value="{{ form.glucose or '' }}" placeholder="100"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.cna is defined %}
+    <div class="result" id="cna">
+      <span class="val">{{ results.cna }}</span><span class="unit">mEq/L</span>
+      <div class="interp {{ results.cna_cls }}">{{ results.cna_interp }}</div>
+    </div>
+    {% elif results.cna_error is defined %}
+    <div class="error">{{ results.cna_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -252,6 +273,12 @@ def _cag_interp(v):
     if v <= 12:  return "Normal corrected AG (8–12 mEq/L)", "normal"
     if v <= 20:  return "Elevated — high AG acidosis", "warn"
     return "Markedly elevated", "crit"
+
+def _cna_interp(v):
+    if v < 135:  return "Hyponatraemia (< 135 mEq/L)", "warn"
+    if v <= 145: return "Normal (135–145 mEq/L)", "normal"
+    if v <= 150: return "Mild hypernatraemia", "warn"
+    return "Severe hypernatraemia (> 150 mEq/L)", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -301,6 +328,14 @@ def index():
             results.update(cag=v, cag_interp=interp, cag_cls=cls)
         except Exception as e:
             results["cag_error"] = str(e)
+
+    elif calc == "cna":
+        try:
+            v = corrected_sodium(float(form["cna_na"]), float(form["glucose"]))
+            interp, cls = _cna_interp(v)
+            results.update(cna=v, cna_interp=interp, cna_cls=cls)
+        except Exception as e:
+            results["cna_error"] = str(e)
 
     elif calc == "crcl":
         try:

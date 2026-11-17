@@ -9,6 +9,7 @@ from calculator import (
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
+    corrected_sodium,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -59,6 +60,21 @@ def test_crcl_female():
 def test_crcl_bad_creatinine():
     with pytest.raises(ValueError):
         creatinine_clearance(50, 70, 0, "male")
+
+
+def test_corrected_sodium_normoglycaemia():
+    # Glucose = 100 → no correction
+    assert corrected_sodium(140, 100) == 140.0
+
+
+def test_corrected_sodium_hyperglycaemia():
+    # Glucose 500: 140 + 1.6 * (500-100)/100 = 140 + 6.4 = 146.4
+    assert corrected_sodium(140, 500) == 146.4
+
+
+def test_corrected_sodium_bad_glucose():
+    with pytest.raises(ValueError):
+        corrected_sodium(140, -1)
 
 
 def test_disclaimer_present():

@@ -33,3 +33,13 @@ outcome: accepted
 metrics: lines=400 dead=0
 note: Added GCS (eye 1–4, verbal 1–5, motor 1–6) with validation, 5 regression tests, and Flask card with coma severity interpretation.
 ---
+
+---
+gen: breadth-0003
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: add albumin-corrected calcium
+outcome: accepted
+metrics: lines=630 dead=0
+note: Added Payne albumin-corrected calcium (Ca + 0.8×(4.0−albumin)) with 4 tests and Flask card; metrics.py current_generation() crashes on breadth- labels so lines/dead were taken from its count functions directly.
+---

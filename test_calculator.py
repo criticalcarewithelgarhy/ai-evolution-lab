@@ -12,6 +12,7 @@ from calculator import (
     creatinine_clearance,
     glasgow_coma_scale,
     curb65,
+    corrected_sodium,
     DISCLAIMER,
 )
 
@@ -113,3 +114,23 @@ def test_curb65_age_threshold():
 def test_curb65_bp_criterion():
     # SBP < 90 triggers BP criterion
     assert curb65(0, 0, 18, 89, 80, 50) == 1
+
+
+def test_corrected_na_normal_glucose():
+    # At glucose 100, no correction needed
+    assert corrected_sodium(135, 100) == 135.0
+
+
+def test_corrected_na_hyperglycemia():
+    # glucose 300 → (300-100)/100 = 2.0 → 1.6 * 2.0 = 3.2 → 140 + 3.2 = 143.2
+    assert corrected_sodium(140, 300) == 143.2
+
+
+def test_corrected_na_severe():
+    # glucose 600 → (600-100)/100 = 5.0 → 1.6 * 5.0 = 8.0 → 130 + 8.0 = 138.0
+    assert corrected_sodium(130, 600) == 138.0
+
+
+def test_corrected_na_negative_glucose():
+    with pytest.raises(ValueError):
+        corrected_sodium(135, -1)

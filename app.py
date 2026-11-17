@@ -9,7 +9,8 @@ a .js file with formula logic, metrics.py will flag it.
 from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
-    creatinine_clearance, glasgow_coma_scale, curb65, DISCLAIMER,
+    creatinine_clearance, glasgow_coma_scale, curb65,
+    corrected_sodium, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -257,10 +258,31 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Corrected Sodium</h2>
+    <div class="formula">Na_corr = Na_measured + 1.6 × (Glucose − 100) / 100</div>
+    <form method="POST" action="/#corrna">
+      <input type="hidden" name="calc" value="corrna">
+      <div class="field"><label>Measured Na⁺ (mEq/L)</label>
+        <input type="number" name="measured_na" step="0.1" value="{{ form.measured_na or '' }}" placeholder="135"></div>
+      <div class="field"><label>Serum Glucose (mg/dL)</label>
+        <input type="number" name="glucose" value="{{ form.glucose or '' }}" placeholder="100"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.corrna is defined %}
+    <div class="result" id="corrna">
+      <span class="val">{{ results.corrna }}</span><span class="unit">mEq/L</span>
+      <div class="interp {{ results.corrna_cls }}">{{ results.corrna_interp }}</div>
+    </div>
+    {% elif results.corrna_error is defined %}
+    <div class="error">{{ results.corrna_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0002 · 2026-11-17 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65</span>
+  <span>gen-breadth-0003 · 2026-11-17 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -301,6 +323,12 @@ def _curb65_interp(v):
     if v <= 1:   return f"Score {v} — Low risk (consider outpatient)", "normal"
     if v == 2:   return f"Score {v} — Moderate risk (hospital admission)", "warn"
     return f"Score {v} — High risk (consider ICU)", "crit"
+
+def _corrna_interp(v):
+    if v < 135:  return f"{v} mEq/L — Hyponatraemia (corrected)", "warn"
+    if v <= 145: return f"{v} mEq/L — Normal range", "normal"
+    if v <= 155: return f"{v} mEq/L — Mild hypernatraemia", "warn"
+    return f"{v} mEq/L — Severe hypernatraemia", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -370,6 +398,14 @@ def index():
             results.update(curb65=v, curb65_interp=interp, curb65_cls=cls)
         except Exception as e:
             results["curb65_error"] = str(e)
+
+    elif calc == "corrna":
+        try:
+            v = corrected_sodium(float(form["measured_na"]), float(form["glucose"]))
+            interp, cls = _corrna_interp(v)
+            results.update(corrna=v, corrna_interp=interp, corrna_cls=cls)
+        except Exception as e:
+            results["corrna_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

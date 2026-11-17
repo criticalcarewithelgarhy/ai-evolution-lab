@@ -55,6 +55,17 @@ def glasgow_coma_scale(eye: int, verbal: int, motor: int) -> int:
     return eye + verbal + motor
 
 
+def corrected_sodium(measured_na: float, glucose: float) -> float:
+    """
+    Corrected serum sodium for hyperglycemia (Katz formula).
+    corrected_Na = measured_Na + 1.6 × (glucose − 100) / 100
+    glucose in mg/dL, sodium in mEq/L.
+    """
+    if glucose < 0:
+        raise ValueError("Glucose must be non-negative")
+    return round(measured_na + 1.6 * (glucose - 100) / 100, 1)
+
+
 def curb65(confusion: int, urea_high: int, resp_rate: float, sbp: float, dbp: float, age: float) -> int:
     """
     CURB-65 pneumonia severity score (0–5).

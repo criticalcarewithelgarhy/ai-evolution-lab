@@ -10,6 +10,7 @@ from calculator import (
     pf_ratio,
     anion_gap,
     creatinine_clearance,
+    curb65,
     DISCLAIMER,
 )
 
@@ -63,3 +64,28 @@ def test_crcl_bad_creatinine():
 
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER
+
+
+def test_curb65_zero():
+    # No risk factors → 0
+    assert curb65(0, 0, 18, 120, 80, 50) == 0
+
+
+def test_curb65_max():
+    # All five criteria met → 5
+    assert curb65(1, 1, 32, 85, 55, 70) == 5
+
+
+def test_curb65_resp_threshold():
+    # Resp rate exactly 30 scores a point
+    assert curb65(0, 0, 30, 120, 80, 50) == 1
+
+
+def test_curb65_age_threshold():
+    # Age exactly 65 scores a point
+    assert curb65(0, 0, 18, 120, 80, 65) == 1
+
+
+def test_curb65_bp_criterion():
+    # SBP < 90 triggers BP criterion
+    assert curb65(0, 0, 18, 89, 80, 50) == 1

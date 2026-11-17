@@ -37,3 +37,16 @@ def creatinine_clearance(
     if sex.lower() in ("f", "female"):
         result *= 0.85
     return round(result, 1)
+
+
+def curb65(confusion: int, urea_high: int, resp_rate: float, sbp: float, dbp: float, age: float) -> int:
+    """
+    CURB-65 pneumonia severity score (0–5).
+    confusion/urea_high: 1=present, 0=absent.
+    resp_rate >= 30, SBP < 90 or DBP <= 60, age >= 65 each score 1 point.
+    """
+    score = int(bool(confusion)) + int(bool(urea_high))
+    score += 1 if resp_rate >= 30 else 0
+    score += 1 if (sbp < 90 or dbp <= 60) else 0
+    score += 1 if age >= 65 else 0
+    return score

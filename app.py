@@ -9,7 +9,7 @@ a .js file with formula logic, metrics.py will flag it.
 from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
-    creatinine_clearance, DISCLAIMER,
+    creatinine_clearance, curb65, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -175,10 +175,48 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+
+  <div class="card">
+    <h2>CURB-65</h2>
+    <div class="formula">Pneumonia severity: Confusion · Urea · RR · BP · Age≥65</div>
+    <form method="POST" action="/#curb65">
+      <input type="hidden" name="calc" value="curb65">
+      <div class="field"><label>Confusion (new onset)</label>
+        <select name="confusion">
+          <option value="0" {% if form.confusion == '0' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.confusion == '1' %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <div class="field"><label>BUN &gt; 19 mg/dL (Urea &gt; 7 mmol/L)</label>
+        <select name="urea_high">
+          <option value="0" {% if form.urea_high == '0' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.urea_high == '1' %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <div class="field"><label>Respiratory Rate (breaths/min)</label>
+        <input type="number" name="resp_rate" value="{{ form.resp_rate or '' }}" placeholder="20"></div>
+      <div class="field"><label>Systolic BP (mmHg)</label>
+        <input type="number" name="curb_sbp" value="{{ form.curb_sbp or '' }}" placeholder="120"></div>
+      <div class="field"><label>Diastolic BP (mmHg)</label>
+        <input type="number" name="curb_dbp" value="{{ form.curb_dbp or '' }}" placeholder="80"></div>
+      <div class="field"><label>Age (years)</label>
+        <input type="number" name="curb_age" value="{{ form.curb_age or '' }}" placeholder="50"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.curb65 is defined %}
+    <div class="result" id="curb65">
+      <span class="val">{{ results.curb65 }}</span><span class="unit">/ 5</span>
+      <div class="interp {{ results.curb65_cls }}">{{ results.curb65_interp }}</div>
+    </div>
+    {% elif results.curb65_error is defined %}
+    <div class="error">{{ results.curb65_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-0000 · 2026-11-15 · Seed: MAP · P/F · Anion Gap · CrCl</span>
+  <span>gen-breadth-0001 · 2026-11-17 · MAP · P/F · Anion Gap · CrCl · CURB-65</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -209,6 +247,11 @@ def _crcl_interp(v):
     if v < 60:   return "Stage 3 CKD — moderate", "warn"
     if v < 90:   return "Stage 2 CKD — mild", "warn"
     return "Normal (≥ 90 mL/min)", "normal"
+
+def _curb65_interp(v):
+    if v <= 1:   return f"Score {v} — Low risk (consider outpatient)", "normal"
+    if v == 2:   return f"Score {v} — Moderate risk (hospital admission)", "warn"
+    return f"Score {v} — High risk (consider ICU)", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -251,6 +294,21 @@ def index():
             results.update(crcl=v, crcl_interp=interp, crcl_cls=cls)
         except Exception as e:
             results["crcl_error"] = str(e)
+
+    elif calc == "curb65":
+        try:
+            v = curb65(
+                int(form.get("confusion", 0)),
+                int(form.get("urea_high", 0)),
+                float(form["resp_rate"]),
+                float(form["curb_sbp"]),
+                float(form["curb_dbp"]),
+                float(form["curb_age"]),
+            )
+            interp, cls = _curb65_interp(v)
+            results.update(curb65=v, curb65_interp=interp, curb65_cls=cls)
+        except Exception as e:
+            results["curb65_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

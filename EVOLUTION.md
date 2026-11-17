@@ -43,3 +43,13 @@ outcome: accepted
 metrics: lines=630 dead=0
 note: Added Payne albumin-corrected calcium (Ca + 0.8×(4.0−albumin)) with 4 tests and Flask card; metrics.py current_generation() crashes on breadth- labels so lines/dead were taken from its count functions directly.
 ---
+
+---
+gen: breadth-0004
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: add calculated serum osmolality
+outcome: accepted
+metrics: lines=681 dead=0
+note: Added calculated serum osmolality (2×Na + glucose/18 + BUN/2.8) with 3 tests and Flask card with hypo/normal/hyperosmolar/HHS interpretation; metrics.py still crashes on breadth- labels so lines/dead were taken from its count functions directly.
+---

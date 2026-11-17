@@ -17,6 +17,8 @@ def mean_arterial_pressure(systolic: float, diastolic: float) -> float:
 
 def pf_ratio(pao2: float, fio2: float) -> float:
     """P/F ratio = PaO2 / FiO2 (FiO2 as fraction 0-1)"""
+    if pao2 <= 0:
+        raise ValueError("PaO2 must be positive")
     if not (0 < fio2 <= 1):
         raise ValueError("FiO2 must be between 0 and 1")
     return round(pao2 / fio2, 1)

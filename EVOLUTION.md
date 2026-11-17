@@ -22,3 +22,12 @@ outcome: accepted
 metrics: lines=396 dead=0
 note: Added albumin_corrected_anion_gap(); anion gap card now optionally corrects for hypoalbuminaemia when albumin is supplied.
 ---
+---
+gen: wild-0002
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: add osmolar gap formula
+outcome: accepted
+metrics: lines=425 dead=0
+note: Added osmolar_gap(); calculates measured minus calculated osmolality (2×Na + glucose/18 + BUN/2.8) to screen for toxic alcohols.
+---

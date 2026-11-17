@@ -33,3 +33,13 @@ outcome: accepted
 metrics: lines=378 dead=0
 note: Added ValueError guard to pf_ratio for non-positive PaO2; also restored calculator.py to proper newlines after prior generation stored it as a single escaped line.
 ---
+
+---
+gen: robust-0003
+date: 2026-11-17
+model: claude-sonnet-4-6
+idea: guard-anion-gap-negative-inputs
+outcome: accepted
+metrics: lines=383 dead=0
+note: Added ValueError guard to anion_gap for non-positive Na/Cl and negative HCO3 (output unchanged for valid inputs); metrics.py crashes parsing "robust-" gen labels, so metrics were computed via its count functions directly.
+---

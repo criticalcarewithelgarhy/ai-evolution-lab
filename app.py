@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    creatinine_clearance, DISCLAIMER,
+    delta_ratio, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -225,6 +225,29 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Delta Ratio</h2>
+    <div class="formula">Δ/Δ = (AG − 12) / (24 − HCO₃⁻)</div>
+    <form method="POST" action="/#dr">
+      <input type="hidden" name="calc" value="dr">
+      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
+        <input type="number" name="dr_na" value="{{ form.dr_na or '' }}" placeholder="138"></div>
+      <div class="field"><label>Chloride Cl⁻ (mEq/L)</label>
+        <input type="number" name="dr_cl" value="{{ form.dr_cl or '' }}" placeholder="98"></div>
+      <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L, &lt; 24)</label>
+        <input type="number" name="dr_hco3" step="0.1" value="{{ form.dr_hco3 or '' }}" placeholder="10"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.dr is defined %}
+    <div class="result" id="dr">
+      <span class="val">{{ results.dr }}</span>
+      <div class="interp {{ results.dr_cls }}">{{ results.dr_interp }}</div>
+    </div>
+    {% elif results.dr_error is defined %}
+    <div class="error">{{ results.dr_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -256,7 +279,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0004 · 2026-11-17 · Added: Winter's formula</span>
+  <span>gen-wild-0005 · 2026-11-18 · Added: Delta ratio</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -295,6 +318,12 @@ def _wf_interp(paco2, low, high):
     if paco2 < low:  return "Below expected — concomitant respiratory alkalosis", "warn"
     if paco2 > high: return "Above expected — concomitant respiratory acidosis", "crit"
     return "Appropriate respiratory compensation", "normal"
+
+def _dr_interp(v):
+    if v < 0.4:  return "< 0.4 — hyperchloraemic normal AG acidosis", "warn"
+    if v < 0.8:  return "0.4–0.8 — mixed high AG + normal AG acidosis", "warn"
+    if v <= 2:   return "0.8–2 — pure high AG acidosis", "normal"
+    return "> 2 — concurrent metabolic alkalosis", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -369,6 +398,14 @@ def index():
                 results.update(wf_interp=interp, wf_cls=cls)
         except Exception as e:
             results["wf_error"] = str(e)
+
+    elif calc == "dr":
+        try:
+            v = delta_ratio(float(form["dr_na"]), float(form["dr_cl"]), float(form["dr_hco3"]))
+            interp, cls = _dr_interp(v)
+            results.update(dr=v, dr_interp=interp, dr_cls=cls)
+        except Exception as e:
+            results["dr_error"] = str(e)
 
     elif calc == "crcl":
         try:

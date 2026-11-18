@@ -13,6 +13,7 @@ from calculator import (
     osmolar_gap,
     corrected_calcium,
     winters_formula,
+    delta_ratio,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -113,6 +114,21 @@ def test_winters_formula_typical():
 def test_winters_formula_bad_bicarbonate():
     with pytest.raises(ValueError):
         winters_formula(0)
+
+
+def test_delta_ratio_pure_hagma():
+    # Na 138, Cl 98, HCO3 10 → AG 30; (30-12)/(24-10) = 18/14 = 1.29
+    assert delta_ratio(138, 98, 10) == 1.29
+
+
+def test_delta_ratio_mixed():
+    # Na 140, Cl 110, HCO3 12 → AG 18; (18-12)/(24-12) = 0.5
+    assert delta_ratio(140, 110, 12) == 0.5
+
+
+def test_delta_ratio_bad_bicarbonate():
+    with pytest.raises(ValueError):
+        delta_ratio(140, 104, 24)
 
 
 def test_crcl_male():

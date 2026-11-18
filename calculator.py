@@ -80,6 +80,19 @@ def winters_formula(bicarbonate: float) -> tuple:
     return round(centre - 2, 1), round(centre + 2, 1)
 
 
+def delta_ratio(sodium: float, chloride: float, bicarbonate: float) -> float:
+    """
+    Delta ratio (delta-delta) = (AG − 12) / (24 − HCO3).
+    Identifies mixed disorders in high anion gap metabolic acidosis.
+    <0.4 hyperchloraemic NAGMA; 0.4–0.8 mixed HAGMA + NAGMA;
+    0.8–2 pure HAGMA; >2 concurrent metabolic alkalosis.
+    """
+    if bicarbonate >= 24:
+        raise ValueError("Bicarbonate must be below 24 for delta ratio")
+    ag = sodium - (chloride + bicarbonate)
+    return round((ag - 12) / (24 - bicarbonate), 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

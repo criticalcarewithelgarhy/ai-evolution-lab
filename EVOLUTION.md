@@ -49,3 +49,12 @@ outcome: accepted
 metrics: lines=568 dead=0
 note: Added winters_formula() returning expected PaCO2 range (1.5×HCO3+8 ±2) with a UI card that classifies an optional measured PaCO2 as appropriate or mixed disorder.
 ---
+---
+gen: wild-0005
+date: 2026-11-18
+model: claude-sonnet-4-6
+idea: add delta ratio
+outcome: accepted
+metrics: lines=621 dead=0
+note: Added delta_ratio() ((AG−12)/(24−HCO3)) with UI card classifying NAGMA, mixed, pure HAGMA, or concurrent metabolic alkalosis; metrics.py crashes on wild- gen labels, so lines/dead were measured via its functions directly.
+---

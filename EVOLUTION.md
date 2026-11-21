@@ -63,3 +63,13 @@ outcome: accepted
 metrics: lines=402 dead=0
 note: mean_arterial_pressure silently returned a plausible-looking MAP when SBP and DBP were swapped (e.g. 80/120 → 106.7) or DBP was negative; it now raises ValueError for SBP < DBP or DBP < 0, leaving all valid outputs unchanged.
 ---
+
+---
+gen: accuracy-0006
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: reject-non-finite-inputs
+outcome: accepted
+metrics: lines=426 dead=0
+note: float("nan") and "inf" parse from form text and slipped past every range check (NaN comparisons are always False), returning nan/inf results; all four formulas now raise ValueError for non-finite inputs, leaving valid outputs unchanged.
+---

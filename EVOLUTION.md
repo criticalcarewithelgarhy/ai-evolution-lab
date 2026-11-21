@@ -45,3 +45,11 @@ outcome: accepted
 metrics: lines=91 dead=-1 cap=1500 headroom=1409
 note: Added serumOsmolality (2×Na + glucose/18 + BUN/2.8) with two tests; four original formulas untouched, oracle 16/16 passing.
 ---
+gen: 0005
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: osmolal-gap
+outcome: accepted
+metrics: lines=100 dead=-1 cap=1500 headroom=1400
+note: Added osmolalGap (measured − calculated osmolality) with two tests; four original formulas untouched, oracle 16/16 passing.
+---

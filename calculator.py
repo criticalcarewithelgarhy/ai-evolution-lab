@@ -31,6 +31,15 @@ def anion_gap(sodium: float, chloride: float, bicarbonate: float) -> float:
     return round(sodium - (chloride + bicarbonate), 1)
 
 
+def corrected_anion_gap(
+    sodium: float, chloride: float, bicarbonate: float, albumin: float
+) -> float:
+    """Albumin-corrected AG = AG + 2.5 * (4.0 - albumin), albumin in g/dL"""
+    if albumin <= 0:
+        raise ValueError("Albumin must be positive")
+    return round(anion_gap(sodium, chloride, bicarbonate) + 2.5 * (4.0 - albumin), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

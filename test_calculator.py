@@ -9,6 +9,7 @@ from calculator import (
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
+    corrected_anion_gap,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -54,6 +55,16 @@ def test_anion_gap_elevated():
 def test_anion_gap_bad_electrolytes():
     with pytest.raises(ValueError):
         anion_gap(140, 0, 24)
+
+
+def test_corrected_anion_gap_low_albumin():
+    # AG 12, albumin 2.0 → 12 + 2.5 × 2 = 17
+    assert corrected_anion_gap(140, 104, 24, 2.0) == 17.0
+
+
+def test_corrected_anion_gap_bad_albumin():
+    with pytest.raises(ValueError):
+        corrected_anion_gap(140, 104, 24, 0)
 
 
 def test_crcl_male():

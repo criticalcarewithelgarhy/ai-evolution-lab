@@ -5,9 +5,19 @@ Four formulas: MAP, P/F ratio, anion gap, creatinine clearance (Cockcroft-Gault)
 
 DISCLAIMER = "EXPERIMENTAL — NOT FOR CLINICAL USE"
 
+import math
+
+
+def _require_finite(**values: float) -> None:
+    """Reject NaN/inf, which slip past every range check (all NaN comparisons are False)."""
+    for name, v in values.items():
+        if not math.isfinite(v):
+            raise ValueError(f"{name} must be a finite number")
+
 
 def mean_arterial_pressure(systolic: float, diastolic: float) -> float:
     """MAP = DBP + 1/3 (SBP - DBP)"""
+    _require_finite(systolic=systolic, diastolic=diastolic)
     if diastolic < 0:
         raise ValueError("Diastolic BP cannot be negative")
     if systolic < diastolic:
@@ -17,6 +27,7 @@ def mean_arterial_pressure(systolic: float, diastolic: float) -> float:
 
 def pf_ratio(pao2: float, fio2: float) -> float:
     """P/F ratio = PaO2 / FiO2 (FiO2 as fraction 0-1)"""
+    _require_finite(pao2=pao2, fio2=fio2)
     if not (0.21 <= fio2 <= 1.0):
         raise ValueError("FiO2 must be between 0.21 (room air) and 1.0")
     return round(pao2 / fio2, 1)
@@ -24,6 +35,7 @@ def pf_ratio(pao2: float, fio2: float) -> float:
 
 def anion_gap(sodium: float, chloride: float, bicarbonate: float) -> float:
     """AG = Na - (Cl + HCO3)"""
+    _require_finite(sodium=sodium, chloride=chloride, bicarbonate=bicarbonate)
     return round(sodium - (chloride + bicarbonate), 1)
 
 
@@ -35,6 +47,7 @@ def creatinine_clearance(
     Multiply by 0.85 for female.
     weight in kg, creatinine in mg/dL.
     """
+    _require_finite(age=age, weight=weight, creatinine=creatinine)
     if creatinine <= 0:
         raise ValueError("Creatinine must be positive")
     if not (1 <= age <= 120):

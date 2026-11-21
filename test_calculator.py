@@ -112,5 +112,22 @@ def test_crcl_bad_sex():
         creatinine_clearance(50, 70, 1.0, "fem")
 
 
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), float("-inf")])
+def test_non_finite_inputs_rejected(bad):
+    # float("nan") parses from form text and passes every range check silently
+    for call in (
+        lambda: mean_arterial_pressure(bad, 80),
+        lambda: mean_arterial_pressure(120, bad),
+        lambda: pf_ratio(bad, 0.5),
+        lambda: pf_ratio(100, bad),
+        lambda: anion_gap(bad, 104, 24),
+        lambda: anion_gap(140, 104, bad),
+        lambda: creatinine_clearance(50, bad, 1.0, "male"),
+        lambda: creatinine_clearance(50, 70, bad, "male"),
+    ):
+        with pytest.raises(ValueError):
+            call()
+
+
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER

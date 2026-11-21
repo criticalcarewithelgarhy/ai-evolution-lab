@@ -13,6 +13,7 @@ from calculator import (
     corrected_sodium,
     creatinine_clearance,
     winters_formula,
+    delta_ratio,
     DISCLAIMER,
 )
 
@@ -107,6 +108,21 @@ def test_winters_fractional():
 def test_winters_bad_bicarbonate():
     with pytest.raises(ValueError):
         winters_formula(-1)
+
+
+def test_delta_ratio_pure_hagma():
+    # Na 138, Cl 98, HCO3 10 → AG 30; (30-12)/(24-10) = 1.29
+    assert delta_ratio(138, 98, 10) == 1.29
+
+
+def test_delta_ratio_mixed_nagma():
+    # Na 140, Cl 110, HCO3 12 → AG 18; (18-12)/(24-12) = 0.5
+    assert delta_ratio(140, 110, 12) == 0.5
+
+
+def test_delta_ratio_bad_bicarbonate():
+    with pytest.raises(ValueError):
+        delta_ratio(140, 104, 24)
 
 
 def test_disclaimer_present():

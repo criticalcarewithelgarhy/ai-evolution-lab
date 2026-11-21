@@ -59,6 +59,18 @@ def winters_formula(bicarbonate: float) -> float:
     return round(1.5 * bicarbonate + 8, 1)
 
 
+def delta_ratio(sodium: float, chloride: float, bicarbonate: float) -> float:
+    """
+    Delta ratio (delta-delta) = (AG − 12) / (24 − HCO3).
+    Detects mixed disorders in high-AG metabolic acidosis.
+    All inputs in mEq/L.
+    """
+    if bicarbonate == 24:
+        raise ValueError("Bicarbonate must differ from 24 mEq/L")
+    ag = sodium - (chloride + bicarbonate)
+    return round((ag - 12) / (24 - bicarbonate), 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

@@ -37,3 +37,11 @@ outcome: accepted
 metrics: lines=82 dead=-1 cap=1500 headroom=1418
 note: Added wintersExpectedPco2 (1.5×HCO3+8 ±2) returning expected/low/high with two tests; four original formulas untouched, oracle 16/16 passing.
 ---
+gen: 0004
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: serum-osmolality
+outcome: accepted
+metrics: lines=91 dead=-1 cap=1500 headroom=1409
+note: Added serumOsmolality (2×Na + glucose/18 + BUN/2.8) with two tests; four original formulas untouched, oracle 16/16 passing.
+---

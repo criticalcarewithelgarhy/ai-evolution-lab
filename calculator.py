@@ -101,3 +101,16 @@ def serum_osmolality(sodium: float, glucose: float, bun: float) -> float:
     if sodium < 0 or glucose < 0 or bun < 0:
         raise ValueError("Sodium, glucose and BUN must be non-negative")
     return round(2 * sodium + glucose / 18 + bun / 2.8, 1)
+
+
+def qsofa(resp_rate: float, sbp: float, altered_mentation: int) -> int:
+    """
+    qSOFA (quick Sepsis-related Organ Failure Assessment), score 0–3.
+    1 point each: RR >= 22/min, SBP <= 100 mmHg, altered mentation (GCS < 15).
+    """
+    if resp_rate < 0 or sbp < 0:
+        raise ValueError("Respiratory rate and SBP must be non-negative")
+    score = 1 if resp_rate >= 22 else 0
+    score += 1 if sbp <= 100 else 0
+    score += int(bool(altered_mentation))
+    return score

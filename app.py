@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -323,10 +323,37 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>qSOFA</h2>
+    <div class="formula">Sepsis screen: RR ≥ 22 · SBP ≤ 100 · Altered mentation</div>
+    <form method="POST" action="/#qsofa">
+      <input type="hidden" name="calc" value="qsofa">
+      <div class="field"><label>Respiratory Rate (breaths/min)</label>
+        <input type="number" name="qsofa_rr" value="{{ form.qsofa_rr or '' }}" placeholder="18"></div>
+      <div class="field"><label>Systolic BP (mmHg)</label>
+        <input type="number" name="qsofa_sbp" value="{{ form.qsofa_sbp or '' }}" placeholder="120"></div>
+      <div class="field"><label>Altered mentation (GCS &lt; 15)</label>
+        <select name="qsofa_ams">
+          <option value="0" {% if form.qsofa_ams == '0' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.qsofa_ams == '1' %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.qsofa is defined %}
+    <div class="result" id="qsofa">
+      <span class="val">{{ results.qsofa }}</span><span class="unit">/ 3</span>
+      <div class="interp {{ results.qsofa_cls }}">{{ results.qsofa_interp }}</div>
+    </div>
+    {% elif results.qsofa_error is defined %}
+    <div class="error">{{ results.qsofa_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0004 · 2026-11-17 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality</span>
+  <span>gen-breadth-0005 · 2026-11-21 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -386,6 +413,11 @@ def _osm_interp(v):
     if v <= 295: return f"{v} mOsm/kg — Normal range (275–295)", "normal"
     if v < 320:  return f"{v} mOsm/kg — Hyperosmolar", "warn"
     return f"{v} mOsm/kg — Severe hyperosmolality (≥ 320, HHS range)", "crit"
+
+def _qsofa_interp(v):
+    if v >= 2:   return f"Score {v} — High risk of poor outcome in suspected sepsis", "crit"
+    if v == 1:   return f"Score {v} — Monitor; reassess", "warn"
+    return f"Score {v} — Low risk", "normal"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -479,6 +511,14 @@ def index():
             results.update(osm=v, osm_interp=interp, osm_cls=cls)
         except Exception as e:
             results["osm_error"] = str(e)
+
+    elif calc == "qsofa":
+        try:
+            v = qsofa(float(form["qsofa_rr"]), float(form["qsofa_sbp"]), int(form.get("qsofa_ams", 0)))
+            interp, cls = _qsofa_interp(v)
+            results.update(qsofa=v, qsofa_interp=interp, qsofa_cls=cls)
+        except Exception as e:
+            results["qsofa_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

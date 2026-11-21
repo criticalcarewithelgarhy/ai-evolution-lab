@@ -15,6 +15,7 @@ from calculator import (
     corrected_sodium,
     corrected_calcium,
     serum_osmolality,
+    qsofa,
     DISCLAIMER,
 )
 
@@ -171,3 +172,21 @@ def test_osm_hyperglycaemia():
 def test_osm_negative_input():
     with pytest.raises(ValueError):
         serum_osmolality(140, -5, 14)
+
+
+def test_qsofa_zero():
+    assert qsofa(16, 120, 0) == 0
+
+
+def test_qsofa_max():
+    assert qsofa(24, 90, 1) == 3
+
+
+def test_qsofa_thresholds():
+    # RR exactly 22 and SBP exactly 100 each score a point
+    assert qsofa(22, 100, 0) == 2
+
+
+def test_qsofa_negative_input():
+    with pytest.raises(ValueError):
+        qsofa(-1, 120, 0)

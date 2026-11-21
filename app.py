@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -350,10 +350,31 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Shock Index</h2>
+    <div class="formula">SI = Heart Rate / Systolic BP</div>
+    <form method="POST" action="/#si">
+      <input type="hidden" name="calc" value="si">
+      <div class="field"><label>Heart Rate (beats/min)</label>
+        <input type="number" name="si_hr" value="{{ form.si_hr or '' }}" placeholder="80"></div>
+      <div class="field"><label>Systolic BP (mmHg)</label>
+        <input type="number" name="si_sbp" value="{{ form.si_sbp or '' }}" placeholder="120"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.si is defined %}
+    <div class="result" id="si">
+      <span class="val">{{ results.si }}</span>
+      <div class="interp {{ results.si_cls }}">{{ results.si_interp }}</div>
+    </div>
+    {% elif results.si_error is defined %}
+    <div class="error">{{ results.si_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0005 · 2026-11-21 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA</span>
+  <span>gen-breadth-0006 · 2026-11-21 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -418,6 +439,12 @@ def _qsofa_interp(v):
     if v >= 2:   return f"Score {v} — High risk of poor outcome in suspected sepsis", "crit"
     if v == 1:   return f"Score {v} — Monitor; reassess", "warn"
     return f"Score {v} — Low risk", "normal"
+
+def _si_interp(v):
+    if v < 0.5:  return f"{v} — Below typical range (< 0.5)", "warn"
+    if v <= 0.7: return f"{v} — Normal (0.5–0.7)", "normal"
+    if v < 1.0:  return f"{v} — Elevated — possible occult hypoperfusion", "warn"
+    return f"{v} — ≥ 1.0 — Suggests shock / significant haemodynamic compromise", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -519,6 +546,14 @@ def index():
             results.update(qsofa=v, qsofa_interp=interp, qsofa_cls=cls)
         except Exception as e:
             results["qsofa_error"] = str(e)
+
+    elif calc == "si":
+        try:
+            v = shock_index(float(form["si_hr"]), float(form["si_sbp"]))
+            interp, cls = _si_interp(v)
+            results.update(si=v, si_interp=interp, si_cls=cls)
+        except Exception as e:
+            results["si_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

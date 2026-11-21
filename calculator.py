@@ -114,3 +114,15 @@ def qsofa(resp_rate: float, sbp: float, altered_mentation: int) -> int:
     score += 1 if sbp <= 100 else 0
     score += int(bool(altered_mentation))
     return score
+
+
+def shock_index(heart_rate: float, sbp: float) -> float:
+    """
+    Shock index = heart rate / systolic BP.
+    heart rate in beats/min, SBP in mmHg. Normal ~0.5–0.7.
+    """
+    if heart_rate < 0:
+        raise ValueError("Heart rate must be non-negative")
+    if sbp <= 0:
+        raise ValueError("Systolic BP must be positive")
+    return round(heart_rate / sbp, 2)

@@ -16,6 +16,7 @@ from calculator import (
     corrected_calcium,
     serum_osmolality,
     qsofa,
+    shock_index,
     DISCLAIMER,
 )
 
@@ -190,3 +191,23 @@ def test_qsofa_thresholds():
 def test_qsofa_negative_input():
     with pytest.raises(ValueError):
         qsofa(-1, 120, 0)
+
+
+def test_shock_index_normal():
+    # HR 70, SBP 120 → 0.583 → 0.58
+    assert shock_index(70, 120) == 0.58
+
+
+def test_shock_index_shock():
+    # HR 120, SBP 80 → 1.5
+    assert shock_index(120, 80) == 1.5
+
+
+def test_shock_index_zero_sbp():
+    with pytest.raises(ValueError):
+        shock_index(80, 0)
+
+
+def test_shock_index_negative_hr():
+    with pytest.raises(ValueError):
+        shock_index(-1, 120)

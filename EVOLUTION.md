@@ -58,3 +58,12 @@ outcome: accepted
 metrics: lines=621 dead=0
 note: Added delta_ratio() ((AG−12)/(24−HCO3)) with UI card classifying NAGMA, mixed, pure HAGMA, or concurrent metabolic alkalosis; metrics.py crashes on wild- gen labels, so lines/dead were measured via its functions directly.
 ---
+---
+gen: wild-0006
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: add A-a gradient
+outcome: accepted
+metrics: lines=680 dead=0
+note: Added aa_gradient() (FiO2×(760−47) − PaCO2/0.8 − PaO2) with UI card using optional age-adjusted normal (age/4+4); metrics.py still crashes on wild- gen labels, so measured via its functions.
+---

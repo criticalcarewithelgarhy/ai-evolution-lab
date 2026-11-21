@@ -40,6 +40,11 @@ function serumOsmolality(na, glucose, bun) {
     return Math.round((2 * na + glucose / 18 + bun / 2.8) * 10) / 10;
 }
 
+function osmolalGap(measuredOsm, na, glucose, bun) {
+    // Osmolal gap: measured − calculated osmolality (normal < 10 mOsm/kg)
+    return Math.round((measuredOsm - (2 * na + glucose / 18 + bun / 2.8)) * 10) / 10;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -47,4 +52,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, creatinineClearance };

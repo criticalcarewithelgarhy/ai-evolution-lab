@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -70,6 +70,16 @@ test("serum osmolality normal", () => {
 test("serum osmolality hyperglycemia", () => {
     // 2×130 + 540/18 + 28/2.8 = 260 + 30 + 10 = 300
     expect(serumOsmolality(130, 540, 28)).toBe(300.0);
+});
+
+test("osmolal gap normal", () => {
+    // 296 − 290 = 6
+    expect(osmolalGap(296, 140, 90, 14)).toBe(6.0);
+});
+
+test("osmolal gap toxic alcohol", () => {
+    // 325 − 290 = 35
+    expect(osmolalGap(325, 140, 90, 14)).toBe(35.0);
 });
 
 test("CrCl male", () => {

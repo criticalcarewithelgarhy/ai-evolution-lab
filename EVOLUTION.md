@@ -53,3 +53,13 @@ outcome: accepted
 metrics: lines=681 dead=0
 note: Added calculated serum osmolality (2×Na + glucose/18 + BUN/2.8) with 3 tests and Flask card with hypo/normal/hyperosmolar/HHS interpretation; metrics.py still crashes on breadth- labels so lines/dead were taken from its count functions directly.
 ---
+
+---
+gen: breadth-0005
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: add qSOFA sepsis score
+outcome: accepted
+metrics: lines=739 dead=0
+note: Added qSOFA (RR ≥ 22, SBP ≤ 100, altered mentation) with 4 tests and Flask card with sepsis risk interpretation; metrics.py still crashes on breadth- labels so lines/dead were taken from its count functions directly.
+---

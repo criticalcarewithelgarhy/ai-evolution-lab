@@ -8,6 +8,10 @@ DISCLAIMER = "EXPERIMENTAL — NOT FOR CLINICAL USE"
 
 def mean_arterial_pressure(systolic: float, diastolic: float) -> float:
     """MAP = DBP + 1/3 (SBP - DBP)"""
+    if diastolic < 0:
+        raise ValueError("Diastolic BP cannot be negative")
+    if systolic < diastolic:
+        raise ValueError("Systolic BP must be greater than or equal to diastolic BP")
     return round(diastolic + (systolic - diastolic) / 3, 1)
 
 

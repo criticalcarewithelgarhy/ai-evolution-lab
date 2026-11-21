@@ -22,6 +22,21 @@ def test_map_hypotension():
     assert mean_arterial_pressure(90, 60) == 70.0
 
 
+def test_map_swapped_sbp_dbp():
+    # SBP < DBP (fields swapped) must not silently return a plausible MAP
+    with pytest.raises(ValueError):
+        mean_arterial_pressure(80, 120)
+
+
+def test_map_negative_dbp():
+    with pytest.raises(ValueError):
+        mean_arterial_pressure(120, -10)
+
+
+def test_map_equal_sbp_dbp():
+    assert mean_arterial_pressure(80, 80) == 80.0
+
+
 def test_pf_ratio_normal():
     assert pf_ratio(100, 1.0) == 100.0
 

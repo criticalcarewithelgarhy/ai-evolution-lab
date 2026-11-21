@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -248,6 +248,31 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>A–a Gradient</h2>
+    <div class="formula">A–a = FiO₂ × (760 − 47) − PaCO₂/0.8 − PaO₂</div>
+    <form method="POST" action="/#aa">
+      <input type="hidden" name="calc" value="aa">
+      <div class="field"><label>PaO₂ (mmHg)</label>
+        <input type="number" name="aa_pao2" value="{{ form.aa_pao2 or '' }}" placeholder="90"></div>
+      <div class="field"><label>PaCO₂ (mmHg)</label>
+        <input type="number" name="aa_paco2" value="{{ form.aa_paco2 or '' }}" placeholder="40"></div>
+      <div class="field"><label>FiO₂ (0.21 – 1.0)</label>
+        <input type="number" name="aa_fio2" step="0.01" value="{{ form.aa_fio2 or '' }}" placeholder="0.21"></div>
+      <div class="field"><label>Age (years, optional — for expected normal)</label>
+        <input type="number" name="aa_age" value="{{ form.aa_age or '' }}" placeholder="40"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.aa is defined %}
+    <div class="result" id="aa">
+      <span class="val">{{ results.aa }}</span><span class="unit">mmHg</span>
+      <div class="interp {{ results.aa_cls }}">{{ results.aa_interp }}</div>
+    </div>
+    {% elif results.aa_error is defined %}
+    <div class="error">{{ results.aa_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -279,7 +304,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0005 · 2026-11-18 · Added: Delta ratio</span>
+  <span>gen-wild-0006 · 2026-11-21 · Added: A–a gradient</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -324,6 +349,12 @@ def _dr_interp(v):
     if v < 0.8:  return "0.4–0.8 — mixed high AG + normal AG acidosis", "warn"
     if v <= 2:   return "0.8–2 — pure high AG acidosis", "normal"
     return "> 2 — concurrent metabolic alkalosis", "crit"
+
+def _aa_interp(v, age=None):
+    upper = age / 4 + 4 if age is not None else 15
+    if v <= upper: return f"Normal (≤ {upper:g} mmHg expected)", "normal"
+    if v <= upper * 2: return "Elevated — V/Q mismatch, shunt or diffusion defect", "warn"
+    return "Markedly elevated — significant shunt or V/Q mismatch", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -406,6 +437,15 @@ def index():
             results.update(dr=v, dr_interp=interp, dr_cls=cls)
         except Exception as e:
             results["dr_error"] = str(e)
+
+    elif calc == "aa":
+        try:
+            v = aa_gradient(float(form["aa_pao2"]), float(form["aa_paco2"]), float(form["aa_fio2"]))
+            age_str = form.get("aa_age", "").strip()
+            interp, cls = _aa_interp(v, float(age_str) if age_str else None)
+            results.update(aa=v, aa_interp=interp, aa_cls=cls)
+        except Exception as e:
+            results["aa_error"] = str(e)
 
     elif calc == "crcl":
         try:

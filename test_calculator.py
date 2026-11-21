@@ -14,6 +14,7 @@ from calculator import (
     corrected_calcium,
     winters_formula,
     delta_ratio,
+    aa_gradient,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -129,6 +130,21 @@ def test_delta_ratio_mixed():
 def test_delta_ratio_bad_bicarbonate():
     with pytest.raises(ValueError):
         delta_ratio(140, 104, 24)
+
+
+def test_aa_gradient_room_air():
+    # FiO2 0.21, PaCO2 40, PaO2 90 → PAO2 = 0.21×713 − 50 = 99.73 → 9.7
+    assert aa_gradient(90, 40, 0.21) == 9.7
+
+
+def test_aa_gradient_elevated():
+    # FiO2 0.5, PaCO2 40, PaO2 80 → PAO2 = 356.5 − 50 = 306.5 → 226.5
+    assert aa_gradient(80, 40, 0.5) == 226.5
+
+
+def test_aa_gradient_bad_fio2():
+    with pytest.raises(ValueError):
+        aa_gradient(90, 40, 1.5)
 
 
 def test_crcl_male():

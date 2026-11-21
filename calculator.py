@@ -93,6 +93,22 @@ def delta_ratio(sodium: float, chloride: float, bicarbonate: float) -> float:
     return round((ag - 12) / (24 - bicarbonate), 2)
 
 
+def aa_gradient(
+    pao2: float, paco2: float, fio2: float, patm: float = 760, rq: float = 0.8
+) -> float:
+    """
+    Alveolar-arterial O2 gradient = PAO2 − PaO2.
+    PAO2 = FiO2 × (Patm − 47) − PaCO2 / RQ  (PH2O 47 mmHg, RQ 0.8).
+    Normal ≈ age/4 + 4 mmHg on room air.
+    """
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+    if paco2 < 0:
+        raise ValueError("PaCO2 must be non-negative")
+    alveolar = fio2 * (patm - 47) - paco2 / rq
+    return round(alveolar - pao2, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

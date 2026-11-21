@@ -63,3 +63,14 @@ outcome: accepted
 metrics: lines=411 dead=0
 note: Added a _require_finite guard so all four formulas raise ValueError on NaN/infinity (e.g. "nan" typed into the Flask form previously slipped past range checks and returned nan); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels and the git proxy refused the gen-robust-0005 tag push (branch pushed fine).
 ---
+
+---
+gen: robust-0006
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: validate-crcl-sex-input
+outcome: accepted
+metrics: lines=421 dead=0
+note: creatinine_clearance now raises ValueError for unrecognised or non-string sex (previously silently computed as male, or crashed with AttributeError on None) and tolerates case/whitespace; valid outputs unchanged; metrics.py still crashes on "robust-" gen labels and the proxy again refused the tag push (branch pushed fine).
+
+---

@@ -35,6 +35,11 @@ function wintersExpectedPco2(hco3) {
     return { expected: Math.round(mid * 10) / 10, low: Math.round((mid - 2) * 10) / 10, high: Math.round((mid + 2) * 10) / 10 };
 }
 
+function serumOsmolality(na, glucose, bun) {
+    // Calculated osmolality (mOsm/kg): 2 × Na + glucose[mg/dL]/18 + BUN[mg/dL]/2.8
+    return Math.round((2 * na + glucose / 18 + bun / 2.8) * 10) / 10;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -42,4 +47,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, creatinineClearance };

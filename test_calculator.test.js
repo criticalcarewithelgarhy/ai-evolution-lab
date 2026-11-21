@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -60,6 +60,16 @@ test("Winter's formula HCO3 10", () => {
 test("Winter's formula HCO3 15", () => {
     // 1.5 × 15 + 8 = 30.5 (28.5–32.5)
     expect(wintersExpectedPco2(15)).toEqual({ expected: 30.5, low: 28.5, high: 32.5 });
+});
+
+test("serum osmolality normal", () => {
+    // 2×140 + 90/18 + 14/2.8 = 280 + 5 + 5 = 290
+    expect(serumOsmolality(140, 90, 14)).toBe(290.0);
+});
+
+test("serum osmolality hyperglycemia", () => {
+    // 2×130 + 540/18 + 28/2.8 = 260 + 30 + 10 = 300
+    expect(serumOsmolality(130, 540, 28)).toBe(300.0);
 });
 
 test("CrCl male", () => {

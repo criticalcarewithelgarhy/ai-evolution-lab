@@ -14,6 +14,7 @@ from calculator import (
     creatinine_clearance,
     winters_formula,
     delta_ratio,
+    aa_gradient,
     DISCLAIMER,
 )
 
@@ -123,6 +124,21 @@ def test_delta_ratio_mixed_nagma():
 def test_delta_ratio_bad_bicarbonate():
     with pytest.raises(ValueError):
         delta_ratio(140, 104, 24)
+
+
+def test_aa_gradient_room_air():
+    # FiO2 0.21, PaCO2 40, PaO2 90: 0.21*713 - 50 = 99.73 → 9.7
+    assert aa_gradient(90, 40, 0.21) == 9.7
+
+
+def test_aa_gradient_high_fio2():
+    # FiO2 1.0, PaCO2 40, PaO2 100: 713 - 50 - 100 = 563
+    assert aa_gradient(100, 40, 1.0) == 563.0
+
+
+def test_aa_gradient_bad_fio2():
+    with pytest.raises(ValueError):
+        aa_gradient(90, 40, 1.5)
 
 
 def test_disclaimer_present():

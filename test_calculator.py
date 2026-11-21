@@ -15,6 +15,7 @@ from calculator import (
     winters_formula,
     delta_ratio,
     aa_gradient,
+    corrected_sodium,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -145,6 +146,21 @@ def test_aa_gradient_elevated():
 def test_aa_gradient_bad_fio2():
     with pytest.raises(ValueError):
         aa_gradient(90, 40, 1.5)
+
+
+def test_corrected_sodium_normal_glucose():
+    # glucose 100 → no correction
+    assert corrected_sodium(140, 100) == 140.0
+
+
+def test_corrected_sodium_hyperglycaemia():
+    # Na 130, glucose 600 → 130 + 1.6×5 = 138.0
+    assert corrected_sodium(130, 600) == 138.0
+
+
+def test_corrected_sodium_bad_glucose():
+    with pytest.raises(ValueError):
+        corrected_sodium(140, -1)
 
 
 def test_crcl_male():

@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -273,6 +273,27 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Corrected Sodium</h2>
+    <div class="formula">Na_corr = Na⁺ + 1.6 × (glucose − 100) / 100</div>
+    <form method="POST" action="/#cna">
+      <input type="hidden" name="calc" value="cna">
+      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
+        <input type="number" name="cna_na" value="{{ form.cna_na or '' }}" placeholder="130"></div>
+      <div class="field"><label>Glucose (mg/dL)</label>
+        <input type="number" name="cna_glucose" value="{{ form.cna_glucose or '' }}" placeholder="600"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.cna is defined %}
+    <div class="result" id="cna">
+      <span class="val">{{ results.cna }}</span><span class="unit">mEq/L</span>
+      <div class="interp {{ results.cna_cls }}">{{ results.cna_interp }}</div>
+    </div>
+    {% elif results.cna_error is defined %}
+    <div class="error">{{ results.cna_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -304,7 +325,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0006 · 2026-11-21 · Added: A–a gradient</span>
+  <span>gen-wild-0007 · 2026-11-21 · Added: corrected sodium</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -355,6 +376,11 @@ def _aa_interp(v, age=None):
     if v <= upper: return f"Normal (≤ {upper:g} mmHg expected)", "normal"
     if v <= upper * 2: return "Elevated — V/Q mismatch, shunt or diffusion defect", "warn"
     return "Markedly elevated — significant shunt or V/Q mismatch", "crit"
+
+def _cna_interp(v):
+    if v < 135:  return "Low — true hyponatraemia", "warn"
+    if v <= 145: return "Normal (135–145 mEq/L)", "normal"
+    return "Elevated — hypernatraemia / free water deficit", "warn"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -446,6 +472,14 @@ def index():
             results.update(aa=v, aa_interp=interp, aa_cls=cls)
         except Exception as e:
             results["aa_error"] = str(e)
+
+    elif calc == "cna":
+        try:
+            v = corrected_sodium(float(form["cna_na"]), float(form["cna_glucose"]))
+            interp, cls = _cna_interp(v)
+            results.update(cna=v, cna_interp=interp, cna_cls=cls)
+        except Exception as e:
+            results["cna_error"] = str(e)
 
     elif calc == "crcl":
         try:

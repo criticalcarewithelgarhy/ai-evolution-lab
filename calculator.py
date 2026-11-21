@@ -109,6 +109,17 @@ def aa_gradient(
     return round(alveolar - pao2, 1)
 
 
+def corrected_sodium(sodium: float, glucose: float) -> float:
+    """
+    Sodium corrected for hyperglycaemia (Katz).
+    Corrected Na = Na + 1.6 × (glucose − 100) / 100
+    sodium in mEq/L, glucose in mg/dL.
+    """
+    if glucose < 0:
+        raise ValueError("Glucose must be non-negative")
+    return round(sodium + 1.6 * (glucose - 100) / 100, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

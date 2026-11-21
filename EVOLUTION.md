@@ -53,3 +53,13 @@ outcome: accepted
 metrics: lines=393 dead=0
 note: Added ValueError guards to creatinine_clearance for non-positive weight and age outside 0–140 (which yielded negative clearance); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels so metrics were computed via its count functions.
 ---
+
+---
+gen: robust-0005
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: reject-nonfinite-inputs
+outcome: accepted
+metrics: lines=411 dead=0
+note: Added a _require_finite guard so all four formulas raise ValueError on NaN/infinity (e.g. "nan" typed into the Flask form previously slipped past range checks and returned nan); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels and the git proxy refused the gen-robust-0005 tag push (branch pushed fine).
+---

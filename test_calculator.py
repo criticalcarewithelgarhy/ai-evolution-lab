@@ -91,5 +91,16 @@ def test_crcl_age_out_of_range():
         creatinine_clearance(150, 70, 1.0, "male")
 
 
+@pytest.mark.parametrize("call", [
+    lambda: mean_arterial_pressure(float("nan"), 80),
+    lambda: pf_ratio(float("inf"), 0.5),
+    lambda: anion_gap(140, float("nan"), 24),
+    lambda: creatinine_clearance(50, float("inf"), 1.0, "male"),
+])
+def test_nonfinite_inputs_rejected(call):
+    with pytest.raises(ValueError):
+        call()
+
+
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER

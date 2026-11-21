@@ -50,3 +50,12 @@ outcome: accepted
 metrics: lines=540 dead=0 cap=1500 headroom=960
 note: Added winters_formula() (expected PaCO2 = 1.5×HCO3 + 8 ± 2) with 3 tests and a 7th app card that optionally compares measured PaCO2 to flag mixed acid-base disorders; tag gen-0004 could not be pushed (git proxy refused tag push).
 ---
+---
+gen: 0005
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: add delta ratio
+outcome: accepted
+metrics: lines=592 dead=0 cap=1500 headroom=908
+note: Added delta_ratio() ((AG − 12) / (24 − HCO3)) with 3 tests and an 8th app card interpreting mixed acid-base disorders in high-AG acidosis; tag gen-0005 could not be pushed (git proxy refused tag push).
+---

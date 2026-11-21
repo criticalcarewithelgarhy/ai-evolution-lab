@@ -59,3 +59,12 @@ outcome: accepted
 metrics: lines=592 dead=0 cap=1500 headroom=908
 note: Added delta_ratio() ((AG − 12) / (24 − HCO3)) with 3 tests and an 8th app card interpreting mixed acid-base disorders in high-AG acidosis; tag gen-0005 could not be pushed (git proxy refused tag push).
 ---
+---
+gen: 0006
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: add A-a gradient
+outcome: accepted
+metrics: lines=646 dead=0
+note: Added aa_gradient() (FiO2×(Patm−47) − PaCO2/0.8 − PaO2) with 3 tests and a 9th app card using age-adjusted normal (age/4 + 4) to flag hypoxaemia from V/Q mismatch or shunt; tag gen-0006 was not pushed (tag push blocked in this session).
+---

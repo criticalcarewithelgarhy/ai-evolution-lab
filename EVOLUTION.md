@@ -63,3 +63,12 @@ outcome: accepted
 metrics: gen=0004 lines=151 dead=0 cap=1500 headroom=1349
 note: Added a positive-value guard (plus test) for sodium, chloride, and bicarbonate in anion_gap; previously zero or negative electrolytes silently produced a meaningless gap.
 ---
+---
+gen: 0006
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: add albumin-corrected anion gap
+outcome: accepted
+metrics: gen=0005 lines=164 dead=0 cap=1500 headroom=1336
+note: Added corrected_anion_gap (AG + 2.5 × (4.0 − albumin)) reusing anion_gap, with two tests, since hypoalbuminaemia commonly masks a raised gap in ICU patients.
+---

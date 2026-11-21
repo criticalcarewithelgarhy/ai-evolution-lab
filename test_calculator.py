@@ -91,6 +91,17 @@ def test_crcl_age_out_of_range():
         creatinine_clearance(150, 70, 1.0, "male")
 
 
+@pytest.mark.parametrize("sex", ["", "xyz", None, 1])
+def test_crcl_invalid_sex_rejected(sex):
+    with pytest.raises(ValueError):
+        creatinine_clearance(50, 70, 1.0, sex)
+
+
+def test_crcl_sex_case_and_whitespace():
+    assert creatinine_clearance(50, 70, 1.0, " Female ") == 74.4
+    assert creatinine_clearance(50, 70, 1.0, "M") == 87.5
+
+
 @pytest.mark.parametrize("call", [
     lambda: mean_arterial_pressure(float("nan"), 80),
     lambda: pf_ratio(float("inf"), 0.5),

@@ -57,7 +57,10 @@ def creatinine_clearance(
         raise ValueError("Weight must be positive")
     if not (0 <= age < 140):
         raise ValueError("Age must be between 0 and 140 years")
+    sex_key = sex.strip().lower() if isinstance(sex, str) else ""
+    if sex_key not in ("m", "male", "f", "female"):
+        raise ValueError("Sex must be 'male' or 'female'")
     result = ((140 - age) * weight) / (72 * creatinine)
-    if sex.lower() in ("f", "female"):
+    if sex_key in ("f", "female"):
         result *= 0.85
     return round(result, 1)

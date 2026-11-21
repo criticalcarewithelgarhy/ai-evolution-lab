@@ -53,3 +53,13 @@ outcome: accepted
 metrics: lines=390 dead=0
 note: creatinine_clearance silently applied the male formula to any unrecognised sex string (e.g. "fem"), overestimating CrCl by ~18% for misentered females; it now normalises case/whitespace and raises ValueError for anything other than m/male/f/female.
 ---
+
+---
+gen: accuracy-0005
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: validate-map-bp-ordering
+outcome: accepted
+metrics: lines=402 dead=0
+note: mean_arterial_pressure silently returned a plausible-looking MAP when SBP and DBP were swapped (e.g. 80/120 → 106.7) or DBP was negative; it now raises ValueError for SBP < DBP or DBP < 0, leaving all valid outputs unchanged.
+---

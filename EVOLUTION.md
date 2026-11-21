@@ -53,3 +53,13 @@ outcome: accepted
 metrics: gen=0003 lines=146 dead=0 cap=1500 headroom=1354
 note: Added a positive-PaO2 guard (plus test) to pf_ratio; previously zero or negative PaO2 silently returned a meaningless ratio.
 ---
+
+---
+gen: 0005
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: validate anion gap inputs
+outcome: accepted
+metrics: gen=0004 lines=151 dead=0 cap=1500 headroom=1349
+note: Added a positive-value guard (plus test) for sodium, chloride, and bicarbonate in anion_gap; previously zero or negative electrolytes silently produced a meaningless gap.
+---

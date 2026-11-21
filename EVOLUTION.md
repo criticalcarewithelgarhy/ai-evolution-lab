@@ -63,3 +63,12 @@ outcome: accepted
 metrics: lines=739 dead=0
 note: Added qSOFA (RR ≥ 22, SBP ≤ 100, altered mentation) with 4 tests and Flask card with sepsis risk interpretation; metrics.py still crashes on breadth- labels so lines/dead were taken from its count functions directly.
 ---
+---
+gen: breadth-0006
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: add shock index
+outcome: accepted
+metrics: lines=792 dead=0
+note: Added shock index (HR / SBP) with 4 tests and Flask card with normal/elevated/shock interpretation; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy rejected the gen-breadth-0006 tag push (403) so the tag exists locally only.
+---

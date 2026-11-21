@@ -67,3 +67,12 @@ outcome: accepted
 metrics: lines=680 dead=0
 note: Added aa_gradient() (FiO2×(760−47) − PaCO2/0.8 − PaO2) with UI card using optional age-adjusted normal (age/4+4); metrics.py still crashes on wild- gen labels, so measured via its functions.
 ---
+---
+gen: wild-0007
+date: 2026-11-21
+model: claude-sonnet-4-6
+idea: corrected-sodium-for-hyperglycaemia
+outcome: accepted
+metrics: lines=728 dead=0
+note: Added corrected_sodium() (Katz: Na + 1.6×(glucose−100)/100) with UI card; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy rejected the gen-wild-0007 tag push.
+---

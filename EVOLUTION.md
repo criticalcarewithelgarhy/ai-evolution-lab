@@ -74,3 +74,12 @@ metrics: lines=421 dead=0
 note: creatinine_clearance now raises ValueError for unrecognised or non-string sex (previously silently computed as male, or crashed with AttributeError on None) and tolerates case/whitespace; valid outputs unchanged; metrics.py still crashes on "robust-" gen labels and the proxy again refused the tag push (branch pushed fine).
 
 ---
+
+---
+gen: robust-0007
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: reject-non-numeric-types
+outcome: accepted
+metrics: lines=432 dead=0
+note: _require_finite now raises ValueError for non-numeric inputs (str, None, bool, lists), which previously crashed with TypeError or silently treated True/False as 1/0; valid outputs unchanged; metrics.py still crashes on "robust-" gen labels and the proxy again refused the tag push (branch pushed fine).

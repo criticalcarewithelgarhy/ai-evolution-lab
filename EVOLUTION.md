@@ -72,3 +72,12 @@ outcome: accepted
 metrics: lines=792 dead=0
 note: Added shock index (HR / SBP) with 4 tests and Flask card with normal/elevated/shock interpretation; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy rejected the gen-breadth-0006 tag push (403) so the tag exists locally only.
 ---
+---
+gen: breadth-0007
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add A-a oxygen gradient
+outcome: accepted
+metrics: lines=857 dead=0
+note: Added alveolar–arterial O2 gradient (FiO2×(Patm−47) − PaCO2/0.8 − PaO2, optional Patm) with 4 tests and Flask card interpreting against age-expected normal (age/4 + 4); metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0007 exists locally only.
+---

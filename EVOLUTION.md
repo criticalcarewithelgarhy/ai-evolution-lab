@@ -76,3 +76,12 @@ outcome: accepted
 metrics: lines=728 dead=0
 note: Added corrected_sodium() (Katz: Na + 1.6×(glucose−100)/100) with UI card; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy rejected the gen-wild-0007 tag push.
 ---
+---
+gen: wild-0008
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add free water deficit
+outcome: accepted
+metrics: lines=786 dead=0
+note: Added free_water_deficit() (TBW × (Na/140 − 1), TBW 0.6/0.5 × weight by sex) with UI card; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0008 tag push.
+---

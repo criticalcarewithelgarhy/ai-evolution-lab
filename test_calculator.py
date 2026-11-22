@@ -17,6 +17,7 @@ from calculator import (
     aa_gradient,
     corrected_sodium,
     free_water_deficit,
+    ideal_body_weight,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -177,6 +178,21 @@ def test_free_water_deficit_female():
 def test_free_water_deficit_bad_weight():
     with pytest.raises(ValueError):
         free_water_deficit(160, 0, "male")
+
+
+def test_ibw_male():
+    # 152.4 cm = 60 in → 50.0 kg; 177.8 cm = 70 in → 50 + 23 = 73.0
+    assert ideal_body_weight(177.8, "male") == 73.0
+
+
+def test_ibw_female():
+    # 165.1 cm = 65 in → 45.5 + 11.5 = 57.0
+    assert ideal_body_weight(165.1, "female") == 57.0
+
+
+def test_ibw_bad_height():
+    with pytest.raises(ValueError):
+        ideal_body_weight(0, "male")
 
 
 def test_crcl_male():

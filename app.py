@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -321,6 +321,31 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Ideal Body Weight &amp; Tidal Volume</h2>
+    <div class="formula">IBW = 50 (M) / 45.5 (F) + 2.3 × (height_in − 60); Vt 6–8 mL/kg IBW</div>
+    <form method="POST" action="/#ibw">
+      <input type="hidden" name="calc" value="ibw">
+      <div class="field"><label>Height (cm)</label>
+        <input type="number" name="ibw_height" step="0.1" value="{{ form.ibw_height or '' }}" placeholder="175"></div>
+      <div class="field"><label>Sex</label>
+        <select name="ibw_sex">
+          <option value="male" {% if form.ibw_sex == 'male' %}selected{% endif %}>Male</option>
+          <option value="female" {% if form.ibw_sex == 'female' %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.ibw is defined %}
+    <div class="result" id="ibw">
+      <span class="val">{{ results.ibw }}</span><span class="unit">kg</span>
+      <div class="interp {{ results.ibw_cls }}">{{ results.ibw_interp }}</div>
+    </div>
+    {% elif results.ibw_error is defined %}
+    <div class="error">{{ results.ibw_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -352,7 +377,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0008 · 2026-11-22 · Added: free water deficit</span>
+  <span>gen-wild-0009 · 2026-11-22 · Added: ideal body weight</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -413,6 +438,10 @@ def _fwd_interp(v):
     if v <= 0:   return "No free water deficit (Na ≤ 140)", "normal"
     if v < 4:    return "Mild deficit — correct Na ≤ 10 mEq/L per 24 h", "warn"
     return "Significant deficit — correct Na ≤ 10 mEq/L per 24 h", "crit"
+
+def _ibw_interp(v):
+    if v <= 0: return "Height too low for Devine formula", "warn"
+    return f"Lung-protective Vt: {round(v * 6)}–{round(v * 8)} mL (6–8 mL/kg IBW)", "normal"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -522,6 +551,14 @@ def index():
             results.update(fwd=v, fwd_interp=interp, fwd_cls=cls)
         except Exception as e:
             results["fwd_error"] = str(e)
+
+    elif calc == "ibw":
+        try:
+            v = ideal_body_weight(float(form["ibw_height"]), form.get("ibw_sex", "male"))
+            interp, cls = _ibw_interp(v)
+            results.update(ibw=v, ibw_interp=interp, ibw_cls=cls)
+        except Exception as e:
+            results["ibw_error"] = str(e)
 
     elif calc == "crcl":
         try:

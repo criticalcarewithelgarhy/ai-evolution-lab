@@ -133,6 +133,18 @@ def free_water_deficit(sodium: float, weight: float, sex: str, target: float = 1
     return round(tbw * (sodium / target - 1), 1)
 
 
+def ideal_body_weight(height_cm: float, sex: str) -> float:
+    """
+    Ideal body weight (Devine): 50 kg (male) or 45.5 kg (female)
+    + 2.3 kg per inch of height over 60 in. height in cm, result in kg.
+    Used for lung-protective tidal volume (6–8 mL/kg IBW).
+    """
+    if height_cm <= 0:
+        raise ValueError("Height must be positive")
+    base = 45.5 if sex.lower() in ("f", "female") else 50.0
+    return round(base + 2.3 * (height_cm / 2.54 - 60), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

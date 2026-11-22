@@ -30,6 +30,8 @@ def pf_ratio(pao2: float, fio2: float) -> float:
     _require_finite(pao2=pao2, fio2=fio2)
     if not (0.21 <= fio2 <= 1.0):
         raise ValueError("FiO2 must be between 0.21 (room air) and 1.0")
+    if pao2 <= 0:
+        raise ValueError("PaO2 must be positive")
     return round(pao2 / fio2, 1)
 
 

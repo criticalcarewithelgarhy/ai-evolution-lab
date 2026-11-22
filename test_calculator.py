@@ -56,6 +56,13 @@ def test_pf_ratio_below_room_air():
         pf_ratio(100, 0.20)
 
 
+@pytest.mark.parametrize("pao2", [0, -50])
+def test_pf_ratio_non_positive_pao2(pao2):
+    # Non-positive PaO2 is impossible and would return a zero/negative P/F
+    with pytest.raises(ValueError):
+        pf_ratio(pao2, 0.5)
+
+
 def test_pf_ratio_room_air():
     # FiO2 0.21 is the minimum valid value (room air)
     assert pf_ratio(100, 0.21) == 476.2

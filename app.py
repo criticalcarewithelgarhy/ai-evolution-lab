@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -398,10 +398,31 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Winter's Formula</h2>
+    <div class="formula">Expected PaCO₂ = 1.5 × HCO₃ + 8 (± 2)</div>
+    <form method="POST" action="/#wf">
+      <input type="hidden" name="calc" value="wf">
+      <div class="field"><label>HCO₃ (mEq/L)</label>
+        <input type="number" name="wf_hco3" step="0.1" value="{{ form.wf_hco3 or '' }}" placeholder="12"></div>
+      <div class="field"><label>Measured PaCO₂ (mmHg, optional)</label>
+        <input type="number" name="wf_paco2" step="0.1" value="{{ form.wf_paco2 or '' }}" placeholder="26"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.wf is defined %}
+    <div class="result" id="wf">
+      <span class="val">{{ results.wf }}</span><span class="unit">mmHg</span>
+      <div class="interp {{ results.wf_cls }}">{{ results.wf_interp }}</div>
+    </div>
+    {% elif results.wf_error is defined %}
+    <div class="error">{{ results.wf_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0007 · 2026-11-22 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient</span>
+  <span>gen-breadth-0008 · 2026-11-22 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -478,6 +499,14 @@ def _aa_interp(v, age):
     if v <= expected: return f"{v} mmHg — Normal for age (expected ≤ {expected})", "normal"
     if v <= expected + 20: return f"{v} mmHg — Elevated (expected ≤ {expected}) — V/Q mismatch, shunt or diffusion defect", "warn"
     return f"{v} mmHg — Markedly elevated (expected ≤ {expected})", "crit"
+
+
+def _wf_interp(v, paco2):
+    lo, hi = round(v - 2, 1), round(v + 2, 1)
+    if paco2 is None: return f"Expected PaCO₂ {lo}–{hi} mmHg if respiratory compensation is appropriate", "normal"
+    if paco2 < lo: return f"Measured {paco2} < {lo} — Concomitant respiratory alkalosis", "warn"
+    if paco2 > hi: return f"Measured {paco2} > {hi} — Concomitant respiratory acidosis", "crit"
+    return f"Measured {paco2} within {lo}–{hi} — Appropriate respiratory compensation", "normal"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -598,6 +627,15 @@ def index():
             results.update(aa=v, aa_interp=interp, aa_cls=cls)
         except Exception as e:
             results["aa_error"] = str(e)
+
+    elif calc == "wf":
+        try:
+            v = winters_formula(float(form["wf_hco3"]))
+            paco2 = float(form["wf_paco2"]) if form.get("wf_paco2") else None
+            interp, cls = _wf_interp(v, paco2)
+            results.update(wf=v, wf_interp=interp, wf_cls=cls)
+        except Exception as e:
+            results["wf_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

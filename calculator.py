@@ -142,3 +142,13 @@ def aa_gradient(pao2: float, paco2: float, fio2: float, patm: float = 760.0) -> 
         raise ValueError("Atmospheric pressure must exceed water vapour pressure (47 mmHg)")
     alveolar = fio2 * (patm - 47) - paco2 / 0.8
     return round(alveolar - pao2, 1)
+
+
+def winters_formula(bicarbonate: float) -> float:
+    """
+    Winter's formula — expected PaCO2 in primary metabolic acidosis.
+    expected PaCO2 = 1.5 × HCO3 + 8 (± 2), HCO3 in mEq/L, result in mmHg.
+    """
+    if bicarbonate < 0:
+        raise ValueError("Bicarbonate must be non-negative")
+    return round(1.5 * bicarbonate + 8, 1)

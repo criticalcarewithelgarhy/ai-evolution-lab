@@ -18,6 +18,7 @@ from calculator import (
     qsofa,
     shock_index,
     aa_gradient,
+    winters_formula,
     DISCLAIMER,
 )
 
@@ -232,3 +233,18 @@ def test_aa_gradient_altitude():
 def test_aa_gradient_bad_fio2():
     with pytest.raises(ValueError):
         aa_gradient(90, 40, 0)
+
+
+def test_winters_typical():
+    # HCO3 12 → 1.5×12 + 8 = 26.0
+    assert winters_formula(12) == 26.0
+
+
+def test_winters_severe():
+    # HCO3 5 → 7.5 + 8 = 15.5
+    assert winters_formula(5) == 15.5
+
+
+def test_winters_negative():
+    with pytest.raises(ValueError):
+        winters_formula(-1)

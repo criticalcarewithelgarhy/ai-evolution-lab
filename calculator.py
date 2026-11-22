@@ -83,6 +83,16 @@ def aa_gradient(pao2: float, paco2: float, fio2: float, patm: float = 760) -> fl
     return round(alveolar - pao2, 1)
 
 
+def serum_osmolality(sodium: float, glucose: float, bun: float) -> float:
+    """
+    Calculated serum osmolality = 2 × Na + glucose / 18 + BUN / 2.8.
+    sodium in mEq/L, glucose and BUN in mg/dL; result in mOsm/kg.
+    """
+    if glucose < 0 or bun < 0:
+        raise ValueError("Glucose and BUN must be non-negative")
+    return round(2 * sodium + glucose / 18 + bun / 2.8, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

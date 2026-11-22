@@ -15,6 +15,7 @@ from calculator import (
     winters_formula,
     delta_ratio,
     aa_gradient,
+    serum_osmolality,
     DISCLAIMER,
 )
 
@@ -139,6 +140,21 @@ def test_aa_gradient_high_fio2():
 def test_aa_gradient_bad_fio2():
     with pytest.raises(ValueError):
         aa_gradient(90, 40, 1.5)
+
+
+def test_osmolality_normal():
+    # 2*140 + 90/18 + 14/2.8 = 280 + 5 + 5 = 290
+    assert serum_osmolality(140, 90, 14) == 290.0
+
+
+def test_osmolality_hyperglycaemia():
+    # 2*130 + 600/18 + 28/2.8 = 260 + 33.33 + 10 = 303.3
+    assert serum_osmolality(130, 600, 28) == 303.3
+
+
+def test_osmolality_bad_bun():
+    with pytest.raises(ValueError):
+        serum_osmolality(140, 90, -1)
 
 
 def test_disclaimer_present():

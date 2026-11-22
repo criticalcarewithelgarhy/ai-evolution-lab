@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -310,10 +310,35 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Serum Osmolality</h2>
+    <div class="formula">Osm = 2 × Na⁺ + Glucose / 18 + BUN / 2.8</div>
+    <form method="POST" action="/#osm">
+      <input type="hidden" name="calc" value="osm">
+      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
+        <input type="number" name="osm_na" value="{{ form.osm_na or '' }}" placeholder="140"></div>
+      <div class="field"><label>Glucose (mg/dL)</label>
+        <input type="number" name="osm_glu" value="{{ form.osm_glu or '' }}" placeholder="90"></div>
+      <div class="field"><label>BUN (mg/dL)</label>
+        <input type="number" name="osm_bun" value="{{ form.osm_bun or '' }}" placeholder="14"></div>
+      <div class="field"><label>Measured Osmolality (mOsm/kg, optional)</label>
+        <input type="number" name="osm_meas" value="{{ form.osm_meas or '' }}" placeholder="300"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.osm is defined %}
+    <div class="result" id="osm">
+      <span class="val">{{ results.osm }}</span><span class="unit">mOsm/kg</span>
+      <div class="interp {{ results.osm_cls }}">{{ results.osm_interp }}</div>
+    </div>
+    {% elif results.osm_error is defined %}
+    <div class="error">{{ results.osm_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -366,6 +391,16 @@ def _aa_interp(v, age):
     limit = age / 4 + 4 if age is not None else 15
     if v <= limit: return f"Normal (≤ {limit:.0f} mmHg expected)", "normal"
     return f"Elevated (> {limit:.0f}) — V/Q mismatch, shunt or diffusion defect", "warn"
+
+def _osm_interp(v, measured):
+    if measured is not None:
+        gap = measured - v
+        if gap > 10: return f"Osmolar gap {gap:.1f} (> 10) — consider toxic alcohols", "crit"
+        return f"Osmolar gap {gap:.1f} — normal (≤ 10)", "normal"
+    if v < 275:  return "Low (< 275 mOsm/kg)", "warn"
+    if v <= 295: return "Normal (275–295 mOsm/kg)", "normal"
+    if v <= 320: return "Elevated (> 295 mOsm/kg)", "warn"
+    return "Markedly elevated (> 320) — hyperosmolar state", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -449,6 +484,15 @@ def index():
             results.update(aa=v, aa_interp=interp, aa_cls=cls)
         except Exception as e:
             results["aa_error"] = str(e)
+
+    elif calc == "osm":
+        try:
+            v = serum_osmolality(float(form["osm_na"]), float(form["osm_glu"]), float(form["osm_bun"]))
+            measured = float(form["osm_meas"]) if form.get("osm_meas") else None
+            interp, cls = _osm_interp(v, measured)
+            results.update(osm=v, osm_interp=interp, osm_cls=cls)
+        except Exception as e:
+            results["osm_error"] = str(e)
 
     elif calc == "crcl":
         try:

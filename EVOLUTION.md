@@ -91,3 +91,12 @@ outcome: accepted
 metrics: lines=442 dead=0
 note: anion_gap silently accepted non-positive sodium or negative chloride/bicarbonate (e.g. a sign-entry error HCO3 -24 turned a normal AG of 12 into a false 60), now raising ValueError while leaving all valid outputs unchanged.
 ---
+---
+gen: accuracy-0009
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: pf-interp-berlin-boundaries
+outcome: accepted
+metrics: lines=449 dead=0
+note: The P/F interpretation used exclusive upper bounds, so P/F exactly 100, 200 or 300 was labelled one ARDS category too mild versus the Berlin definition (≤100 severe, ≤200 moderate, ≤300 mild); bounds are now inclusive with boundary tests, and the P/F numeric output is unchanged.
+---

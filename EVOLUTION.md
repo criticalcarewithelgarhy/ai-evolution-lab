@@ -104,3 +104,13 @@ outcome: accepted
 metrics: lines=888 dead=0
 note: Added shock_index() (HR / SBP) with UI card flagging > 1.0 as haemodynamic instability; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0010 tag push.
 ---
+
+---
+gen: wild-0011
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add ROX index
+outcome: accepted
+metrics: lines=945 dead=0
+note: Added rox_index() ((SpO2/FiO2)/RR) with UI card flagging HFNC failure risk (≥4.88 low, <3.85 high); metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0011 tag push.
+---

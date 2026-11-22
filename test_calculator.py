@@ -113,5 +113,16 @@ def test_nonfinite_inputs_rejected(call):
         call()
 
 
+@pytest.mark.parametrize("call", [
+    lambda: mean_arterial_pressure("120", 80),
+    lambda: pf_ratio(None, 0.5),
+    lambda: anion_gap(140, 104, True),
+    lambda: creatinine_clearance(50, [70], 1.0, "male"),
+])
+def test_non_numeric_inputs_rejected(call):
+    with pytest.raises(ValueError):
+        call()
+
+
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER

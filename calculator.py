@@ -9,7 +9,9 @@ DISCLAIMER = "EXPERIMENTAL — NOT FOR CLINICAL USE"
 
 
 def _require_finite(*values: float) -> None:
-    """Reject NaN/infinity, which slip past ordinary range comparisons."""
+    """Reject non-numeric types (str, None, bool) and NaN/infinity."""
+    if not all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in values):
+        raise ValueError("Inputs must be numbers")
     if not all(math.isfinite(v) for v in values):
         raise ValueError("Inputs must be finite numbers")
 

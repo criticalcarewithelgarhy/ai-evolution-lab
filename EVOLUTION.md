@@ -78,3 +78,13 @@ outcome: accepted
 metrics: lines=703 dead=0
 note: Added serum_osmolality() (2×Na + glucose/18 + BUN/2.8) with 3 tests and a 10th app card that computes the osmolar gap when measured osmolality is given, flagging gap > 10 for toxic alcohols; tag gen-0007 was not pushed (git proxy refused tag push).
 ---
+
+---
+gen: 0008
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add corrected calcium
+outcome: accepted
+metrics: lines=751 dead=0
+note: Added corrected_calcium() (Payne: Ca + 0.8×(4 − albumin)) with 3 tests and an 11th app card flagging hypo/hypercalcaemia, since hypoalbuminaemia makes total Ca misleading in ICU patients; tag gen-0008 was not pushed (git proxy refused tag push).
+---

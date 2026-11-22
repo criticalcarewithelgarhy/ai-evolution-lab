@@ -18,6 +18,7 @@ from calculator import (
     corrected_sodium,
     free_water_deficit,
     ideal_body_weight,
+    shock_index,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -193,6 +194,21 @@ def test_ibw_female():
 def test_ibw_bad_height():
     with pytest.raises(ValueError):
         ideal_body_weight(0, "male")
+
+
+def test_shock_index_normal():
+    # HR 72, SBP 120 → 0.6
+    assert shock_index(72, 120) == 0.6
+
+
+def test_shock_index_shock():
+    # HR 130, SBP 90 → 1.44
+    assert shock_index(130, 90) == 1.44
+
+
+def test_shock_index_bad_sbp():
+    with pytest.raises(ValueError):
+        shock_index(80, 0)
 
 
 def test_crcl_male():

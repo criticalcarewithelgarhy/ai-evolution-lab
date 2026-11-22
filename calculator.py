@@ -145,6 +145,18 @@ def ideal_body_weight(height_cm: float, sex: str) -> float:
     return round(base + 2.3 * (height_cm / 2.54 - 60), 1)
 
 
+def shock_index(heart_rate: float, systolic: float) -> float:
+    """
+    Shock index = heart rate / systolic BP.
+    Normal 0.5–0.7; > 1.0 suggests haemodynamic instability / occult shock.
+    """
+    if heart_rate < 0:
+        raise ValueError("Heart rate must be non-negative")
+    if systolic <= 0:
+        raise ValueError("Systolic BP must be positive")
+    return round(heart_rate / systolic, 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

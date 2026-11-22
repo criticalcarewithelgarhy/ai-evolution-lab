@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -346,6 +346,27 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Shock Index</h2>
+    <div class="formula">SI = HR / SBP</div>
+    <form method="POST" action="/#si">
+      <input type="hidden" name="calc" value="si">
+      <div class="field"><label>Heart Rate (bpm)</label>
+        <input type="number" name="si_hr" value="{{ form.si_hr or '' }}" placeholder="110"></div>
+      <div class="field"><label>Systolic BP (mmHg)</label>
+        <input type="number" name="si_sbp" value="{{ form.si_sbp or '' }}" placeholder="100"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.si is defined %}
+    <div class="result" id="si">
+      <span class="val">{{ results.si }}</span>
+      <div class="interp {{ results.si_cls }}">{{ results.si_interp }}</div>
+    </div>
+    {% elif results.si_error is defined %}
+    <div class="error">{{ results.si_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -377,7 +398,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0009 · 2026-11-22 · Added: ideal body weight</span>
+  <span>gen-wild-0010 · 2026-11-22 · Added: shock index</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -442,6 +463,12 @@ def _fwd_interp(v):
 def _ibw_interp(v):
     if v <= 0: return "Height too low for Devine formula", "warn"
     return f"Lung-protective Vt: {round(v * 6)}–{round(v * 8)} mL (6–8 mL/kg IBW)", "normal"
+
+def _si_interp(v):
+    if v < 0.5:  return "Low (< 0.5)", "warn"
+    if v <= 0.7: return "Normal (0.5–0.7)", "normal"
+    if v <= 1.0: return "Elevated (0.7–1.0) — monitor closely", "warn"
+    return "> 1.0 — haemodynamic instability / occult shock", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -559,6 +586,14 @@ def index():
             results.update(ibw=v, ibw_interp=interp, ibw_cls=cls)
         except Exception as e:
             results["ibw_error"] = str(e)
+
+    elif calc == "si":
+        try:
+            v = shock_index(float(form["si_hr"]), float(form["si_sbp"]))
+            interp, cls = _si_interp(v)
+            results.update(si=v, si_interp=interp, si_cls=cls)
+        except Exception as e:
+            results["si_error"] = str(e)
 
     elif calc == "crcl":
         try:

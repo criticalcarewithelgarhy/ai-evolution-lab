@@ -82,3 +82,12 @@ outcome: accepted
 metrics: lines=432 dead=0
 note: pf_ratio silently returned zero or negative P/F for PaO2 <= 0 (physically impossible, misread as severe ARDS); it now raises ValueError, leaving all valid outputs unchanged.
 ---
+---
+gen: accuracy-0008
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: validate-anion-gap-electrolytes-nonnegative
+outcome: accepted
+metrics: lines=442 dead=0
+note: anion_gap silently accepted non-positive sodium or negative chloride/bicarbonate (e.g. a sign-entry error HCO3 -24 turned a normal AG of 12 into a false 60), now raising ValueError while leaving all valid outputs unchanged.
+---

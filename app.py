@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -294,6 +294,33 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Free Water Deficit</h2>
+    <div class="formula">FWD = TBW × (Na⁺ / 140 − 1), TBW = wt × 0.6 (M) / 0.5 (F)</div>
+    <form method="POST" action="/#fwd">
+      <input type="hidden" name="calc" value="fwd">
+      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
+        <input type="number" name="fwd_na" value="{{ form.fwd_na or '' }}" placeholder="160"></div>
+      <div class="field"><label>Weight (kg)</label>
+        <input type="number" name="fwd_weight" value="{{ form.fwd_weight or '' }}" placeholder="70"></div>
+      <div class="field"><label>Sex</label>
+        <select name="fwd_sex">
+          <option value="male" {% if form.fwd_sex == 'male' %}selected{% endif %}>Male</option>
+          <option value="female" {% if form.fwd_sex == 'female' %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.fwd is defined %}
+    <div class="result" id="fwd">
+      <span class="val">{{ results.fwd }}</span><span class="unit">L</span>
+      <div class="interp {{ results.fwd_cls }}">{{ results.fwd_interp }}</div>
+    </div>
+    {% elif results.fwd_error is defined %}
+    <div class="error">{{ results.fwd_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -325,7 +352,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0007 · 2026-11-21 · Added: corrected sodium</span>
+  <span>gen-wild-0008 · 2026-11-22 · Added: free water deficit</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -381,6 +408,11 @@ def _cna_interp(v):
     if v < 135:  return "Low — true hyponatraemia", "warn"
     if v <= 145: return "Normal (135–145 mEq/L)", "normal"
     return "Elevated — hypernatraemia / free water deficit", "warn"
+
+def _fwd_interp(v):
+    if v <= 0:   return "No free water deficit (Na ≤ 140)", "normal"
+    if v < 4:    return "Mild deficit — correct Na ≤ 10 mEq/L per 24 h", "warn"
+    return "Significant deficit — correct Na ≤ 10 mEq/L per 24 h", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -480,6 +512,16 @@ def index():
             results.update(cna=v, cna_interp=interp, cna_cls=cls)
         except Exception as e:
             results["cna_error"] = str(e)
+
+    elif calc == "fwd":
+        try:
+            v = free_water_deficit(
+                float(form["fwd_na"]), float(form["fwd_weight"]), form.get("fwd_sex", "male"),
+            )
+            interp, cls = _fwd_interp(v)
+            results.update(fwd=v, fwd_interp=interp, fwd_cls=cls)
+        except Exception as e:
+            results["fwd_error"] = str(e)
 
     elif calc == "crcl":
         try:

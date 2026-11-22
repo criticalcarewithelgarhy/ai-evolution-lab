@@ -16,6 +16,7 @@ from calculator import (
     delta_ratio,
     aa_gradient,
     corrected_sodium,
+    free_water_deficit,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -161,6 +162,21 @@ def test_corrected_sodium_hyperglycaemia():
 def test_corrected_sodium_bad_glucose():
     with pytest.raises(ValueError):
         corrected_sodium(140, -1)
+
+
+def test_free_water_deficit_male():
+    # 70kg male, Na 160 → 42 × (160/140 − 1) = 6.0 L
+    assert free_water_deficit(160, 70, "male") == 6.0
+
+
+def test_free_water_deficit_female():
+    # 70kg female, Na 154 → 35 × 0.1 = 3.5 L
+    assert free_water_deficit(154, 70, "female") == 3.5
+
+
+def test_free_water_deficit_bad_weight():
+    with pytest.raises(ValueError):
+        free_water_deficit(160, 0, "male")
 
 
 def test_crcl_male():

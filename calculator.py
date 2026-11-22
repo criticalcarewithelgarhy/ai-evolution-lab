@@ -120,6 +120,19 @@ def corrected_sodium(sodium: float, glucose: float) -> float:
     return round(sodium + 1.6 * (glucose - 100) / 100, 1)
 
 
+def free_water_deficit(sodium: float, weight: float, sex: str, target: float = 140) -> float:
+    """
+    Free water deficit (L) = TBW × (Na / target − 1).
+    TBW = weight × 0.6 (male) or 0.5 (female). weight in kg, sodium in mEq/L.
+    """
+    if weight <= 0:
+        raise ValueError("Weight must be positive")
+    if sodium <= 0 or target <= 0:
+        raise ValueError("Sodium must be positive")
+    tbw = weight * (0.5 if sex.lower() in ("f", "female") else 0.6)
+    return round(tbw * (sodium / target - 1), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

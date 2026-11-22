@@ -50,6 +50,12 @@ function correctedSodium(na, glucose) {
     return Math.round((na + 1.6 * (glucose - 100) / 100) * 10) / 10;
 }
 
+function aaGradient(pao2, paco2, fio2, patm = 760) {
+    // A–a gradient: PAO2 − PaO2, where PAO2 = FiO2 × (Patm − 47) − PaCO2 / 0.8
+    if (fio2 <= 0 || fio2 > 1) throw new Error("FiO2 must be in (0, 1]");
+    return Math.round((fio2 * (patm - 47) - paco2 / 0.8 - pao2) * 10) / 10;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -57,4 +63,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, creatinineClearance };

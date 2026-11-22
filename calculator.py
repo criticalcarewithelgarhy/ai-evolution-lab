@@ -164,3 +164,22 @@ def delta_ratio(sodium: float, chloride: float, bicarbonate: float) -> float:
         raise ValueError("Bicarbonate must be below 24 mEq/L for delta ratio")
     ag = sodium - (chloride + bicarbonate)
     return round((ag - 12) / (24 - bicarbonate), 2)
+
+
+def free_water_deficit(sodium: float, weight: float, sex: str, age: float = 40) -> float:
+    """
+    Free water deficit in hypernatraemia.
+    FWD = TBW × (Na / 140 − 1), TBW = weight × factor.
+    factor: male 0.6 (0.5 if age ≥ 65), female 0.5 (0.45 if age ≥ 65).
+    sodium in mEq/L, weight in kg; result in litres.
+    """
+    if sodium <= 0:
+        raise ValueError("Sodium must be positive")
+    if weight <= 0:
+        raise ValueError("Weight must be positive")
+    female = sex.lower() in ("f", "female")
+    if age >= 65:
+        factor = 0.45 if female else 0.5
+    else:
+        factor = 0.5 if female else 0.6
+    return round(weight * factor * (sodium / 140 - 1), 1)

@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -442,10 +442,38 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Free Water Deficit</h2>
+    <div class="formula">FWD = TBW × (Na⁺ / 140 − 1)</div>
+    <form method="POST" action="/#fwd">
+      <input type="hidden" name="calc" value="fwd">
+      <div class="field"><label>Na⁺ (mEq/L)</label>
+        <input type="number" name="fwd_na" step="0.1" value="{{ form.fwd_na or '' }}" placeholder="160"></div>
+      <div class="field"><label>Weight (kg)</label>
+        <input type="number" name="fwd_weight" step="0.1" value="{{ form.fwd_weight or '' }}" placeholder="70"></div>
+      <div class="field"><label>Age (years)</label>
+        <input type="number" name="fwd_age" value="{{ form.fwd_age or '' }}" placeholder="40"></div>
+      <div class="field"><label>Sex</label>
+        <select name="fwd_sex">
+          <option value="male" {% if form.fwd_sex != 'female' %}selected{% endif %}>Male</option>
+          <option value="female" {% if form.fwd_sex == 'female' %}selected{% endif %}>Female</option>
+        </select></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.fwd is defined %}
+    <div class="result" id="fwd">
+      <span class="val">{{ results.fwd }} L</span>
+      <div class="interp {{ results.fwd_cls }}">{{ results.fwd_interp }}</div>
+    </div>
+    {% elif results.fwd_error is defined %}
+    <div class="error">{{ results.fwd_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0009 · 2026-11-22 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio</span>
+  <span>gen-breadth-0010 · 2026-11-22 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -537,6 +565,12 @@ def _dr_interp(v):
     if v < 0.8: return f"{v} — 0.4–0.8 — Mixed high and normal anion gap acidosis", "warn"
     if v <= 2: return f"{v} — 0.8–2 — Pure high anion gap metabolic acidosis", "normal"
     return f"{v} — > 2 — Concurrent metabolic alkalosis or chronic respiratory acidosis", "crit"
+
+
+def _fwd_interp(v):
+    if v <= 0: return f"{v} L — No free water deficit (Na⁺ ≤ 140)", "normal"
+    if v < 3: return f"{v} L — Mild deficit; correct Na⁺ ≤ 10 mEq/L per 24 h", "warn"
+    return f"{v} L — Significant deficit; correct Na⁺ ≤ 10 mEq/L per 24 h", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -674,6 +708,17 @@ def index():
             results.update(dr=v, dr_interp=interp, dr_cls=cls)
         except Exception as e:
             results["dr_error"] = str(e)
+
+    elif calc == "fwd":
+        try:
+            v = free_water_deficit(
+                float(form["fwd_na"]), float(form["fwd_weight"]),
+                form.get("fwd_sex", "male"), float(form.get("fwd_age") or 40),
+            )
+            interp, cls = _fwd_interp(v)
+            results.update(fwd=v, fwd_interp=interp, fwd_cls=cls)
+        except Exception as e:
+            results["fwd_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

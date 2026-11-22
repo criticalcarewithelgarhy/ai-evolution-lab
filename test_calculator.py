@@ -20,6 +20,7 @@ from calculator import (
     aa_gradient,
     winters_formula,
     delta_ratio,
+    free_water_deficit,
     DISCLAIMER,
 )
 
@@ -269,3 +270,22 @@ def test_delta_ratio_metabolic_alkalosis():
 def test_delta_ratio_bad_hco3():
     with pytest.raises(ValueError):
         delta_ratio(140, 100, 24)
+
+
+def test_fwd_male():
+    # 70 kg male, Na 160: 42 × (160/140 − 1) = 6.0
+    assert free_water_deficit(160, 70, "male") == 6.0
+
+
+def test_fwd_elderly_female():
+    # 60 kg female ≥65, Na 154: 27 × 0.1 = 2.7
+    assert free_water_deficit(154, 60, "female", age=80) == 2.7
+
+
+def test_fwd_normal_sodium():
+    assert free_water_deficit(140, 70, "male") == 0.0
+
+
+def test_fwd_bad_weight():
+    with pytest.raises(ValueError):
+        free_water_deficit(150, 0, "male")

@@ -148,5 +148,15 @@ def test_non_finite_inputs_rejected(bad):
             call()
 
 
+@pytest.mark.parametrize("pf,label", [
+    (100.0, "Severe"), (100.1, "Moderate"), (200.0, "Moderate"),
+    (200.1, "Mild"), (300.0, "Mild"), (300.1, "Normal"),
+])
+def test_pf_interp_berlin_inclusive_boundaries(pf, label):
+    # Berlin ARDS: P/F exactly 100/200/300 belongs to the more severe category
+    from app import _pf_interp
+    assert _pf_interp(pf)[0].startswith(label)
+
+
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER

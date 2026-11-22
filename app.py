@@ -192,10 +192,11 @@ def _map_interp(v):
     return "Elevated", "warn"
 
 def _pf_interp(v):
-    if v < 100:  return "Severe ARDS (< 100)", "crit"
-    if v < 200:  return "Moderate ARDS (100–200)", "warn"
-    if v < 300:  return "Mild ARDS (200–300)", "warn"
-    return "Normal (≥ 300)", "normal"
+    # Berlin definition: upper bounds are inclusive (≤100 severe, ≤200 moderate, ≤300 mild)
+    if v <= 100: return "Severe ARDS (≤ 100)", "crit"
+    if v <= 200: return "Moderate ARDS (100–200)", "warn"
+    if v <= 300: return "Mild ARDS (200–300)", "warn"
+    return "Normal (> 300)", "normal"
 
 def _ag_interp(v):
     if v < 8:    return "Low (< 8) — hypoalbuminaemia?", "warn"

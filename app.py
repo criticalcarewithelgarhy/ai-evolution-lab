@@ -211,6 +211,17 @@ def _crcl_interp(v):
     return "Normal (≥ 90 mL/min)", "normal"
 
 
+def _num(form, key):
+    """Parse a form field, giving a clear message for blank or non-numeric input."""
+    raw = (form.get(key) or "").strip()
+    if not raw:
+        raise ValueError(f"Missing value for {key}")
+    try:
+        return float(raw)
+    except ValueError:
+        raise ValueError(f"Value for {key} must be a number") from None
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     results = {}
@@ -219,7 +230,7 @@ def index():
 
     if calc == "map":
         try:
-            v = mean_arterial_pressure(float(form["sbp"]), float(form["dbp"]))
+            v = mean_arterial_pressure(_num(form, "sbp"), _num(form, "dbp"))
             interp, cls = _map_interp(v)
             results.update(map=v, map_interp=interp, map_cls=cls)
         except Exception as e:
@@ -227,7 +238,7 @@ def index():
 
     elif calc == "pf":
         try:
-            v = pf_ratio(float(form["pao2"]), float(form["fio2"]))
+            v = pf_ratio(_num(form, "pao2"), _num(form, "fio2"))
             interp, cls = _pf_interp(v)
             results.update(pf=v, pf_interp=interp, pf_cls=cls)
         except Exception as e:
@@ -235,7 +246,7 @@ def index():
 
     elif calc == "ag":
         try:
-            v = anion_gap(float(form["na"]), float(form["cl"]), float(form["hco3"]))
+            v = anion_gap(_num(form, "na"), _num(form, "cl"), _num(form, "hco3"))
             interp, cls = _ag_interp(v)
             results.update(ag=v, ag_interp=interp, ag_cls=cls)
         except Exception as e:
@@ -244,8 +255,8 @@ def index():
     elif calc == "crcl":
         try:
             v = creatinine_clearance(
-                float(form["age"]), float(form["weight"]),
-                float(form["creatinine"]), form.get("sex", "male"),
+                _num(form, "age"), _num(form, "weight"),
+                _num(form, "creatinine"), form.get("sex", "male"),
             )
             interp, cls = _crcl_interp(v)
             results.update(crcl=v, crcl_interp=interp, crcl_cls=cls)

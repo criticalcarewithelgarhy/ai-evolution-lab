@@ -98,3 +98,12 @@ outcome: accepted
 metrics: gen=0008 lines=203 dead=0 cap=1500 headroom=1297
 note: Added winters_formula returning the expected PaCO2 range (1.5 × HCO3 + 8 ± 2) with two tests, letting a raised anion gap be checked for appropriate respiratory compensation.
 ---
+---
+gen: 0010
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add delta ratio
+outcome: accepted
+metrics: gen=0009 lines=214 dead=0 cap=1500 headroom=1286
+note: Added delta_ratio ((AG − 12) / (24 − HCO3)) reusing anion_gap, with two tests, so a raised gap can be checked for a co-existing non-gap acidosis or metabolic alkalosis.
+---

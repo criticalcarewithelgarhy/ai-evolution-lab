@@ -16,6 +16,7 @@ from calculator import (
     delta_ratio,
     aa_gradient,
     serum_osmolality,
+    corrected_calcium,
     DISCLAIMER,
 )
 
@@ -155,6 +156,21 @@ def test_osmolality_hyperglycaemia():
 def test_osmolality_bad_bun():
     with pytest.raises(ValueError):
         serum_osmolality(140, 90, -1)
+
+
+def test_corrected_calcium_normal_albumin():
+    # Albumin 4.0 → no correction
+    assert corrected_calcium(9.0, 4.0) == 9.0
+
+
+def test_corrected_calcium_hypoalbuminaemia():
+    # Ca 7.6, albumin 2.0: 7.6 + 0.8 * 2.0 = 9.2
+    assert corrected_calcium(7.6, 2.0) == 9.2
+
+
+def test_corrected_calcium_bad_albumin():
+    with pytest.raises(ValueError):
+        corrected_calcium(9.0, -1)
 
 
 def test_disclaimer_present():

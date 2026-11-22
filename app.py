@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -335,10 +335,31 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Corrected Calcium</h2>
+    <div class="formula">Ca<sub>corr</sub> = Ca + 0.8 × (4 − Albumin)</div>
+    <form method="POST" action="/#cca">
+      <input type="hidden" name="calc" value="cca">
+      <div class="field"><label>Total Calcium (mg/dL)</label>
+        <input type="number" name="cca_ca" step="0.1" value="{{ form.cca_ca or '' }}" placeholder="8.0"></div>
+      <div class="field"><label>Albumin (g/dL)</label>
+        <input type="number" name="cca_alb" step="0.1" value="{{ form.cca_alb or '' }}" placeholder="4.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.cca is defined %}
+    <div class="result" id="cca">
+      <span class="val">{{ results.cca }}</span><span class="unit">mg/dL</span>
+      <div class="interp {{ results.cca_cls }}">{{ results.cca_interp }}</div>
+    </div>
+    {% elif results.cca_error is defined %}
+    <div class="error">{{ results.cca_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -401,6 +422,12 @@ def _osm_interp(v, measured):
     if v <= 295: return "Normal (275–295 mOsm/kg)", "normal"
     if v <= 320: return "Elevated (> 295 mOsm/kg)", "warn"
     return "Markedly elevated (> 320) — hyperosmolar state", "crit"
+
+def _cca_interp(v):
+    if v < 8.5:   return "Hypocalcaemia (< 8.5 mg/dL) — check ionised Ca", "warn"
+    if v <= 10.5: return "Normal (8.5–10.5 mg/dL)", "normal"
+    if v <= 12:   return "Mild hypercalcaemia", "warn"
+    return "Severe hypercalcaemia (> 12 mg/dL)", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -493,6 +520,14 @@ def index():
             results.update(osm=v, osm_interp=interp, osm_cls=cls)
         except Exception as e:
             results["osm_error"] = str(e)
+
+    elif calc == "cca":
+        try:
+            v = corrected_calcium(float(form["cca_ca"]), float(form["cca_alb"]))
+            interp, cls = _cca_interp(v)
+            results.update(cca=v, cca_interp=interp, cca_cls=cls)
+        except Exception as e:
+            results["cca_error"] = str(e)
 
     elif calc == "crcl":
         try:

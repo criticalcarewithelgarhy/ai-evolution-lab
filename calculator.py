@@ -93,6 +93,16 @@ def serum_osmolality(sodium: float, glucose: float, bun: float) -> float:
     return round(2 * sodium + glucose / 18 + bun / 2.8, 1)
 
 
+def corrected_calcium(calcium: float, albumin: float) -> float:
+    """
+    Albumin-corrected calcium (Payne, 1973) = Ca + 0.8 × (4.0 − albumin).
+    calcium in mg/dL, albumin in g/dL.
+    """
+    if calcium < 0 or albumin < 0:
+        raise ValueError("Calcium and albumin must be non-negative")
+    return round(calcium + 0.8 * (4.0 - albumin), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

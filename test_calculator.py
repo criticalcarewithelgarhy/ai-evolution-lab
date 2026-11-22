@@ -14,6 +14,7 @@ from calculator import (
     shock_index,
     ards_severity,
     winters_formula,
+    delta_ratio,
     DISCLAIMER,
 )
 
@@ -114,3 +115,13 @@ def test_winters_formula_dka():
 def test_winters_formula_bad_input():
     with pytest.raises(ValueError):
         winters_formula(0)
+
+
+def test_delta_ratio_pure_hagma():
+    # Na 138, Cl 98, HCO3 10 → AG 30; (30-12)/(24-10) = 1.29
+    assert delta_ratio(138, 98, 10) == 1.29
+
+
+def test_delta_ratio_bad_bicarbonate():
+    with pytest.raises(ValueError):
+        delta_ratio(140, 104, 24)

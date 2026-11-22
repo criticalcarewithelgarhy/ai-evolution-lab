@@ -88,3 +88,10 @@ def winters_formula(bicarbonate: float) -> tuple:
         raise ValueError("Bicarbonate must be positive")
     expected = 1.5 * bicarbonate + 8
     return (round(expected - 2, 1), round(expected + 2, 1))
+
+
+def delta_ratio(sodium: float, chloride: float, bicarbonate: float) -> float:
+    """Delta ratio = (AG - 12) / (24 - HCO3); <1 mixed NAGMA, >2 concurrent met. alkalosis"""
+    if bicarbonate >= 24:
+        raise ValueError("Bicarbonate must be below 24 for a delta ratio")
+    return round((anion_gap(sodium, chloride, bicarbonate) - 12) / (24 - bicarbonate), 2)

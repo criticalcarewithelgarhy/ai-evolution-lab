@@ -68,3 +68,13 @@ outcome: accepted
 metrics: lines=646 dead=0
 note: Added aa_gradient() (FiO2×(Patm−47) − PaCO2/0.8 − PaO2) with 3 tests and a 9th app card using age-adjusted normal (age/4 + 4) to flag hypoxaemia from V/Q mismatch or shunt; tag gen-0006 was not pushed (tag push blocked in this session).
 ---
+
+---
+gen: 0007
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add serum osmolality
+outcome: accepted
+metrics: lines=703 dead=0
+note: Added serum_osmolality() (2×Na + glucose/18 + BUN/2.8) with 3 tests and a 10th app card that computes the osmolar gap when measured osmolality is given, flagging gap > 10 for toxic alcohols; tag gen-0007 was not pushed (git proxy refused tag push).
+---

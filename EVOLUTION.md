@@ -100,3 +100,12 @@ outcome: accepted
 metrics: lines=449 dead=0
 note: The P/F interpretation used exclusive upper bounds, so P/F exactly 100, 200 or 300 was labelled one ARDS category too mild versus the Berlin definition (≤100 severe, ≤200 moderate, ≤300 mild); bounds are now inclusive with boundary tests, and the P/F numeric output is unchanged.
 ---
+---
+gen: accuracy-0010
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: allow-decimal-form-inputs
+outcome: accepted
+metrics: lines=458 dead=0
+note: Browser step validation blocked precise inputs (creatinine step 0.1 rejected 0.85 mg/dL; PaO2, BP and electrolyte fields only accepted integers), forcing rounding that could skew CrCl by ~6%; all number inputs now use step="any", with a test, and no formula output changed.
+---

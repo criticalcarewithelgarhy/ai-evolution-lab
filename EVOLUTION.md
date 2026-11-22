@@ -89,3 +89,12 @@ outcome: accepted
 metrics: gen=0007 lines=191 dead=0 cap=1500 headroom=1309
 note: Added ards_severity mapping P/F ratio to Berlin bands (severe/moderate/mild/none) by reusing pf_ratio, with a four-band test, turning a raw number into a bedside category.
 ---
+---
+gen: 0009
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add winters formula
+outcome: accepted
+metrics: gen=0008 lines=203 dead=0 cap=1500 headroom=1297
+note: Added winters_formula returning the expected PaCO2 range (1.5 × HCO3 + 8 ± 2) with two tests, letting a raised anion gap be checked for appropriate respiratory compensation.
+---

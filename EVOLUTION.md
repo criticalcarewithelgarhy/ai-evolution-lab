@@ -53,3 +53,11 @@ outcome: accepted
 metrics: lines=100 dead=-1 cap=1500 headroom=1400
 note: Added osmolalGap (measured − calculated osmolality) with two tests; four original formulas untouched, oracle 16/16 passing.
 ---
+gen: 0006
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: corrected-sodium
+outcome: accepted
+metrics: lines=109 dead=-1 cap=1500 headroom=1391
+note: Added correctedSodium (Katz: Na + 1.6×(glucose−100)/100) with two tests; four original formulas untouched, oracle 16/16 passing.
+---

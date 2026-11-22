@@ -13,6 +13,7 @@ from calculator import (
     creatinine_clearance,
     shock_index,
     ards_severity,
+    winters_formula,
     DISCLAIMER,
 )
 
@@ -103,3 +104,13 @@ def test_ards_severity_bands():
     assert ards_severity(150, 1.0) == "moderate"   # P/F 150
     assert ards_severity(125, 0.5) == "mild"       # P/F 250
     assert ards_severity(95, 0.21) == "none"       # P/F 452.4
+
+
+def test_winters_formula_dka():
+    # HCO3 10 → 1.5×10 + 8 = 23, range 21–25
+    assert winters_formula(10) == (21.0, 25.0)
+
+
+def test_winters_formula_bad_input():
+    with pytest.raises(ValueError):
+        winters_formula(0)

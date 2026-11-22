@@ -80,3 +80,11 @@ def ards_severity(pao2: float, fio2: float) -> str:
     if ratio <= 300:
         return "mild"
     return "none"
+
+
+def winters_formula(bicarbonate: float) -> tuple:
+    """Expected PaCO2 in metabolic acidosis = 1.5 * HCO3 + 8 (± 2), mmHg"""
+    if bicarbonate <= 0:
+        raise ValueError("Bicarbonate must be positive")
+    expected = 1.5 * bicarbonate + 8
+    return (round(expected - 2, 1), round(expected + 2, 1))

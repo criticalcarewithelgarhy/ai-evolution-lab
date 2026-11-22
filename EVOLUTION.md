@@ -61,3 +61,11 @@ outcome: accepted
 metrics: lines=109 dead=-1 cap=1500 headroom=1391
 note: Added correctedSodium (Katz: Na + 1.6×(glucose−100)/100) with two tests; four original formulas untouched, oracle 16/16 passing.
 ---
+---
+gen: 0007
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: aa-gradient
+outcome: accepted
+metrics: lines=119 dead=-1 cap=1500 headroom=1381
+note: Added aaGradient (FiO2×(Patm−47) − PaCO2/0.8 − PaO2) with two tests; four original formulas untouched, oracle 16/16 passing.

@@ -103,6 +103,18 @@ def corrected_calcium(calcium: float, albumin: float) -> float:
     return round(calcium + 0.8 * (4.0 - albumin), 1)
 
 
+def predicted_body_weight(height_cm: float, sex: str) -> float:
+    """
+    ARDSnet predicted body weight (Devine):
+    male 50 + 0.91 × (height − 152.4); female 45.5 + 0.91 × (height − 152.4).
+    height in cm; result in kg. Used to set lung-protective tidal volume (6 mL/kg).
+    """
+    if height_cm <= 0:
+        raise ValueError("Height must be positive")
+    base = 45.5 if sex.lower() in ("f", "female") else 50.0
+    return round(base + 0.91 * (height_cm - 152.4), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -356,10 +356,35 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Predicted Body Weight &amp; Tidal Volume</h2>
+    <div class="formula">PBW = 50 (♂) / 45.5 (♀) + 0.91 × (Height − 152.4); V<sub>T</sub> 6–8 mL/kg</div>
+    <form method="POST" action="/#pbw">
+      <input type="hidden" name="calc" value="pbw">
+      <div class="field"><label>Height (cm)</label>
+        <input type="number" name="pbw_ht" step="0.1" value="{{ form.pbw_ht or '' }}" placeholder="170"></div>
+      <div class="field"><label>Sex</label>
+        <select name="pbw_sex">
+          <option value="male" {% if form.pbw_sex == 'male' %}selected{% endif %}>Male</option>
+          <option value="female" {% if form.pbw_sex == 'female' %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.pbw is defined %}
+    <div class="result" id="pbw">
+      <span class="val">{{ results.pbw }}</span><span class="unit">kg</span>
+      <div class="interp {{ results.pbw_cls }}">{{ results.pbw_interp }}</div>
+    </div>
+    {% elif results.pbw_error is defined %}
+    <div class="error">{{ results.pbw_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -428,6 +453,9 @@ def _cca_interp(v):
     if v <= 10.5: return "Normal (8.5–10.5 mg/dL)", "normal"
     if v <= 12:   return "Mild hypercalcaemia", "warn"
     return "Severe hypercalcaemia (> 12 mg/dL)", "crit"
+
+def _pbw_interp(v):
+    return f"Lung-protective VT: {6 * v:.0f} mL (6 mL/kg) – {8 * v:.0f} mL (8 mL/kg)", "normal"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -528,6 +556,14 @@ def index():
             results.update(cca=v, cca_interp=interp, cca_cls=cls)
         except Exception as e:
             results["cca_error"] = str(e)
+
+    elif calc == "pbw":
+        try:
+            v = predicted_body_weight(float(form["pbw_ht"]), form.get("pbw_sex", "male"))
+            interp, cls = _pbw_interp(v)
+            results.update(pbw=v, pbw_interp=interp, pbw_cls=cls)
+        except Exception as e:
+            results["pbw_error"] = str(e)
 
     elif calc == "crcl":
         try:

@@ -17,6 +17,7 @@ from calculator import (
     aa_gradient,
     serum_osmolality,
     corrected_calcium,
+    predicted_body_weight,
     DISCLAIMER,
 )
 
@@ -171,6 +172,21 @@ def test_corrected_calcium_hypoalbuminaemia():
 def test_corrected_calcium_bad_albumin():
     with pytest.raises(ValueError):
         corrected_calcium(9.0, -1)
+
+
+def test_pbw_male():
+    # 175 cm male: 50 + 0.91 * 22.6 = 70.566 → 70.6
+    assert predicted_body_weight(175, "male") == 70.6
+
+
+def test_pbw_female():
+    # 160 cm female: 45.5 + 0.91 * 7.6 = 52.416 → 52.4
+    assert predicted_body_weight(160, "female") == 52.4
+
+
+def test_pbw_bad_height():
+    with pytest.raises(ValueError):
+        predicted_body_weight(0, "male")
 
 
 def test_disclaimer_present():

@@ -85,3 +85,12 @@ outcome: accepted
 metrics: lines=786 dead=0
 note: Added free_water_deficit() (TBW × (Na/140 − 1), TBW 0.6/0.5 × weight by sex) with UI card; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0008 tag push.
 ---
+---
+gen: wild-0009
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add ideal body weight
+outcome: accepted
+metrics: lines=838 dead=0
+note: Added ideal_body_weight() (Devine: 50/45.5 + 2.3×(height_in − 60)) with UI card showing lung-protective Vt 6–8 mL/kg IBW; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0009 tag push.
+---

@@ -11,6 +11,7 @@ from calculator import (
     anion_gap,
     corrected_anion_gap,
     creatinine_clearance,
+    shock_index,
     DISCLAIMER,
 )
 
@@ -84,3 +85,13 @@ def test_crcl_bad_creatinine():
 
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER
+
+
+def test_shock_index_elevated():
+    # HR 120, SBP 100 → 1.2
+    assert shock_index(120, 100) == 1.2
+
+
+def test_shock_index_bad_input():
+    with pytest.raises(ValueError):
+        shock_index(80, 0)

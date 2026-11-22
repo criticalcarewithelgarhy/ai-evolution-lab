@@ -61,3 +61,10 @@ def creatinine_clearance(
     if sex_lower in ("f", "female"):
         result *= 0.85
     return round(result, 1)
+
+
+def shock_index(heart_rate: float, systolic: float) -> float:
+    """Shock index = HR / SBP; > 1.0 suggests haemodynamic instability"""
+    if heart_rate <= 0 or systolic <= 0:
+        raise ValueError("Heart rate and systolic pressure must be positive")
+    return round(heart_rate / systolic, 2)

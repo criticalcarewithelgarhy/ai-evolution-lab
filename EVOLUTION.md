@@ -88,3 +88,13 @@ outcome: accepted
 metrics: lines=751 dead=0
 note: Added corrected_calcium() (Payne: Ca + 0.8×(4 − albumin)) with 3 tests and an 11th app card flagging hypo/hypercalcaemia, since hypoalbuminaemia makes total Ca misleading in ICU patients; tag gen-0008 was not pushed (git proxy refused tag push).
 ---
+
+---
+gen: 0009
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add predicted body weight
+outcome: accepted
+metrics: lines=802 dead=0
+note: Added predicted_body_weight() (ARDSnet/Devine: 50 or 45.5 + 0.91×(height − 152.4)) with 3 tests and a 12th app card showing the 6–8 mL/kg lung-protective tidal volume range; tag gen-0009 was not pushed (git proxy refused tag push).
+---

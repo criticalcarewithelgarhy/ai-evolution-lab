@@ -56,6 +56,12 @@ function aaGradient(pao2, paco2, fio2, patm = 760) {
     return Math.round((fio2 * (patm - 47) - paco2 / 0.8 - pao2) * 10) / 10;
 }
 
+function shockIndex(hr, sbp) {
+    // Shock index: HR / SBP (normal 0.5–0.7; > 1.0 suggests shock)
+    if (sbp <= 0) throw new Error("SBP must be > 0");
+    return Math.round((hr / sbp) * 100) / 100;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -63,4 +69,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, creatinineClearance };

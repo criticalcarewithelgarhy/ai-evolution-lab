@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -99,6 +99,16 @@ test("A-a gradient room air", () => {
 test("A-a gradient FiO2 1.0", () => {
     // 713 − 50 − 100 = 563
     expect(aaGradient(100, 40, 1.0)).toBe(563.0);
+});
+
+test("shock index normal", () => {
+    // 70 / 120 = 0.583 → 0.58
+    expect(shockIndex(70, 120)).toBe(0.58);
+});
+
+test("shock index shock", () => {
+    // 120 / 80 = 1.5
+    expect(shockIndex(120, 80)).toBe(1.5);
 });
 
 test("CrCl male", () => {

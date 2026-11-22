@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -367,6 +367,29 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>ROX Index</h2>
+    <div class="formula">ROX = (SpO₂ / FiO₂) / RR</div>
+    <form method="POST" action="/#rox">
+      <input type="hidden" name="calc" value="rox">
+      <div class="field"><label>SpO₂ (%)</label>
+        <input type="number" name="rox_spo2" value="{{ form.rox_spo2 or '' }}" placeholder="92"></div>
+      <div class="field"><label>FiO₂ (0.21 – 1.0)</label>
+        <input type="number" name="rox_fio2" step="0.01" value="{{ form.rox_fio2 or '' }}" placeholder="0.5"></div>
+      <div class="field"><label>Respiratory Rate (breaths/min)</label>
+        <input type="number" name="rox_rr" value="{{ form.rox_rr or '' }}" placeholder="24"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.rox is defined %}
+    <div class="result" id="rox">
+      <span class="val">{{ results.rox }}</span>
+      <div class="interp {{ results.rox_cls }}">{{ results.rox_interp }}</div>
+    </div>
+    {% elif results.rox_error is defined %}
+    <div class="error">{{ results.rox_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -398,7 +421,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0010 · 2026-11-22 · Added: shock index</span>
+  <span>gen-wild-0011 · 2026-11-22 · Added: ROX index</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -469,6 +492,11 @@ def _si_interp(v):
     if v <= 0.7: return "Normal (0.5–0.7)", "normal"
     if v <= 1.0: return "Elevated (0.7–1.0) — monitor closely", "warn"
     return "> 1.0 — haemodynamic instability / occult shock", "crit"
+
+def _rox_interp(v):
+    if v >= 4.88: return "≥ 4.88 — low risk of HFNC failure", "normal"
+    if v >= 3.85: return "3.85–4.88 — intermediate, reassess in 1–2 h", "warn"
+    return "< 3.85 — high risk of HFNC failure / intubation", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -594,6 +622,14 @@ def index():
             results.update(si=v, si_interp=interp, si_cls=cls)
         except Exception as e:
             results["si_error"] = str(e)
+
+    elif calc == "rox":
+        try:
+            v = rox_index(float(form["rox_spo2"]), float(form["rox_fio2"]), float(form["rox_rr"]))
+            interp, cls = _rox_interp(v)
+            results.update(rox=v, rox_interp=interp, rox_cls=cls)
+        except Exception as e:
+            results["rox_error"] = str(e)
 
     elif calc == "crcl":
         try:

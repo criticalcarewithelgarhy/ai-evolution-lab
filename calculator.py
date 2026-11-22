@@ -157,6 +157,21 @@ def shock_index(heart_rate: float, systolic: float) -> float:
     return round(heart_rate / systolic, 2)
 
 
+def rox_index(spo2: float, fio2: float, resp_rate: float) -> float:
+    """
+    ROX index = (SpO2 / FiO2) / respiratory rate.
+    SpO2 in %, FiO2 as fraction 0-1, RR in breaths/min.
+    On high-flow nasal oxygen, ≥ 4.88 predicts HFNC success; < 3.85 high risk of intubation.
+    """
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+    if not (0 <= spo2 <= 100):
+        raise ValueError("SpO2 must be between 0 and 100")
+    if resp_rate <= 0:
+        raise ValueError("Respiratory rate must be positive")
+    return round((spo2 / fio2) / resp_rate, 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

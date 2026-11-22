@@ -19,6 +19,7 @@ from calculator import (
     free_water_deficit,
     ideal_body_weight,
     shock_index,
+    rox_index,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -209,6 +210,26 @@ def test_shock_index_shock():
 def test_shock_index_bad_sbp():
     with pytest.raises(ValueError):
         shock_index(80, 0)
+
+
+def test_rox_index_success():
+    # SpO2 95, FiO2 0.4, RR 20 → 237.5 / 20 = 11.88
+    assert rox_index(95, 0.4, 20) == 11.88
+
+
+def test_rox_index_high_risk():
+    # SpO2 88, FiO2 0.8, RR 32 → 110 / 32 = 3.44
+    assert rox_index(88, 0.8, 32) == 3.44
+
+
+def test_rox_index_bad_fio2():
+    with pytest.raises(ValueError):
+        rox_index(95, 0, 20)
+
+
+def test_rox_index_bad_rr():
+    with pytest.raises(ValueError):
+        rox_index(95, 0.4, 0)
 
 
 def test_crcl_male():

@@ -99,3 +99,12 @@ outcome: accepted
 metrics: lines=961 dead=0
 note: Added delta–delta ratio ((AG−12)/(24−HCO3)) with 4 tests and Flask card classifying NAGMA / mixed / pure HAGMA / concurrent metabolic alkalosis; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0009 exists locally only.
 ---
+---
+gen: breadth-0010
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add free water deficit
+outcome: accepted
+metrics: lines=1029 dead=0
+note: Added free water deficit (TBW × (Na/140 − 1), TBW factor by sex and age ≥ 65) with 4 tests and Flask card with deficit severity and correction-rate reminder; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0010 exists locally only.
+---

@@ -83,3 +83,13 @@ idea: reject-non-numeric-types
 outcome: accepted
 metrics: lines=432 dead=0
 note: _require_finite now raises ValueError for non-numeric inputs (str, None, bool, lists), which previously crashed with TypeError or silently treated True/False as 1/0; valid outputs unchanged; metrics.py still crashes on "robust-" gen labels and the proxy again refused the tag push (branch pushed fine).
+
+---
+gen: robust-0008
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: friendly-blank-form-field-errors
+outcome: accepted
+metrics: lines=441 dead=0
+note: app.py now parses form fields via _num(), so blank, missing or non-numeric inputs show "Missing value for sbp" / "Value for pao2 must be a number" instead of a raw KeyError "'sbp'" or Python float() message; formula outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions).
+---

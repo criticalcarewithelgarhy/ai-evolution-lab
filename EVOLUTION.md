@@ -93,3 +93,13 @@ outcome: accepted
 metrics: lines=441 dead=0
 note: app.py now parses form fields via _num(), so blank, missing or non-numeric inputs show "Missing value for sbp" / "Value for pao2 must be a number" instead of a raw KeyError "'sbp'" or Python float() message; formula outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions).
 ---
+
+---
+gen: robust-0008
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: reject-implausible-bp-ceiling
+outcome: accepted
+metrics: lines=447 dead=0
+note: mean_arterial_pressure now raises ValueError for systolic > 300 mmHg (physiologically implausible, likely a typo) instead of returning a bogus MAP; valid outputs unchanged; metrics.py still crashes on "robust-" gen labels, and the proxy again refused the tag push (branch pushed fine).
+---

@@ -126,3 +126,19 @@ def shock_index(heart_rate: float, sbp: float) -> float:
     if sbp <= 0:
         raise ValueError("Systolic BP must be positive")
     return round(heart_rate / sbp, 2)
+
+
+def aa_gradient(pao2: float, paco2: float, fio2: float, patm: float = 760.0) -> float:
+    """
+    Alveolar–arterial (A–a) oxygen gradient.
+    PAO2 = FiO2 × (Patm − 47) − PaCO2 / 0.8 ; A–a = PAO2 − PaO2
+    pressures in mmHg, FiO2 as fraction 0–1. Expected normal ≈ age/4 + 4.
+    """
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+    if pao2 < 0 or paco2 < 0:
+        raise ValueError("PaO2 and PaCO2 must be non-negative")
+    if patm <= 47:
+        raise ValueError("Atmospheric pressure must exceed water vapour pressure (47 mmHg)")
+    alveolar = fio2 * (patm - 47) - paco2 / 0.8
+    return round(alveolar - pao2, 1)

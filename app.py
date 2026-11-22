@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -371,10 +371,37 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>A–a O₂ Gradient</h2>
+    <div class="formula">A–a = FiO₂ × (Patm − 47) − PaCO₂ / 0.8 − PaO₂</div>
+    <form method="POST" action="/#aa">
+      <input type="hidden" name="calc" value="aa">
+      <div class="field"><label>PaO₂ (mmHg)</label>
+        <input type="number" name="aa_pao2" step="0.1" value="{{ form.aa_pao2 or '' }}" placeholder="90"></div>
+      <div class="field"><label>PaCO₂ (mmHg)</label>
+        <input type="number" name="aa_paco2" step="0.1" value="{{ form.aa_paco2 or '' }}" placeholder="40"></div>
+      <div class="field"><label>FiO₂ (0.21 – 1.0)</label>
+        <input type="number" name="aa_fio2" step="0.01" value="{{ form.aa_fio2 or '' }}" placeholder="0.21"></div>
+      <div class="field"><label>Atmospheric pressure (mmHg)</label>
+        <input type="number" name="aa_patm" value="{{ form.aa_patm or '' }}" placeholder="760"></div>
+      <div class="field"><label>Age (years, for expected normal)</label>
+        <input type="number" name="aa_age" value="{{ form.aa_age or '' }}" placeholder="40"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.aa is defined %}
+    <div class="result" id="aa">
+      <span class="val">{{ results.aa }}</span><span class="unit">mmHg</span>
+      <div class="interp {{ results.aa_cls }}">{{ results.aa_interp }}</div>
+    </div>
+    {% elif results.aa_error is defined %}
+    <div class="error">{{ results.aa_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0006 · 2026-11-21 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index</span>
+  <span>gen-breadth-0007 · 2026-11-22 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -445,6 +472,12 @@ def _si_interp(v):
     if v <= 0.7: return f"{v} — Normal (0.5–0.7)", "normal"
     if v < 1.0:  return f"{v} — Elevated — possible occult hypoperfusion", "warn"
     return f"{v} — ≥ 1.0 — Suggests shock / significant haemodynamic compromise", "crit"
+
+def _aa_interp(v, age):
+    expected = round(age / 4 + 4, 1)
+    if v <= expected: return f"{v} mmHg — Normal for age (expected ≤ {expected})", "normal"
+    if v <= expected + 20: return f"{v} mmHg — Elevated (expected ≤ {expected}) — V/Q mismatch, shunt or diffusion defect", "warn"
+    return f"{v} mmHg — Markedly elevated (expected ≤ {expected})", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -554,6 +587,17 @@ def index():
             results.update(si=v, si_interp=interp, si_cls=cls)
         except Exception as e:
             results["si_error"] = str(e)
+
+    elif calc == "aa":
+        try:
+            v = aa_gradient(
+                float(form["aa_pao2"]), float(form["aa_paco2"]), float(form["aa_fio2"]),
+                float(form.get("aa_patm") or 760),
+            )
+            interp, cls = _aa_interp(v, float(form.get("aa_age") or 40))
+            results.update(aa=v, aa_interp=interp, aa_cls=cls)
+        except Exception as e:
+            results["aa_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

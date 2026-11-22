@@ -17,6 +17,7 @@ from calculator import (
     serum_osmolality,
     qsofa,
     shock_index,
+    aa_gradient,
     DISCLAIMER,
 )
 
@@ -211,3 +212,23 @@ def test_shock_index_zero_sbp():
 def test_shock_index_negative_hr():
     with pytest.raises(ValueError):
         shock_index(-1, 120)
+
+
+def test_aa_gradient_room_air():
+    # FiO2 0.21: PAO2 = 0.21×713 − 40/0.8 = 149.73 − 50 = 99.73; minus PaO2 90 → 9.7
+    assert aa_gradient(90, 40, 0.21) == 9.7
+
+
+def test_aa_gradient_high_fio2():
+    # FiO2 1.0: PAO2 = 713 − 50 = 663; minus PaO2 100 → 563.0
+    assert aa_gradient(100, 40, 1.0) == 563.0
+
+
+def test_aa_gradient_altitude():
+    # Patm 630: PAO2 = 0.21×583 − 40/0.8 = 122.43 − 50 = 72.43; minus 60 → 12.4
+    assert aa_gradient(60, 40, 0.21, patm=630) == 12.4
+
+
+def test_aa_gradient_bad_fio2():
+    with pytest.raises(ValueError):
+        aa_gradient(90, 40, 0)

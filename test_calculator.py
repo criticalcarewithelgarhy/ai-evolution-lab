@@ -32,6 +32,12 @@ def test_map_nonpositive_sbp():
         mean_arterial_pressure(0, 0)
 
 
+def test_map_implausible_systolic():
+    with pytest.raises(ValueError):
+        mean_arterial_pressure(400, 80)
+    assert mean_arterial_pressure(300, 100) == 166.7
+
+
 def test_pf_ratio_normal():
     assert pf_ratio(100, 1.0) == 100.0
 

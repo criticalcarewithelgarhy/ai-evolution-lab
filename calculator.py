@@ -23,6 +23,8 @@ def mean_arterial_pressure(systolic: float, diastolic: float) -> float:
         raise ValueError("Blood pressure values must be positive")
     if systolic <= diastolic:
         raise ValueError("Systolic must be greater than diastolic")
+    if systolic > 300:
+        raise ValueError("Systolic above 300 mmHg is physiologically implausible")
     return round(diastolic + (systolic - diastolic) / 3, 1)
 
 

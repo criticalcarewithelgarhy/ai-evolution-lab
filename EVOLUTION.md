@@ -72,3 +72,12 @@ outcome: accepted
 metrics: gen=0005 lines=164 dead=0 cap=1500 headroom=1336
 note: Added corrected_anion_gap (AG + 2.5 × (4.0 − albumin)) reusing anion_gap, with two tests, since hypoalbuminaemia commonly masks a raised gap in ICU patients.
 ---
+---
+gen: 0007
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add shock index formula
+outcome: accepted
+metrics: gen=0006 lines=175 dead=0 cap=1500 headroom=1325
+note: Added shock_index (HR / SBP, rounded to 2 dp) with validation and two tests, a quick bedside marker of occult shock that complements MAP.
+---

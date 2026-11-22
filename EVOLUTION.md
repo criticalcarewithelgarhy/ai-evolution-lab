@@ -90,3 +90,12 @@ outcome: accepted
 metrics: lines=907 dead=0
 note: Added Winter's formula (expected PaCO2 = 1.5×HCO3 + 8 ± 2) with 3 tests and Flask card that optionally compares measured PaCO2 to flag concomitant respiratory acidosis/alkalosis; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0008 exists locally only.
 ---
+---
+gen: breadth-0009
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add delta-delta ratio
+outcome: accepted
+metrics: lines=961 dead=0
+note: Added delta–delta ratio ((AG−12)/(24−HCO3)) with 4 tests and Flask card classifying NAGMA / mixed / pure HAGMA / concurrent metabolic alkalosis; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0009 exists locally only.
+---

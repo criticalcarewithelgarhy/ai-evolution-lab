@@ -18,6 +18,7 @@ from calculator import (
     serum_osmolality,
     corrected_calcium,
     predicted_body_weight,
+    shock_index,
     DISCLAIMER,
 )
 
@@ -187,6 +188,21 @@ def test_pbw_female():
 def test_pbw_bad_height():
     with pytest.raises(ValueError):
         predicted_body_weight(0, "male")
+
+
+def test_shock_index_normal():
+    # HR 70, SBP 120 → 0.58
+    assert shock_index(70, 120) == 0.58
+
+
+def test_shock_index_shock():
+    # HR 120, SBP 90 → 1.33
+    assert shock_index(120, 90) == 1.33
+
+
+def test_shock_index_bad_sbp():
+    with pytest.raises(ValueError):
+        shock_index(80, 0)
 
 
 def test_disclaimer_present():

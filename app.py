@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -381,10 +381,31 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Shock Index</h2>
+    <div class="formula">SI = HR / SBP</div>
+    <form method="POST" action="/#si">
+      <input type="hidden" name="calc" value="si">
+      <div class="field"><label>Heart Rate (bpm)</label>
+        <input type="number" name="si_hr" value="{{ form.si_hr or '' }}" placeholder="80"></div>
+      <div class="field"><label>Systolic BP (mmHg)</label>
+        <input type="number" name="si_sbp" value="{{ form.si_sbp or '' }}" placeholder="120"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.si is defined %}
+    <div class="result" id="si">
+      <span class="val">{{ results.si }}</span>
+      <div class="interp {{ results.si_cls }}">{{ results.si_interp }}</div>
+    </div>
+    {% elif results.si_error is defined %}
+    <div class="error">{{ results.si_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -456,6 +477,12 @@ def _cca_interp(v):
 
 def _pbw_interp(v):
     return f"Lung-protective VT: {6 * v:.0f} mL (6 mL/kg) – {8 * v:.0f} mL (8 mL/kg)", "normal"
+
+def _si_interp(v):
+    if v < 0.5:  return "Low (< 0.5)", "normal"
+    if v <= 0.7: return "Normal (0.5–0.7)", "normal"
+    if v <= 0.9: return "Borderline (0.7–0.9) — reassess", "warn"
+    return "Elevated (> 0.9) — possible occult shock", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -564,6 +591,14 @@ def index():
             results.update(pbw=v, pbw_interp=interp, pbw_cls=cls)
         except Exception as e:
             results["pbw_error"] = str(e)
+
+    elif calc == "si":
+        try:
+            v = shock_index(float(form["si_hr"]), float(form["si_sbp"]))
+            interp, cls = _si_interp(v)
+            results.update(si=v, si_interp=interp, si_cls=cls)
+        except Exception as e:
+            results["si_error"] = str(e)
 
     elif calc == "crcl":
         try:

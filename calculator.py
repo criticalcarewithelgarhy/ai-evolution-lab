@@ -115,6 +115,16 @@ def predicted_body_weight(height_cm: float, sex: str) -> float:
     return round(base + 0.91 * (height_cm - 152.4), 1)
 
 
+def shock_index(heart_rate: float, systolic: float) -> float:
+    """
+    Shock index = HR / SBP. Normal 0.5–0.7; > 0.9 suggests occult shock.
+    heart_rate in bpm, systolic in mmHg.
+    """
+    if systolic <= 0 or heart_rate < 0:
+        raise ValueError("SBP must be positive and HR non-negative")
+    return round(heart_rate / systolic, 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

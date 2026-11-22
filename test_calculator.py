@@ -78,6 +78,18 @@ def test_anion_gap_elevated():
     assert anion_gap(138, 98, 10) == 30.0
 
 
+@pytest.mark.parametrize("na,cl,hco3", [(0, 104, 24), (-140, 104, 24), (140, -104, 24), (140, 104, -24)])
+def test_anion_gap_negative_electrolytes(na, cl, hco3):
+    # A sign-entry error (e.g. HCO3 -24) silently inflates the AG into a false high-AG acidosis
+    with pytest.raises(ValueError):
+        anion_gap(na, cl, hco3)
+
+
+def test_anion_gap_zero_bicarbonate():
+    # HCO3 of 0 is extreme but measurable; must still compute
+    assert anion_gap(140, 100, 0) == 40.0
+
+
 def test_crcl_male():
     # 50yo, 70kg, Cr 1.0 → 87.5  (Cockcroft-Gault: (90×70)/72)
     assert creatinine_clearance(50, 70, 1.0, "male") == 87.5

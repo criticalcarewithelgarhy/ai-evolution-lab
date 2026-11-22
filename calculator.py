@@ -152,3 +152,15 @@ def winters_formula(bicarbonate: float) -> float:
     if bicarbonate < 0:
         raise ValueError("Bicarbonate must be non-negative")
     return round(1.5 * bicarbonate + 8, 1)
+
+
+def delta_ratio(sodium: float, chloride: float, bicarbonate: float) -> float:
+    """
+    Delta–delta ratio = (AG − 12) / (24 − HCO3), AG = Na − (Cl + HCO3).
+    Detects mixed acid–base disorders in high anion gap metabolic acidosis.
+    <0.4 hyperchloraemic NAGMA; 0.4–0.8 mixed; 0.8–2 pure HAGMA; >2 concurrent metabolic alkalosis.
+    """
+    if bicarbonate >= 24:
+        raise ValueError("Bicarbonate must be below 24 mEq/L for delta ratio")
+    ag = sodium - (chloride + bicarbonate)
+    return round((ag - 12) / (24 - bicarbonate), 2)

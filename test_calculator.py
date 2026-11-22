@@ -19,6 +19,7 @@ from calculator import (
     shock_index,
     aa_gradient,
     winters_formula,
+    delta_ratio,
     DISCLAIMER,
 )
 
@@ -248,3 +249,23 @@ def test_winters_severe():
 def test_winters_negative():
     with pytest.raises(ValueError):
         winters_formula(-1)
+
+
+def test_delta_ratio_pure_hagma():
+    # Na 140, Cl 100, HCO3 12 → AG 28; (28−12)/(24−12) = 1.33
+    assert delta_ratio(140, 100, 12) == 1.33
+
+
+def test_delta_ratio_mixed_nagma():
+    # Na 140, Cl 110, HCO3 12 → AG 18; 6/12 = 0.5
+    assert delta_ratio(140, 110, 12) == 0.5
+
+
+def test_delta_ratio_metabolic_alkalosis():
+    # Na 140, Cl 90, HCO3 18 → AG 32; 20/6 = 3.33
+    assert delta_ratio(140, 90, 18) == 3.33
+
+
+def test_delta_ratio_bad_hco3():
+    with pytest.raises(ValueError):
+        delta_ratio(140, 100, 24)

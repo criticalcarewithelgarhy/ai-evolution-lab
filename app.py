@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -419,10 +419,33 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Delta–Delta Ratio</h2>
+    <div class="formula">Δ/Δ = (AG − 12) / (24 − HCO₃)</div>
+    <form method="POST" action="/#dr">
+      <input type="hidden" name="calc" value="dr">
+      <div class="field"><label>Na⁺ (mEq/L)</label>
+        <input type="number" name="dr_na" step="0.1" value="{{ form.dr_na or '' }}" placeholder="140"></div>
+      <div class="field"><label>Cl⁻ (mEq/L)</label>
+        <input type="number" name="dr_cl" step="0.1" value="{{ form.dr_cl or '' }}" placeholder="100"></div>
+      <div class="field"><label>HCO₃ (mEq/L)</label>
+        <input type="number" name="dr_hco3" step="0.1" value="{{ form.dr_hco3 or '' }}" placeholder="12"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.dr is defined %}
+    <div class="result" id="dr">
+      <span class="val">{{ results.dr }}</span>
+      <div class="interp {{ results.dr_cls }}">{{ results.dr_interp }}</div>
+    </div>
+    {% elif results.dr_error is defined %}
+    <div class="error">{{ results.dr_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0008 · 2026-11-22 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula</span>
+  <span>gen-breadth-0009 · 2026-11-22 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -507,6 +530,13 @@ def _wf_interp(v, paco2):
     if paco2 < lo: return f"Measured {paco2} < {lo} — Concomitant respiratory alkalosis", "warn"
     if paco2 > hi: return f"Measured {paco2} > {hi} — Concomitant respiratory acidosis", "crit"
     return f"Measured {paco2} within {lo}–{hi} — Appropriate respiratory compensation", "normal"
+
+
+def _dr_interp(v):
+    if v < 0.4: return f"{v} — < 0.4 — Hyperchloraemic normal anion gap acidosis", "warn"
+    if v < 0.8: return f"{v} — 0.4–0.8 — Mixed high and normal anion gap acidosis", "warn"
+    if v <= 2: return f"{v} — 0.8–2 — Pure high anion gap metabolic acidosis", "normal"
+    return f"{v} — > 2 — Concurrent metabolic alkalosis or chronic respiratory acidosis", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -636,6 +666,14 @@ def index():
             results.update(wf=v, wf_interp=interp, wf_cls=cls)
         except Exception as e:
             results["wf_error"] = str(e)
+
+    elif calc == "dr":
+        try:
+            v = delta_ratio(float(form["dr_na"]), float(form["dr_cl"]), float(form["dr_hco3"]))
+            interp, cls = _dr_interp(v)
+            results.update(dr=v, dr_interp=interp, dr_cls=cls)
+        except Exception as e:
+            results["dr_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

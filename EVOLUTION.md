@@ -81,3 +81,12 @@ outcome: accepted
 metrics: gen=0006 lines=175 dead=0 cap=1500 headroom=1325
 note: Added shock_index (HR / SBP, rounded to 2 dp) with validation and two tests, a quick bedside marker of occult shock that complements MAP.
 ---
+---
+gen: 0008
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: add ARDS severity classification
+outcome: accepted
+metrics: gen=0007 lines=191 dead=0 cap=1500 headroom=1309
+note: Added ards_severity mapping P/F ratio to Berlin bands (severe/moderate/mild/none) by reusing pf_ratio, with a four-band test, turning a raw number into a bedside category.
+---

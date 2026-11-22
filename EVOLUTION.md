@@ -103,3 +103,13 @@ outcome: accepted
 metrics: lines=447 dead=0
 note: mean_arterial_pressure now raises ValueError for systolic > 300 mmHg (physiologically implausible, likely a typo) instead of returning a bogus MAP; valid outputs unchanged; metrics.py still crashes on "robust-" gen labels, and the proxy again refused the tag push (branch pushed fine).
 ---
+
+---
+gen: robust-0009
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: reject-creatinine-umol-units
+outcome: accepted
+metrics: lines=453 dead=0
+note: creatinine_clearance now raises ValueError for creatinine > 30 mg/dL (almost certainly a µmol/L value typed into a mg/dL field, e.g. 88), instead of returning a falsely tiny CrCl; valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and the proxy again refused the tag push (branch pushed fine).
+---

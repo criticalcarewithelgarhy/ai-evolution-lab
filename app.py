@@ -87,9 +87,9 @@ TEMPLATE = """<!DOCTYPE html>
     <form method="POST" action="/#map">
       <input type="hidden" name="calc" value="map">
       <div class="field"><label>Systolic BP (mmHg)</label>
-        <input type="number" name="sbp" value="{{ form.sbp or '' }}" placeholder="120"></div>
+        <input type="number" step="any" name="sbp" value="{{ form.sbp or '' }}" placeholder="120"></div>
       <div class="field"><label>Diastolic BP (mmHg)</label>
-        <input type="number" name="dbp" value="{{ form.dbp or '' }}" placeholder="80"></div>
+        <input type="number" step="any" name="dbp" value="{{ form.dbp or '' }}" placeholder="80"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
     {% if results.map is defined %}
@@ -108,9 +108,9 @@ TEMPLATE = """<!DOCTYPE html>
     <form method="POST" action="/#pf">
       <input type="hidden" name="calc" value="pf">
       <div class="field"><label>PaO₂ (mmHg)</label>
-        <input type="number" name="pao2" value="{{ form.pao2 or '' }}" placeholder="100"></div>
+        <input type="number" step="any" name="pao2" value="{{ form.pao2 or '' }}" placeholder="100"></div>
       <div class="field"><label>FiO₂ (0.21 – 1.0)</label>
-        <input type="number" name="fio2" step="0.01" value="{{ form.fio2 or '' }}" placeholder="0.21"></div>
+        <input type="number" step="any" name="fio2" value="{{ form.fio2 or '' }}" placeholder="0.21"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
     {% if results.pf is defined %}
@@ -129,11 +129,11 @@ TEMPLATE = """<!DOCTYPE html>
     <form method="POST" action="/#ag">
       <input type="hidden" name="calc" value="ag">
       <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
-        <input type="number" name="na" value="{{ form.na or '' }}" placeholder="140"></div>
+        <input type="number" step="any" name="na" value="{{ form.na or '' }}" placeholder="140"></div>
       <div class="field"><label>Chloride Cl⁻ (mEq/L)</label>
-        <input type="number" name="cl" value="{{ form.cl or '' }}" placeholder="104"></div>
+        <input type="number" step="any" name="cl" value="{{ form.cl or '' }}" placeholder="104"></div>
       <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L)</label>
-        <input type="number" name="hco3" value="{{ form.hco3 or '' }}" placeholder="24"></div>
+        <input type="number" step="any" name="hco3" value="{{ form.hco3 or '' }}" placeholder="24"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
     {% if results.ag is defined %}
@@ -152,11 +152,11 @@ TEMPLATE = """<!DOCTYPE html>
     <form method="POST" action="/#crcl">
       <input type="hidden" name="calc" value="crcl">
       <div class="field"><label>Age (years)</label>
-        <input type="number" name="age" value="{{ form.age or '' }}" placeholder="50"></div>
+        <input type="number" step="any" name="age" value="{{ form.age or '' }}" placeholder="50"></div>
       <div class="field"><label>Weight (kg)</label>
-        <input type="number" name="weight" value="{{ form.weight or '' }}" placeholder="70"></div>
+        <input type="number" step="any" name="weight" value="{{ form.weight or '' }}" placeholder="70"></div>
       <div class="field"><label>Serum Creatinine (mg/dL)</label>
-        <input type="number" name="creatinine" step="0.1" value="{{ form.creatinine or '' }}" placeholder="1.0"></div>
+        <input type="number" step="any" name="creatinine" value="{{ form.creatinine or '' }}" placeholder="1.0"></div>
       <div class="field"><label>Sex</label>
         <select name="sex">
           <option value="male" {% if form.sex == 'male' %}selected{% endif %}>Male</option>

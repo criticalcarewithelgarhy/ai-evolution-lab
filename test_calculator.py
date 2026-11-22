@@ -160,3 +160,16 @@ def test_pf_interp_berlin_inclusive_boundaries(pf, label):
 
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER
+
+
+def test_form_inputs_accept_any_decimal():
+    # Browser step validation silently blocked values like creatinine 0.85 or PaO2 85.5,
+    # forcing users to round inputs and skewing results (e.g. CrCl by up to ~6%)
+    import re
+    from app import app
+    html = app.test_client().get("/").get_data(as_text=True)
+    inputs = re.findall(r'<input type="number"[^>]*>', html)
+    assert inputs and all('step="any"' in i for i in inputs)
+    resp = app.test_client().post("/", data={
+        "calc": "crcl", "age": "50", "weight": "70", "creatinine": "0.85", "sex": "male"})
+    assert "102.9" in resp.get_data(as_text=True)

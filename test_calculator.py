@@ -12,6 +12,7 @@ from calculator import (
     corrected_anion_gap,
     creatinine_clearance,
     shock_index,
+    ards_severity,
     DISCLAIMER,
 )
 
@@ -95,3 +96,10 @@ def test_shock_index_elevated():
 def test_shock_index_bad_input():
     with pytest.raises(ValueError):
         shock_index(80, 0)
+
+
+def test_ards_severity_bands():
+    assert ards_severity(60, 0.8) == "severe"      # P/F 75
+    assert ards_severity(150, 1.0) == "moderate"   # P/F 150
+    assert ards_severity(125, 0.5) == "mild"       # P/F 250
+    assert ards_severity(95, 0.21) == "none"       # P/F 452.4

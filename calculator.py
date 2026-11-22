@@ -68,3 +68,15 @@ def shock_index(heart_rate: float, systolic: float) -> float:
     if heart_rate <= 0 or systolic <= 0:
         raise ValueError("Heart rate and systolic pressure must be positive")
     return round(heart_rate / systolic, 2)
+
+
+def ards_severity(pao2: float, fio2: float) -> str:
+    """Berlin ARDS severity by P/F: severe <=100, moderate <=200, mild <=300"""
+    ratio = pf_ratio(pao2, fio2)
+    if ratio <= 100:
+        return "severe"
+    if ratio <= 200:
+        return "moderate"
+    if ratio <= 300:
+        return "mild"
+    return "none"

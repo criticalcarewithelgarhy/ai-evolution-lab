@@ -73,3 +73,12 @@ outcome: accepted
 metrics: lines=426 dead=0
 note: float("nan") and "inf" parse from form text and slipped past every range check (NaN comparisons are always False), returning nan/inf results; all four formulas now raise ValueError for non-finite inputs, leaving valid outputs unchanged.
 ---
+---
+gen: accuracy-0007
+date: 2026-11-22
+model: claude-sonnet-4-6
+idea: validate-pao2-positive
+outcome: accepted
+metrics: lines=432 dead=0
+note: pf_ratio silently returned zero or negative P/F for PaO2 <= 0 (physically impossible, misread as severe ARDS); it now raises ValueError, leaving all valid outputs unchanged.
+---

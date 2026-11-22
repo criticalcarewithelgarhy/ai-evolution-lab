@@ -87,6 +87,12 @@ def test_crcl_bad_creatinine():
         creatinine_clearance(50, 70, 0, "male")
 
 
+def test_crcl_creatinine_unit_confusion():
+    with pytest.raises(ValueError):
+        creatinine_clearance(50, 70, 88, "male")  # µmol/L typed as mg/dL
+    assert creatinine_clearance(50, 70, 30, "male") == 2.9
+
+
 def test_crcl_nonpositive_weight():
     with pytest.raises(ValueError):
         creatinine_clearance(50, 0, 1.0, "male")

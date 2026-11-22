@@ -57,6 +57,8 @@ def creatinine_clearance(
     _require_finite(age, weight, creatinine)
     if creatinine <= 0:
         raise ValueError("Creatinine must be positive")
+    if creatinine > 30:
+        raise ValueError("Creatinine above 30 mg/dL is implausible — was it entered in µmol/L?")
     if weight <= 0:
         raise ValueError("Weight must be positive")
     if not (0 <= age < 140):

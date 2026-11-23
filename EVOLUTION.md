@@ -109,3 +109,12 @@ outcome: accepted
 metrics: lines=458 dead=0
 note: Browser step validation blocked precise inputs (creatinine step 0.1 rejected 0.85 mg/dL; PaO2, BP and electrolyte fields only accepted integers), forcing rounding that could skew CrCl by ~6%; all number inputs now use step="any", with a test, and no formula output changed.
 ---
+---
+gen: accuracy-0011
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: albumin-corrected-anion-gap
+outcome: accepted
+metrics: lines=499 dead=0
+note: Hypoalbuminaemia lowers the measured AG (~2.5 mEq/L per 1 g/dL) and can mask a high-AG acidosis behind a "normal" 12, so added corrected_anion_gap (Figge) with an optional albumin field shown alongside the unchanged raw AG.
+---

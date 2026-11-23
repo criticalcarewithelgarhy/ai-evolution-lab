@@ -70,6 +70,13 @@ def test_pf_ratio_non_positive_pao2(pao2):
         pf_ratio(pao2, 0.5)
 
 
+def test_pf_ratio_pao2_upper_bound():
+    # Extra-digit typo (850 for 85) would mislabel severe hypoxaemia as normal oxygenation
+    with pytest.raises(ValueError):
+        pf_ratio(850, 1.0)
+    assert pf_ratio(800, 1.0) == 800.0
+
+
 def test_pf_ratio_room_air():
     # FiO2 0.21 is the minimum valid value (room air)
     assert pf_ratio(100, 0.21) == 476.2

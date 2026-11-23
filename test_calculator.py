@@ -13,6 +13,7 @@ from calculator import (
     glasgow_coma_scale,
     curb65,
     ideal_body_weight,
+    oxygenation_index,
     corrected_sodium,
     corrected_calcium,
     serum_osmolality,
@@ -321,3 +322,18 @@ def test_rsbi_failure_range():
 def test_rsbi_bad_volume():
     with pytest.raises(ValueError):
         rsbi(20, 0)
+
+
+def test_oi_typical():
+    # FiO2 0.6, MAP 15, PaO2 90: 0.6 × 15 × 100 / 90 = 10.0
+    assert oxygenation_index(0.6, 15, 90) == 10.0
+
+
+def test_oi_severe():
+    # FiO2 1.0, MAP 25, PaO2 60: 2500 / 60 = 41.67 → 41.7
+    assert oxygenation_index(1.0, 25, 60) == 41.7
+
+
+def test_oi_bad_pao2():
+    with pytest.raises(ValueError):
+        oxygenation_index(0.5, 15, 0)

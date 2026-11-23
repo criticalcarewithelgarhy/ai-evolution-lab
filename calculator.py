@@ -207,3 +207,18 @@ def rsbi(resp_rate: float, tidal_volume_ml: float) -> float:
     if tidal_volume_ml <= 0:
         raise ValueError("Tidal volume must be positive")
     return round(resp_rate / (tidal_volume_ml / 1000), 1)
+
+
+def oxygenation_index(fio2: float, mean_airway_pressure: float, pao2: float) -> float:
+    """
+    Oxygenation index = FiO2 × mean airway pressure × 100 / PaO2.
+    FiO2 as fraction 0–1, mean airway pressure in cmH2O, PaO2 in mmHg.
+    Higher = worse oxygenation; > 25 severe, ≥ 40 consider ECMO referral.
+    """
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+    if mean_airway_pressure < 0:
+        raise ValueError("Mean airway pressure must be non-negative")
+    if pao2 <= 0:
+        raise ValueError("PaO2 must be positive")
+    return round(fio2 * mean_airway_pressure * 100 / pao2, 1)

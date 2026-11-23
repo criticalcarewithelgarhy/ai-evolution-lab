@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -515,10 +515,33 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Oxygenation Index</h2>
+    <div class="formula">OI = FiO2 × mean airway pressure × 100 / PaO2</div>
+    <form method="POST" action="/#oi">
+      <input type="hidden" name="calc" value="oi">
+      <div class="field"><label>FiO2 (0–1)</label>
+        <input type="number" name="oi_fio2" step="0.01" value="{{ form.oi_fio2 or '' }}" placeholder="0.6"></div>
+      <div class="field"><label>Mean airway pressure (cmH2O)</label>
+        <input type="number" name="oi_paw" step="0.1" value="{{ form.oi_paw or '' }}" placeholder="15"></div>
+      <div class="field"><label>PaO2 (mmHg)</label>
+        <input type="number" name="oi_pao2" step="1" value="{{ form.oi_pao2 or '' }}" placeholder="90"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.oi is defined %}
+    <div class="result" id="oi">
+      <span class="val">{{ results.oi }}</span>
+      <div class="interp {{ results.oi_cls }}">{{ results.oi_interp }}</div>
+    </div>
+    {% elif results.oi_error is defined %}
+    <div class="error">{{ results.oi_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0012 · 2026-11-23 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI</span>
+  <span>gen-breadth-0013 · 2026-11-23 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -627,6 +650,13 @@ def _ibw_interp(v):
 def _rsbi_interp(v):
     if v < 105: return f"{v} — < 105 — Weaning likely to succeed (proceed to SBT)", "normal"
     return f"{v} — ≥ 105 — High risk of weaning failure", "crit"
+
+
+def _oi_interp(v):
+    if v < 15: return f"{v} — < 15 — Mild impairment", "normal"
+    if v < 25: return f"{v} — 15–25 — Moderate impairment", "warn"
+    if v < 40: return f"{v} — 25–40 — Severe hypoxaemic failure", "crit"
+    return f"{v} — ≥ 40 — Very severe; consider ECMO referral", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -791,6 +821,14 @@ def index():
             results.update(rsbi=v, rsbi_interp=interp, rsbi_cls=cls)
         except Exception as e:
             results["rsbi_error"] = str(e)
+
+    elif calc == "oi":
+        try:
+            v = oxygenation_index(float(form["oi_fio2"]), float(form["oi_paw"]), float(form["oi_pao2"]))
+            interp, cls = _oi_interp(v)
+            results.update(oi=v, oi_interp=interp, oi_cls=cls)
+        except Exception as e:
+            results["oi_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

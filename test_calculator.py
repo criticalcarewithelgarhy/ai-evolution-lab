@@ -20,6 +20,7 @@ from calculator import (
     ideal_body_weight,
     shock_index,
     rox_index,
+    driving_pressure,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -230,6 +231,21 @@ def test_rox_index_bad_fio2():
 def test_rox_index_bad_rr():
     with pytest.raises(ValueError):
         rox_index(95, 0.4, 0)
+
+
+def test_driving_pressure_protective():
+    # Pplat 25, PEEP 12 → 13
+    assert driving_pressure(25, 12) == 13.0
+
+
+def test_driving_pressure_high():
+    # Pplat 30, PEEP 8 → 22
+    assert driving_pressure(30, 8) == 22.0
+
+
+def test_driving_pressure_bad_plateau():
+    with pytest.raises(ValueError):
+        driving_pressure(5, 10)
 
 
 def test_crcl_male():

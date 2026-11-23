@@ -172,6 +172,18 @@ def rox_index(spo2: float, fio2: float, resp_rate: float) -> float:
     return round((spo2 / fio2) / resp_rate, 2)
 
 
+def driving_pressure(plateau: float, peep: float) -> float:
+    """
+    Driving pressure (ΔP) = plateau pressure − PEEP (cmH2O).
+    In ARDS, ΔP ≥ 15 cmH2O is associated with increased mortality.
+    """
+    if peep < 0:
+        raise ValueError("PEEP must be non-negative")
+    if plateau < peep:
+        raise ValueError("Plateau pressure must be at least PEEP")
+    return round(plateau - peep, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

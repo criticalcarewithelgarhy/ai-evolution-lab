@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, driving_pressure, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -390,6 +390,27 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Driving Pressure</h2>
+    <div class="formula">ΔP = Pplat − PEEP</div>
+    <form method="POST" action="/#dp">
+      <input type="hidden" name="calc" value="dp">
+      <div class="field"><label>Plateau Pressure (cmH₂O)</label>
+        <input type="number" name="dp_pplat" step="0.5" value="{{ form.dp_pplat or '' }}" placeholder="25"></div>
+      <div class="field"><label>PEEP (cmH₂O)</label>
+        <input type="number" name="dp_peep" step="0.5" value="{{ form.dp_peep or '' }}" placeholder="10"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.dp is defined %}
+    <div class="result" id="dp">
+      <span class="val">{{ results.dp }}</span><span class="unit">cmH₂O</span>
+      <div class="interp {{ results.dp_cls }}">{{ results.dp_interp }}</div>
+    </div>
+    {% elif results.dp_error is defined %}
+    <div class="error">{{ results.dp_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -421,7 +442,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0011 · 2026-11-22 · Added: ROX index</span>
+  <span>gen-wild-0012 · 2026-11-23 · Added: driving pressure</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -497,6 +518,10 @@ def _rox_interp(v):
     if v >= 4.88: return "≥ 4.88 — low risk of HFNC failure", "normal"
     if v >= 3.85: return "3.85–4.88 — intermediate, reassess in 1–2 h", "warn"
     return "< 3.85 — high risk of HFNC failure / intubation", "crit"
+
+def _dp_interp(v):
+    if v < 15:   return "< 15 cmH₂O — within lung-protective target", "normal"
+    return "≥ 15 cmH₂O — associated with higher ARDS mortality", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -630,6 +655,14 @@ def index():
             results.update(rox=v, rox_interp=interp, rox_cls=cls)
         except Exception as e:
             results["rox_error"] = str(e)
+
+    elif calc == "dp":
+        try:
+            v = driving_pressure(float(form["dp_pplat"]), float(form["dp_peep"]))
+            interp, cls = _dp_interp(v)
+            results.update(dp=v, dp_interp=interp, dp_cls=cls)
+        except Exception as e:
+            results["dp_error"] = str(e)
 
     elif calc == "crcl":
         try:

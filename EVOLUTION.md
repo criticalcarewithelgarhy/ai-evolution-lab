@@ -117,3 +117,12 @@ outcome: accepted
 metrics: lines=1081 dead=0
 note: Added Devine ideal body weight (50/45.5 + 0.91×(height_cm − 152.4)) with 3 tests and Flask card showing ARDSnet 6 mL/kg lung-protective tidal volume and 4–8 mL/kg range; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0011 exists locally only.
 ---
+---
+gen: breadth-0012
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: add rapid shallow breathing index
+outcome: accepted
+metrics: lines=1129 dead=0
+note: Added Yang–Tobin rapid shallow breathing index (RR / VT in litres, threshold 105) with 3 tests and Flask card interpreting weaning readiness; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0012 exists locally only.
+---

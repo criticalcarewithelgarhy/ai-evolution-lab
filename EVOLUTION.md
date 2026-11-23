@@ -108,3 +108,12 @@ outcome: accepted
 metrics: lines=1029 dead=0
 note: Added free water deficit (TBW × (Na/140 − 1), TBW factor by sex and age ≥ 65) with 4 tests and Flask card with deficit severity and correction-rate reminder; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0010 exists locally only.
 ---
+---
+gen: breadth-0011
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: add ideal body weight
+outcome: accepted
+metrics: lines=1081 dead=0
+note: Added Devine ideal body weight (50/45.5 + 0.91×(height_cm − 152.4)) with 3 tests and Flask card showing ARDSnet 6 mL/kg lung-protective tidal volume and 4–8 mL/kg range; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0011 exists locally only.
+---

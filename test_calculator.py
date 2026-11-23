@@ -33,6 +33,13 @@ def test_map_negative_dbp():
         mean_arterial_pressure(120, -10)
 
 
+def test_map_sbp_upper_bound():
+    # Extra-digit typo (1200 for 120) must not return a plausible-looking hypertensive MAP
+    with pytest.raises(ValueError):
+        mean_arterial_pressure(1200, 80)
+    assert mean_arterial_pressure(400, 100) == 200.0
+
+
 def test_map_equal_sbp_dbp():
     assert mean_arterial_pressure(80, 80) == 80.0
 

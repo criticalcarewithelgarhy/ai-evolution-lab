@@ -22,6 +22,9 @@ def mean_arterial_pressure(systolic: float, diastolic: float) -> float:
         raise ValueError("Diastolic BP cannot be negative")
     if systolic < diastolic:
         raise ValueError("Systolic BP must be greater than or equal to diastolic BP")
+    if systolic > 400:
+        # Above any recorded human BP; almost always an extra-digit typo (1200 for 120)
+        raise ValueError("Systolic BP must not exceed 400 mmHg")
     return round(diastolic + (systolic - diastolic) / 3, 1)
 
 

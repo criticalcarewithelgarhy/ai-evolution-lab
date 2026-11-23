@@ -102,3 +102,14 @@ def corrected_sodium(sodium: float, glucose: float) -> float:
     if sodium <= 0 or glucose <= 0:
         raise ValueError("Sodium and glucose must be positive")
     return round(sodium + 1.6 * (glucose - 100) / 100, 1)
+
+
+def free_water_deficit(sodium: float, weight: float, sex: str) -> float:
+    """FWD (L) = TBW * (Na / 140 - 1); TBW = 0.6 * kg (male) or 0.5 * kg (female)"""
+    if sodium <= 0 or weight <= 0:
+        raise ValueError("Sodium and weight must be positive")
+    sex_lower = sex.lower()
+    if sex_lower not in ("m", "male", "f", "female"):
+        raise ValueError("Sex must be 'm', 'male', 'f', or 'female'")
+    tbw = (0.5 if sex_lower in ("f", "female") else 0.6) * weight
+    return round(tbw * (sodium / 140 - 1), 1)

@@ -16,6 +16,7 @@ from calculator import (
     winters_formula,
     delta_ratio,
     corrected_sodium,
+    free_water_deficit,
     DISCLAIMER,
 )
 
@@ -136,3 +137,13 @@ def test_corrected_sodium_hyperglycaemia():
 def test_corrected_sodium_bad_input():
     with pytest.raises(ValueError):
         corrected_sodium(130, 0)
+
+
+def test_free_water_deficit_hypernatraemia():
+    # Na 160, 70 kg male → 0.6 × 70 × (160/140 − 1) = 6.0 L
+    assert free_water_deficit(160, 70, "male") == 6.0
+
+
+def test_free_water_deficit_bad_sex():
+    with pytest.raises(ValueError):
+        free_water_deficit(160, 70, "x")

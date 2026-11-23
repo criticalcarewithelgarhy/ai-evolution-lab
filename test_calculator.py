@@ -80,6 +80,15 @@ def test_anion_gap_implausible_sodium():
     assert anion_gap(200, 104, 24) == 72.0
 
 
+def test_anion_gap_implausible_chloride():
+    with pytest.raises(ValueError):
+        anion_gap(140, 10, 24)  # typo for 104
+    with pytest.raises(ValueError):
+        anion_gap(140, 1040, 24)
+    assert anion_gap(140, 50, 24) == 66.0
+    assert anion_gap(200, 160, 24) == 16.0
+
+
 def test_crcl_male():
     # 50yo, 70kg, Cr 1.0 → 87.5  (Cockcroft-Gault: (90×70)/72)
     assert creatinine_clearance(50, 70, 1.0, "male") == 87.5

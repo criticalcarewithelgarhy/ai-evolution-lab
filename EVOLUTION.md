@@ -122,3 +122,12 @@ outcome: accepted
 metrics: lines=461 dead=0
 note: anion_gap now raises ValueError for sodium outside 90–200 mEq/L (e.g. a typo of 14 for 140, which produced a bogus negative gap); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions).
 ---
+
+---
+gen: robust-0011
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: reject-implausible-chloride-range
+outcome: accepted
+metrics: lines=470 dead=0
+note: anion_gap now raises ValueError for chloride outside 50–160 mEq/L (e.g. a typo of 10 for 104, which produced a bogus gap of 106); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and the proxy again refused the tag push (branch pushed fine).

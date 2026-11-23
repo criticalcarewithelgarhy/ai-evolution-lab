@@ -118,3 +118,13 @@ outcome: accepted
 metrics: lines=790 dead=0
 note: Replaced the 13 repetitive if/elif try-blocks in app.py index() with a CALCS dispatch table (compute + interpret lambdas per calculator), cutting 60 lines with identical outputs and making new cards a one-entry addition; tag gen-0011 was not pushed (git proxy refused tag push).
 ---
+
+---
+gen: 0012
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: jinja result block macro
+outcome: accepted
+metrics: lines=709 dead=0
+note: Replaced the 13 duplicated 8-line result/error blocks in app.py's template with a single Jinja result(key, unit) macro, cutting 81 lines with identical rendered output; tag gen-0012 was not pushed (git proxy refused tag push).
+---

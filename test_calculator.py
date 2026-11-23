@@ -12,6 +12,7 @@ from calculator import (
     creatinine_clearance,
     glasgow_coma_scale,
     curb65,
+    ideal_body_weight,
     corrected_sodium,
     corrected_calcium,
     serum_osmolality,
@@ -289,3 +290,18 @@ def test_fwd_normal_sodium():
 def test_fwd_bad_weight():
     with pytest.raises(ValueError):
         free_water_deficit(150, 0, "male")
+
+
+def test_ibw_male():
+    # 175 cm male: 50 + 0.91 × 22.6 = 70.566 → 70.6
+    assert ideal_body_weight(175, "male") == 70.6
+
+
+def test_ibw_female():
+    # 160 cm female: 45.5 + 0.91 × 7.6 = 52.416 → 52.4
+    assert ideal_body_weight(160, "female") == 52.4
+
+
+def test_ibw_bad_height():
+    with pytest.raises(ValueError):
+        ideal_body_weight(0, "male")

@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -470,10 +470,34 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Ideal Body Weight &amp; Tidal Volume</h2>
+    <div class="formula">IBW = 50 (♂) / 45.5 (♀) + 0.91 × (height − 152.4); VT = 6 mL/kg IBW</div>
+    <form method="POST" action="/#ibw">
+      <input type="hidden" name="calc" value="ibw">
+      <div class="field"><label>Height (cm)</label>
+        <input type="number" name="ibw_height" step="0.1" value="{{ form.ibw_height or '' }}" placeholder="175"></div>
+      <div class="field"><label>Sex</label>
+        <select name="ibw_sex">
+          <option value="male" {% if form.ibw_sex != 'female' %}selected{% endif %}>Male</option>
+          <option value="female" {% if form.ibw_sex == 'female' %}selected{% endif %}>Female</option>
+        </select></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.ibw is defined %}
+    <div class="result" id="ibw">
+      <span class="val">{{ results.ibw }} kg</span>
+      <div class="interp {{ results.ibw_cls }}">{{ results.ibw_interp }}</div>
+    </div>
+    {% elif results.ibw_error is defined %}
+    <div class="error">{{ results.ibw_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0010 · 2026-11-22 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit</span>
+  <span>gen-breadth-0011 · 2026-11-23 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -571,6 +595,12 @@ def _fwd_interp(v):
     if v <= 0: return f"{v} L — No free water deficit (Na⁺ ≤ 140)", "normal"
     if v < 3: return f"{v} L — Mild deficit; correct Na⁺ ≤ 10 mEq/L per 24 h", "warn"
     return f"{v} L — Significant deficit; correct Na⁺ ≤ 10 mEq/L per 24 h", "crit"
+
+
+def _ibw_interp(v):
+    if v <= 0: return f"{v} kg — Height too low for Devine formula", "crit"
+    lo, hi = round(v * 4), round(v * 8)
+    return f"Lung-protective VT 6 mL/kg = {round(v * 6)} mL (range 4–8 mL/kg: {lo}–{hi} mL)", "normal"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -719,6 +749,14 @@ def index():
             results.update(fwd=v, fwd_interp=interp, fwd_cls=cls)
         except Exception as e:
             results["fwd_error"] = str(e)
+
+    elif calc == "ibw":
+        try:
+            v = ideal_body_weight(float(form["ibw_height"]), form.get("ibw_sex", "male"))
+            interp, cls = _ibw_interp(v)
+            results.update(ibw=v, ibw_interp=interp, ibw_cls=cls)
+        except Exception as e:
+            results["ibw_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

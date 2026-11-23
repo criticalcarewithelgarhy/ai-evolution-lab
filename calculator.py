@@ -183,3 +183,15 @@ def free_water_deficit(sodium: float, weight: float, sex: str, age: float = 40) 
     else:
         factor = 0.5 if female else 0.6
     return round(weight * factor * (sodium / 140 - 1), 1)
+
+
+def ideal_body_weight(height_cm: float, sex: str) -> float:
+    """
+    Ideal (predicted) body weight — Devine formula, as used by ARDSnet.
+    male: 50 + 0.91 × (height_cm − 152.4); female: 45.5 + 0.91 × (height_cm − 152.4).
+    height in cm; result in kg. Lung-protective tidal volume = 6 mL/kg IBW.
+    """
+    if height_cm <= 0:
+        raise ValueError("Height must be positive")
+    base = 45.5 if sex.lower() in ("f", "female") else 50.0
+    return round(base + 0.91 * (height_cm - 152.4), 1)

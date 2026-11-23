@@ -43,6 +43,8 @@ def anion_gap(sodium: float, chloride: float, bicarbonate: float) -> float:
     _require_finite(sodium, chloride, bicarbonate)
     if sodium <= 0 or chloride <= 0 or bicarbonate < 0:
         raise ValueError("Electrolyte values must be positive")
+    if not (90 <= sodium <= 200):
+        raise ValueError("Sodium outside 90–200 mEq/L is implausible — check for a typo")
     return round(sodium - (chloride + bicarbonate), 1)
 
 

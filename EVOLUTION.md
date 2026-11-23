@@ -118,3 +118,12 @@ outcome: accepted
 metrics: lines=499 dead=0
 note: Hypoalbuminaemia lowers the measured AG (~2.5 mEq/L per 1 g/dL) and can mask a high-AG acidosis behind a "normal" 12, so added corrected_anion_gap (Figge) with an optional albumin field shown alongside the unchanged raw AG.
 ---
+---
+gen: accuracy-0012
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: validate-map-sbp-upper-bound
+outcome: accepted
+metrics: lines=505 dead=0
+note: mean_arterial_pressure silently turned an extra-digit SBP typo (1200 for 120) into a plausible-looking MAP of 453; it now raises ValueError for SBP above 400 mmHg (beyond any recorded human BP), leaving all valid outputs unchanged.
+---

@@ -116,3 +116,12 @@ outcome: accepted
 metrics: gen=0010 lines=225 dead=0 cap=1500 headroom=1275
 note: Added corrected_sodium (Katz: Na + 1.6 × (glucose − 100)/100) with two tests, so hyperglycaemic pseudohyponatraemia can be unmasked in DKA/HHS.
 ---
+---
+gen: 0012
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: add free water deficit
+outcome: accepted
+metrics: gen=0011 lines=240 dead=0 cap=1500 headroom=1260
+note: Added free_water_deficit (TBW × (Na/140 − 1), TBW 0.6/0.5 × kg by sex) with two tests, complementing corrected_sodium by quantifying water replacement in hypernatraemia.
+---

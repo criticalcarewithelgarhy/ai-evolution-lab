@@ -137,3 +137,13 @@ outcome: accepted
 metrics: lines=751 dead=0
 note: Added free_water_deficit() (TBW × (Na/140 − 1), TBW 0.6/0.5 × weight by sex) with 3 tests and a 14th app card flagging deficit severity with a ≤ 10 mEq/L/24 h correction reminder for hypernatraemia; tag gen-0013 was not pushed (git proxy refused tag push). 
 ---
+
+---
+gen: 0014
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: add ROX index
+outcome: accepted
+metrics: lines=792 dead=0
+note: Added rox_index() ((SpO2/FiO2)/RR, Roca 2016) with 3 tests and a 15th app card flagging ≥ 4.88 as likely HFNC success and < 3.85 as high failure risk; tag gen-0014 was not pushed (git proxy refused tag push).
+---

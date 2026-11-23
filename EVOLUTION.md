@@ -134,3 +134,11 @@ outcome: accepted
 metrics: lines=1046 dead=0
 note: Added static_compliance() (Vt / (Pplat − PEEP)) with UI card flagging < 40 mL/cmH2O as reduced; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0013 tag push.
 ---
+gen: wild-0014
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: add oxygenation index
+outcome: accepted
+metrics: lines=1100 dead=0
+note: Added oxygenation_index() (FiO2 × MAWP × 100 / PaO2) with UI card grading <15 mild, 15–25 moderate, >25 severe; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0014 tag push.
+---

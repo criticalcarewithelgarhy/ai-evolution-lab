@@ -135,3 +135,13 @@ outcome: accepted
 metrics: lines=1184 dead=0
 note: Added oxygenation index (FiO2 × mean airway pressure × 100 / PaO2) with 3 tests and Flask card grading mild/moderate/severe/ECMO-range hypoxaemia; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0013 exists locally only.
 ---
+
+---
+gen: breadth-0014
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: add driving pressure
+outcome: accepted
+metrics: lines=1237 dead=0
+note: Added ARDS driving pressure (plateau − PEEP, threshold 15 cmH2O) with 3 tests and Flask card that optionally derives static compliance from tidal volume; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0014 exists locally only.
+---

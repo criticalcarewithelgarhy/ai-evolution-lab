@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, driving_pressure, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, driving_pressure, static_compliance, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -411,6 +411,29 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Static Compliance</h2>
+    <div class="formula">Cstat = Vt / (Pplat − PEEP)</div>
+    <form method="POST" action="/#cs">
+      <input type="hidden" name="calc" value="cs">
+      <div class="field"><label>Tidal Volume (mL)</label>
+        <input type="number" name="cs_vt" value="{{ form.cs_vt or '' }}" placeholder="450"></div>
+      <div class="field"><label>Plateau Pressure (cmH₂O)</label>
+        <input type="number" name="cs_pplat" step="0.5" value="{{ form.cs_pplat or '' }}" placeholder="22"></div>
+      <div class="field"><label>PEEP (cmH₂O)</label>
+        <input type="number" name="cs_peep" step="0.5" value="{{ form.cs_peep or '' }}" placeholder="10"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.cs is defined %}
+    <div class="result" id="cs">
+      <span class="val">{{ results.cs }}</span><span class="unit">mL/cmH₂O</span>
+      <div class="interp {{ results.cs_cls }}">{{ results.cs_interp }}</div>
+    </div>
+    {% elif results.cs_error is defined %}
+    <div class="error">{{ results.cs_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -442,7 +465,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0012 · 2026-11-23 · Added: driving pressure</span>
+  <span>gen-wild-0013 · 2026-11-23 · Added: static compliance</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -522,6 +545,11 @@ def _rox_interp(v):
 def _dp_interp(v):
     if v < 15:   return "< 15 cmH₂O — within lung-protective target", "normal"
     return "≥ 15 cmH₂O — associated with higher ARDS mortality", "crit"
+
+def _cs_interp(v):
+    if v < 40:   return "< 40 mL/cmH₂O — reduced compliance (ARDS, fibrosis, oedema)", "crit"
+    if v < 50:   return "40–50 mL/cmH₂O — mildly reduced", "warn"
+    return "≥ 50 mL/cmH₂O — normal", "normal"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -663,6 +691,14 @@ def index():
             results.update(dp=v, dp_interp=interp, dp_cls=cls)
         except Exception as e:
             results["dp_error"] = str(e)
+
+    elif calc == "cs":
+        try:
+            v = static_compliance(float(form["cs_vt"]), float(form["cs_pplat"]), float(form["cs_peep"]))
+            interp, cls = _cs_interp(v)
+            results.update(cs=v, cs_interp=interp, cs_cls=cls)
+        except Exception as e:
+            results["cs_error"] = str(e)
 
     elif calc == "crcl":
         try:

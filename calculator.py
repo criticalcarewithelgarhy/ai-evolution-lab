@@ -184,6 +184,20 @@ def driving_pressure(plateau: float, peep: float) -> float:
     return round(plateau - peep, 1)
 
 
+def static_compliance(tidal_volume: float, plateau: float, peep: float) -> float:
+    """
+    Static respiratory system compliance (mL/cmH2O) = Vt / (Pplat − PEEP).
+    tidal_volume in mL, pressures in cmH2O. Normal ≈ 50–100 mL/cmH2O; < 40 suggests stiff lungs (ARDS).
+    """
+    if tidal_volume <= 0:
+        raise ValueError("Tidal volume must be positive")
+    if peep < 0:
+        raise ValueError("PEEP must be non-negative")
+    if plateau <= peep:
+        raise ValueError("Plateau pressure must exceed PEEP")
+    return round(tidal_volume / (plateau - peep), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

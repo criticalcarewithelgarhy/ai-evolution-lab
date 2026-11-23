@@ -21,6 +21,7 @@ from calculator import (
     shock_index,
     rox_index,
     driving_pressure,
+    static_compliance,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -246,6 +247,21 @@ def test_driving_pressure_high():
 def test_driving_pressure_bad_plateau():
     with pytest.raises(ValueError):
         driving_pressure(5, 10)
+
+
+def test_static_compliance_normal():
+    # Vt 500, Pplat 20, PEEP 10 → 50.0
+    assert static_compliance(500, 20, 10) == 50.0
+
+
+def test_static_compliance_ards():
+    # Vt 420, Pplat 30, PEEP 12 → 23.3
+    assert static_compliance(420, 30, 12) == 23.3
+
+
+def test_static_compliance_bad_plateau():
+    with pytest.raises(ValueError):
+        static_compliance(500, 10, 10)
 
 
 def test_crcl_male():

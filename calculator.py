@@ -6,6 +6,14 @@ Four formulas: MAP, P/F ratio, anion gap, creatinine clearance (Cockcroft-Gault)
 DISCLAIMER = "EXPERIMENTAL — NOT FOR CLINICAL USE"
 
 
+def _is_female(sex: str) -> bool:
+    """Validate sex ('m', 'male', 'f', 'female'; any case) and return True if female."""
+    sex_lower = sex.lower()
+    if sex_lower not in ("m", "male", "f", "female"):
+        raise ValueError("Sex must be 'm', 'male', 'f', or 'female'")
+    return sex_lower in ("f", "female")
+
+
 def mean_arterial_pressure(systolic: float, diastolic: float) -> float:
     """MAP = DBP + 1/3 (SBP - DBP)"""
     if systolic <= 0 or diastolic <= 0:
@@ -54,11 +62,8 @@ def creatinine_clearance(
         raise ValueError("Age must be positive")
     if weight <= 0:
         raise ValueError("Weight must be positive")
-    sex_lower = sex.lower()
-    if sex_lower not in ("m", "male", "f", "female"):
-        raise ValueError("Sex must be 'm', 'male', 'f', or 'female'")
     result = ((140 - age) * weight) / (72 * creatinine)
-    if sex_lower in ("f", "female"):
+    if _is_female(sex):
         result *= 0.85
     return round(result, 1)
 
@@ -108,8 +113,5 @@ def free_water_deficit(sodium: float, weight: float, sex: str) -> float:
     """FWD (L) = TBW * (Na / 140 - 1); TBW = 0.6 * kg (male) or 0.5 * kg (female)"""
     if sodium <= 0 or weight <= 0:
         raise ValueError("Sodium and weight must be positive")
-    sex_lower = sex.lower()
-    if sex_lower not in ("m", "male", "f", "female"):
-        raise ValueError("Sex must be 'm', 'male', 'f', or 'female'")
-    tbw = (0.5 if sex_lower in ("f", "female") else 0.6) * weight
+    tbw = (0.5 if _is_female(sex) else 0.6) * weight
     return round(tbw * (sodium / 140 - 1), 1)

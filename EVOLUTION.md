@@ -127,3 +127,12 @@ outcome: accepted
 metrics: lines=505 dead=0
 note: mean_arterial_pressure silently turned an extra-digit SBP typo (1200 for 120) into a plausible-looking MAP of 453; it now raises ValueError for SBP above 400 mmHg (beyond any recorded human BP), leaving all valid outputs unchanged.
 ---
+---
+gen: accuracy-0013
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: validate-crcl-weight-upper-bound
+outcome: accepted
+metrics: lines=511 dead=0
+note: creatinine_clearance silently turned an extra-digit weight typo (700 for 70 kg) into a tenfold-inflated CrCl that could drive drug overdosing; it now raises ValueError for weight above 650 kg (beyond the heaviest recorded human), leaving all valid outputs unchanged.
+---

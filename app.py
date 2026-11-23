@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -538,10 +538,34 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Driving Pressure</h2>
+    <div class="formula">ΔP = Plateau pressure − PEEP</div>
+    <form method="POST" action="/#dp">
+      <input type="hidden" name="calc" value="dp">
+      <div class="field"><label>Plateau pressure (cmH2O)</label>
+        <input type="number" name="dp_pplat" step="0.1" value="{{ form.dp_pplat or '' }}" placeholder="25"></div>
+      <div class="field"><label>PEEP (cmH2O)</label>
+        <input type="number" name="dp_peep" step="0.1" value="{{ form.dp_peep or '' }}" placeholder="10"></div>
+      <div class="field"><label>Tidal volume (mL, optional — for static compliance)</label>
+        <input type="number" name="dp_vt" step="1" value="{{ form.dp_vt or '' }}" placeholder="420"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.dp is defined %}
+    <div class="result" id="dp">
+      <span class="val">{{ results.dp }} cmH2O</span>
+      <div class="interp {{ results.dp_cls }}">{{ results.dp_interp }}</div>
+      {% if results.dp_crs is defined %}<div class="interp">Static compliance (VT / ΔP): {{ results.dp_crs }} mL/cmH2O</div>{% endif %}
+    </div>
+    {% elif results.dp_error is defined %}
+    <div class="error">{{ results.dp_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0013 · 2026-11-23 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI</span>
+  <span>gen-breadth-0014 · 2026-11-23 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -657,6 +681,11 @@ def _oi_interp(v):
     if v < 25: return f"{v} — 15–25 — Moderate impairment", "warn"
     if v < 40: return f"{v} — 25–40 — Severe hypoxaemic failure", "crit"
     return f"{v} — ≥ 40 — Very severe; consider ECMO referral", "crit"
+
+
+def _dp_interp(v):
+    if v <= 15: return f"{v} — ≤ 15 cmH2O — Within lung-protective target", "normal"
+    return f"{v} — > 15 cmH2O — Associated with higher ARDS mortality; reduce VT", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -829,6 +858,16 @@ def index():
             results.update(oi=v, oi_interp=interp, oi_cls=cls)
         except Exception as e:
             results["oi_error"] = str(e)
+
+    elif calc == "dp":
+        try:
+            v = driving_pressure(float(form["dp_pplat"]), float(form["dp_peep"]))
+            interp, cls = _dp_interp(v)
+            results.update(dp=v, dp_interp=interp, dp_cls=cls)
+            if form.get("dp_vt") and v > 0:
+                results["dp_crs"] = round(float(form["dp_vt"]) / v, 1)
+        except Exception as e:
+            results["dp_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

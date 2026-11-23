@@ -24,6 +24,7 @@ from calculator import (
     delta_ratio,
     free_water_deficit,
     rsbi,
+    driving_pressure,
     DISCLAIMER,
 )
 
@@ -337,3 +338,18 @@ def test_oi_severe():
 def test_oi_bad_pao2():
     with pytest.raises(ValueError):
         oxygenation_index(0.5, 15, 0)
+
+
+def test_dp_typical():
+    # Pplat 25, PEEP 10 → 15.0
+    assert driving_pressure(25, 10) == 15.0
+
+
+def test_dp_protective():
+    # Pplat 22.5, PEEP 8 → 14.5
+    assert driving_pressure(22.5, 8) == 14.5
+
+
+def test_dp_bad_inputs():
+    with pytest.raises(ValueError):
+        driving_pressure(5, 10)

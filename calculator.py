@@ -222,3 +222,15 @@ def oxygenation_index(fio2: float, mean_airway_pressure: float, pao2: float) -> 
     if pao2 <= 0:
         raise ValueError("PaO2 must be positive")
     return round(fio2 * mean_airway_pressure * 100 / pao2, 1)
+
+
+def driving_pressure(plateau_pressure: float, peep: float) -> float:
+    """
+    Driving pressure (ΔP) = plateau pressure − PEEP, both in cmH2O.
+    ΔP > 15 cmH2O is associated with increased mortality in ARDS (Amato 2015).
+    """
+    if peep < 0:
+        raise ValueError("PEEP must be non-negative")
+    if plateau_pressure < peep:
+        raise ValueError("Plateau pressure must be at least PEEP")
+    return round(plateau_pressure - peep, 1)

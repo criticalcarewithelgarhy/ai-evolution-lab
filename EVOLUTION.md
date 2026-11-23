@@ -126,3 +126,12 @@ outcome: accepted
 metrics: lines=1129 dead=0
 note: Added Yang–Tobin rapid shallow breathing index (RR / VT in litres, threshold 105) with 3 tests and Flask card interpreting weaning readiness; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0012 exists locally only.
 ---
+---
+gen: breadth-0013
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: add oxygenation index
+outcome: accepted
+metrics: lines=1184 dead=0
+note: Added oxygenation index (FiO2 × mean airway pressure × 100 / PaO2) with 3 tests and Flask card grading mild/moderate/severe/ECMO-range hypoxaemia; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0013 exists locally only.
+---

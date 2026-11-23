@@ -140,3 +140,12 @@ outcome: accepted
 metrics: lines=476 dead=0
 note: anion_gap now raises ValueError for bicarbonate above 60 mEq/L (e.g. a typo of 240 for 24, which produced a bogus gap of -204); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0013
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: reject-implausible-pao2-ceiling
+outcome: accepted
+metrics: lines=482 dead=0
+note: pf_ratio now raises ValueError for PaO2 above 800 mmHg (e.g. a typo of 1000 for 100, which produced a bogus P/F of 1000); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions).
+---

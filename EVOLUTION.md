@@ -85,3 +85,11 @@ idea: corrected-calcium
 outcome: accepted
 metrics: lines=138 dead=-1 cap=1500 headroom=1362
 note: Added correctedCalcium (Payne: Ca + 0.8×(4.0−albumin)) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0010
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: free-water-deficit
+outcome: accepted
+metrics: lines=149 dead=-1 cap=1500 headroom=1351
+note: Added freeWaterDeficit (TBW × (Na/140 − 1), TBW 0.6/0.5 × weight by sex) with two tests; four original formulas untouched, oracle 16/16 passing.

@@ -74,6 +74,13 @@ function freeWaterDeficit(na, weight, sex) {
     return Math.round(tbw * (na / 140 - 1) * 10) / 10;
 }
 
+function roxIndex(spo2, fio2, rr) {
+    // ROX index: (SpO2 / FiO2) / RR — HFNC success predictor (≥ 4.88 favourable)
+    if (fio2 <= 0 || fio2 > 1) throw new Error("FiO2 must be in (0, 1]");
+    if (rr <= 0) throw new Error("RR must be > 0");
+    return Math.round((spo2 / fio2 / rr) * 100) / 100;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -81,4 +88,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, creatinineClearance };

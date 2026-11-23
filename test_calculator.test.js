@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -128,6 +128,16 @@ test("free water deficit male hypernatremia", () => {
 test("free water deficit female hypernatremia", () => {
     // 60 × 0.5 × (154/140 − 1) = 30 × 0.1 = 3.0
     expect(freeWaterDeficit(154, 60, "female")).toBe(3.0);
+});
+
+test("ROX index favourable", () => {
+    // (92 / 0.5) / 20 = 9.2
+    expect(roxIndex(92, 0.5, 20)).toBe(9.2);
+});
+
+test("ROX index HFNC failure risk", () => {
+    // (88 / 0.8) / 30 = 3.667 → 3.67
+    expect(roxIndex(88, 0.8, 30)).toBe(3.67);
 });
 
 test("CrCl male", () => {

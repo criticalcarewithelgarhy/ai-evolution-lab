@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, driving_pressure, static_compliance, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, driving_pressure, static_compliance, oxygenation_index, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -434,6 +434,29 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Oxygenation Index</h2>
+    <div class="formula">OI = FiO₂ × MAWP × 100 / PaO₂</div>
+    <form method="POST" action="/#oi">
+      <input type="hidden" name="calc" value="oi">
+      <div class="field"><label>FiO₂ (0.21 – 1.0)</label>
+        <input type="number" name="oi_fio2" step="0.01" value="{{ form.oi_fio2 or '' }}" placeholder="0.6"></div>
+      <div class="field"><label>Mean Airway Pressure (cmH₂O)</label>
+        <input type="number" name="oi_mawp" step="0.5" value="{{ form.oi_mawp or '' }}" placeholder="15"></div>
+      <div class="field"><label>PaO₂ (mmHg)</label>
+        <input type="number" name="oi_pao2" value="{{ form.oi_pao2 or '' }}" placeholder="80"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.oi is defined %}
+    <div class="result" id="oi">
+      <span class="val">{{ results.oi }}</span>
+      <div class="interp {{ results.oi_cls }}">{{ results.oi_interp }}</div>
+    </div>
+    {% elif results.oi_error is defined %}
+    <div class="error">{{ results.oi_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -465,7 +488,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0013 · 2026-11-23 · Added: static compliance</span>
+  <span>gen-wild-0014 · 2026-11-23 · Added: oxygenation index</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -550,6 +573,11 @@ def _cs_interp(v):
     if v < 40:   return "< 40 mL/cmH₂O — reduced compliance (ARDS, fibrosis, oedema)", "crit"
     if v < 50:   return "40–50 mL/cmH₂O — mildly reduced", "warn"
     return "≥ 50 mL/cmH₂O — normal", "normal"
+
+def _oi_interp(v):
+    if v < 15:   return "< 15 — mild hypoxaemia", "normal"
+    if v <= 25:  return "15–25 — moderate hypoxaemic respiratory failure", "warn"
+    return "> 25 — severe; consider rescue therapies (prone, ECMO referral)", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -699,6 +727,14 @@ def index():
             results.update(cs=v, cs_interp=interp, cs_cls=cls)
         except Exception as e:
             results["cs_error"] = str(e)
+
+    elif calc == "oi":
+        try:
+            v = oxygenation_index(float(form["oi_fio2"]), float(form["oi_mawp"]), float(form["oi_pao2"]))
+            interp, cls = _oi_interp(v)
+            results.update(oi=v, oi_interp=interp, oi_cls=cls)
+        except Exception as e:
+            results["oi_error"] = str(e)
 
     elif calc == "crcl":
         try:

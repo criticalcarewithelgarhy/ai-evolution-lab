@@ -22,6 +22,7 @@ from calculator import (
     rox_index,
     driving_pressure,
     static_compliance,
+    oxygenation_index,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -262,6 +263,21 @@ def test_static_compliance_ards():
 def test_static_compliance_bad_plateau():
     with pytest.raises(ValueError):
         static_compliance(500, 10, 10)
+
+
+def test_oxygenation_index_mild():
+    # FiO2 0.4, MAWP 10, PaO2 100 → 4.0
+    assert oxygenation_index(0.4, 10, 100) == 4.0
+
+
+def test_oxygenation_index_severe():
+    # FiO2 1.0, MAWP 20, PaO2 60 → 33.3
+    assert oxygenation_index(1.0, 20, 60) == 33.3
+
+
+def test_oxygenation_index_bad_pao2():
+    with pytest.raises(ValueError):
+        oxygenation_index(0.5, 15, 0)
 
 
 def test_crcl_male():

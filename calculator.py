@@ -198,6 +198,21 @@ def static_compliance(tidal_volume: float, plateau: float, peep: float) -> float
     return round(tidal_volume / (plateau - peep), 1)
 
 
+def oxygenation_index(fio2: float, mean_airway_pressure: float, pao2: float) -> float:
+    """
+    Oxygenation index (OI) = (FiO2 × mean airway pressure × 100) / PaO2.
+    FiO2 as fraction 0-1, mean airway pressure in cmH2O, PaO2 in mmHg.
+    Higher OI = worse oxygenation; > 25 severe hypoxaemic respiratory failure.
+    """
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+    if mean_airway_pressure < 0:
+        raise ValueError("Mean airway pressure must be non-negative")
+    if pao2 <= 0:
+        raise ValueError("PaO2 must be positive")
+    return round(fio2 * mean_airway_pressure * 100 / pao2, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

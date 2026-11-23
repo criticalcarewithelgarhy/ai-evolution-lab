@@ -77,3 +77,11 @@ idea: shock-index
 outcome: accepted
 metrics: lines=129 dead=-1 cap=1500 headroom=1371
 note: Added shockIndex (HR/SBP, rounded to 2 dp) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0009
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: corrected-calcium
+outcome: accepted
+metrics: lines=138 dead=-1 cap=1500 headroom=1362
+note: Added correctedCalcium (Payne: Ca + 0.8×(4.0−albumin)) with two tests; four original formulas untouched, oracle 16/16 passing.

@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -321,10 +321,30 @@ TEMPLATE = """{% macro result(key, unit="") %}
     {{ result("si") }}
   </div>
 
+  <div class="card">
+    <h2>Free Water Deficit</h2>
+    <div class="formula">FWD = TBW × (Na⁺ / 140 − 1); TBW = 0.6 (♂) / 0.5 (♀) × Weight</div>
+    <form method="POST" action="/#fwd">
+      <input type="hidden" name="calc" value="fwd">
+      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
+        <input type="number" name="fwd_na" value="{{ form.fwd_na or '' }}" placeholder="160"></div>
+      <div class="field"><label>Weight (kg)</label>
+        <input type="number" name="fwd_wt" step="0.1" value="{{ form.fwd_wt or '' }}" placeholder="70"></div>
+      <div class="field"><label>Sex</label>
+        <select name="fwd_sex">
+          <option value="male" {% if form.fwd_sex == 'male' %}selected{% endif %}>Male</option>
+          <option value="female" {% if form.fwd_sex == 'female' %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {{ result("fwd", "L") }}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -403,6 +423,11 @@ def _si_interp(v):
     if v <= 0.9: return "Borderline (0.7–0.9) — reassess", "warn"
     return "Elevated (> 0.9) — possible occult shock", "crit"
 
+def _fwd_interp(v):
+    if v <= 0:  return "No free water deficit (Na ≤ 140)", "normal"
+    if v <= 3:  return "Mild deficit — correct Na ≤ 10 mEq/L per 24 h", "warn"
+    return "Significant deficit — correct Na ≤ 10 mEq/L per 24 h", "crit"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -444,6 +469,8 @@ CALCS = {
             lambda v, f: _pbw_interp(v)),
     "si": (lambda f: shock_index(_n(f, "si_hr"), _n(f, "si_sbp")),
            lambda v, f: _si_interp(v)),
+    "fwd": (lambda f: free_water_deficit(_n(f, "fwd_na"), _n(f, "fwd_wt"), f.get("fwd_sex", "male")),
+            lambda v, f: _fwd_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

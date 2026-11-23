@@ -125,6 +125,17 @@ def shock_index(heart_rate: float, systolic: float) -> float:
     return round(heart_rate / systolic, 2)
 
 
+def free_water_deficit(sodium: float, weight: float, sex: str) -> float:
+    """
+    Free water deficit = TBW × (Na / 140 − 1), TBW = 0.6 × weight (male) or 0.5 × weight (female).
+    sodium in mEq/L, weight in kg; result in litres. Negative means no deficit.
+    """
+    if sodium <= 0 or weight <= 0:
+        raise ValueError("Sodium and weight must be positive")
+    tbw = weight * (0.5 if sex.lower() in ("f", "female") else 0.6)
+    return round(tbw * (sodium / 140 - 1), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

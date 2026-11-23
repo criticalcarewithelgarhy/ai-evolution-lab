@@ -19,6 +19,7 @@ from calculator import (
     corrected_calcium,
     predicted_body_weight,
     shock_index,
+    free_water_deficit,
     DISCLAIMER,
 )
 
@@ -203,6 +204,21 @@ def test_shock_index_shock():
 def test_shock_index_bad_sbp():
     with pytest.raises(ValueError):
         shock_index(80, 0)
+
+
+def test_fwd_male():
+    # 70 kg male, Na 160: 42 * (160/140 - 1) = 6.0
+    assert free_water_deficit(160, 70, "male") == 6.0
+
+
+def test_fwd_female():
+    # 60 kg female, Na 154: 30 * 0.1 = 3.0
+    assert free_water_deficit(154, 60, "female") == 3.0
+
+
+def test_fwd_bad_weight():
+    with pytest.raises(ValueError):
+        free_water_deficit(150, 0, "male")
 
 
 def test_disclaimer_present():

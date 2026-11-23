@@ -15,6 +15,7 @@ from calculator import (
     ards_severity,
     winters_formula,
     delta_ratio,
+    corrected_sodium,
     DISCLAIMER,
 )
 
@@ -125,3 +126,13 @@ def test_delta_ratio_pure_hagma():
 def test_delta_ratio_bad_bicarbonate():
     with pytest.raises(ValueError):
         delta_ratio(140, 104, 24)
+
+
+def test_corrected_sodium_hyperglycaemia():
+    # Na 130, glucose 600 → 130 + 1.6 × 5 = 138
+    assert corrected_sodium(130, 600) == 138.0
+
+
+def test_corrected_sodium_bad_input():
+    with pytest.raises(ValueError):
+        corrected_sodium(130, 0)

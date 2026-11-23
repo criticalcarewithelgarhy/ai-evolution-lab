@@ -95,3 +95,10 @@ def delta_ratio(sodium: float, chloride: float, bicarbonate: float) -> float:
     if bicarbonate >= 24:
         raise ValueError("Bicarbonate must be below 24 for a delta ratio")
     return round((anion_gap(sodium, chloride, bicarbonate) - 12) / (24 - bicarbonate), 2)
+
+
+def corrected_sodium(sodium: float, glucose: float) -> float:
+    """Katz-corrected Na = Na + 1.6 * (glucose - 100) / 100, glucose in mg/dL"""
+    if sodium <= 0 or glucose <= 0:
+        raise ValueError("Sodium and glucose must be positive")
+    return round(sodium + 1.6 * (glucose - 100) / 100, 1)

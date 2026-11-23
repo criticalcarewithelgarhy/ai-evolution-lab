@@ -128,3 +128,12 @@ outcome: accepted
 metrics: lines=709 dead=0
 note: Replaced the 13 duplicated 8-line result/error blocks in app.py's template with a single Jinja result(key, unit) macro, cutting 81 lines with identical rendered output; tag gen-0012 was not pushed (git proxy refused tag push).
 ---
+---
+gen: 0013
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: add free water deficit
+outcome: accepted
+metrics: lines=751 dead=0
+note: Added free_water_deficit() (TBW × (Na/140 − 1), TBW 0.6/0.5 × weight by sex) with 3 tests and a 14th app card flagging deficit severity with a ≤ 10 mEq/L/24 h correction reminder for hypernatraemia; tag gen-0013 was not pushed (git proxy refused tag push). 
+---

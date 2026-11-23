@@ -113,3 +113,12 @@ outcome: accepted
 metrics: lines=453 dead=0
 note: creatinine_clearance now raises ValueError for creatinine > 30 mg/dL (almost certainly a µmol/L value typed into a mg/dL field, e.g. 88), instead of returning a falsely tiny CrCl; valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0010
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: reject-implausible-sodium-range
+outcome: accepted
+metrics: lines=461 dead=0
+note: anion_gap now raises ValueError for sodium outside 90–200 mEq/L (e.g. a typo of 14 for 140, which produced a bogus negative gap); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions).
+---

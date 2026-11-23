@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -118,6 +118,16 @@ test("corrected calcium low albumin", () => {
 
 test("corrected calcium normal albumin", () => {
     expect(correctedCalcium(9.5, 4.0)).toBe(9.5);
+});
+
+test("free water deficit male hypernatremia", () => {
+    // 70 × 0.6 × (160/140 − 1) = 42 × 0.142857 = 6.0
+    expect(freeWaterDeficit(160, 70, "male")).toBe(6.0);
+});
+
+test("free water deficit female hypernatremia", () => {
+    // 60 × 0.5 × (154/140 − 1) = 30 × 0.1 = 3.0
+    expect(freeWaterDeficit(154, 60, "female")).toBe(3.0);
 });
 
 test("CrCl male", () => {

@@ -67,6 +67,13 @@ function correctedCalcium(calcium, albumin) {
     return Math.round((calcium + 0.8 * (4.0 - albumin)) * 10) / 10;
 }
 
+function freeWaterDeficit(na, weight, sex) {
+    // Free water deficit (L): TBW × (Na / 140 − 1), TBW = weight × 0.6 (male) or 0.5 (female)
+    if (na <= 0) throw new Error("Na must be > 0");
+    const tbw = weight * (sex === "female" ? 0.5 : 0.6);
+    return Math.round(tbw * (na / 140 - 1) * 10) / 10;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -74,4 +81,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, creatinineClearance };

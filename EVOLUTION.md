@@ -142,3 +142,12 @@ outcome: accepted
 metrics: lines=1100 dead=0
 note: Added oxygenation_index() (FiO2 × MAWP × 100 / PaO2) with UI card grading <15 mild, 15–25 moderate, >25 severe; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0014 tag push.
 ---
+---
+gen: wild-0015
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: add mechanical power
+outcome: accepted
+metrics: lines=1167 dead=0
+note: Added mechanical_power() (simplified Gattinoni: 0.098 × RR × Vt(L) × (Ppeak − ΔP/2)) with UI card flagging > 17 J/min; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0015 tag push.
+---

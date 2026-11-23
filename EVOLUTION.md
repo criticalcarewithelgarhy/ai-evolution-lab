@@ -108,3 +108,13 @@ outcome: accepted
 metrics: lines=850 dead=0
 note: Added shock_index() (HR / SBP) with 3 tests and a 13th app card flagging SI > 0.9 as possible occult shock, a quick bedside haemodynamic screen complementing MAP; tag gen-0010 was not pushed (git proxy refused tag push).
 ---
+
+---
+gen: 0011
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: table-driven calc dispatch
+outcome: accepted
+metrics: lines=790 dead=0
+note: Replaced the 13 repetitive if/elif try-blocks in app.py index() with a CALCS dispatch table (compute + interpret lambdas per calculator), cutting 60 lines with identical outputs and making new cards a one-entry addition; tag gen-0011 was not pushed (git proxy refused tag push).
+---

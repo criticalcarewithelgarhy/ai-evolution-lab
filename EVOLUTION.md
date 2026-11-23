@@ -136,3 +136,12 @@ outcome: accepted
 metrics: lines=511 dead=0
 note: creatinine_clearance silently turned an extra-digit weight typo (700 for 70 kg) into a tenfold-inflated CrCl that could drive drug overdosing; it now raises ValueError for weight above 650 kg (beyond the heaviest recorded human), leaving all valid outputs unchanged.
 ---
+---
+gen: accuracy-0014
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: validate-pao2-upper-bound
+outcome: accepted
+metrics: lines=517 dead=0
+note: pf_ratio silently accepted an extra-digit PaO2 typo (850 for 85 at FiO2 1.0), mislabelling severe ARDS as normal oxygenation; it now raises ValueError for PaO2 above 800 mmHg (beyond the alveolar-gas-equation ceiling at sea level), leaving all valid outputs unchanged.
+---

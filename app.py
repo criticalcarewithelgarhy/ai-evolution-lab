@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, driving_pressure, static_compliance, oxygenation_index, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, driving_pressure, static_compliance, oxygenation_index, mechanical_power, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -457,6 +457,33 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Mechanical Power</h2>
+    <div class="formula">MP = 0.098 × RR × Vt(L) × (Ppeak − ΔP/2)</div>
+    <form method="POST" action="/#mp">
+      <input type="hidden" name="calc" value="mp">
+      <div class="field"><label>Respiratory Rate (breaths/min)</label>
+        <input type="number" name="mp_rr" value="{{ form.mp_rr or '' }}" placeholder="20"></div>
+      <div class="field"><label>Tidal Volume (mL)</label>
+        <input type="number" name="mp_vt" value="{{ form.mp_vt or '' }}" placeholder="450"></div>
+      <div class="field"><label>Peak Pressure (cmH₂O)</label>
+        <input type="number" name="mp_ppeak" step="0.5" value="{{ form.mp_ppeak or '' }}" placeholder="28"></div>
+      <div class="field"><label>Plateau Pressure (cmH₂O)</label>
+        <input type="number" name="mp_pplat" step="0.5" value="{{ form.mp_pplat or '' }}" placeholder="22"></div>
+      <div class="field"><label>PEEP (cmH₂O)</label>
+        <input type="number" name="mp_peep" step="0.5" value="{{ form.mp_peep or '' }}" placeholder="10"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.mp is defined %}
+    <div class="result" id="mp">
+      <span class="val">{{ results.mp }}</span><span class="unit">J/min</span>
+      <div class="interp {{ results.mp_cls }}">{{ results.mp_interp }}</div>
+    </div>
+    {% elif results.mp_error is defined %}
+    <div class="error">{{ results.mp_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -488,7 +515,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0014 · 2026-11-23 · Added: oxygenation index</span>
+  <span>gen-wild-0015 · 2026-11-23 · Added: mechanical power</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -578,6 +605,11 @@ def _oi_interp(v):
     if v < 15:   return "< 15 — mild hypoxaemia", "normal"
     if v <= 25:  return "15–25 — moderate hypoxaemic respiratory failure", "warn"
     return "> 25 — severe; consider rescue therapies (prone, ECMO referral)", "crit"
+
+def _mp_interp(v):
+    if v <= 12:  return "≤ 12 J/min — within commonly cited safe range", "normal"
+    if v <= 17:  return "12–17 J/min — moderate; consider lowering RR / Vt", "warn"
+    return "> 17 J/min — associated with higher ARDS mortality", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -735,6 +767,17 @@ def index():
             results.update(oi=v, oi_interp=interp, oi_cls=cls)
         except Exception as e:
             results["oi_error"] = str(e)
+
+    elif calc == "mp":
+        try:
+            v = mechanical_power(
+                float(form["mp_rr"]), float(form["mp_vt"]), float(form["mp_ppeak"]),
+                float(form["mp_pplat"]), float(form["mp_peep"]),
+            )
+            interp, cls = _mp_interp(v)
+            results.update(mp=v, mp_interp=interp, mp_cls=cls)
+        except Exception as e:
+            results["mp_error"] = str(e)
 
     elif calc == "crcl":
         try:

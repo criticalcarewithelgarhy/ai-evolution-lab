@@ -23,6 +23,7 @@ from calculator import (
     driving_pressure,
     static_compliance,
     oxygenation_index,
+    mechanical_power,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -278,6 +279,21 @@ def test_oxygenation_index_severe():
 def test_oxygenation_index_bad_pao2():
     with pytest.raises(ValueError):
         oxygenation_index(0.5, 15, 0)
+
+
+def test_mechanical_power_typical():
+    # 0.098 × 20 × 0.45 × (28 − 6) = 19.404 → 19.4
+    assert mechanical_power(20, 450, 28, 22, 10) == 19.4
+
+
+def test_mechanical_power_low():
+    # 0.098 × 14 × 0.4 × (20 − 4) = 8.7808 → 8.8
+    assert mechanical_power(14, 400, 20, 16, 8) == 8.8
+
+
+def test_mechanical_power_bad_peak():
+    with pytest.raises(ValueError):
+        mechanical_power(20, 450, 20, 25, 10)
 
 
 def test_crcl_male():

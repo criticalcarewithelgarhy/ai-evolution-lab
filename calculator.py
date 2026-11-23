@@ -213,6 +213,27 @@ def oxygenation_index(fio2: float, mean_airway_pressure: float, pao2: float) -> 
     return round(fio2 * mean_airway_pressure * 100 / pao2, 1)
 
 
+def mechanical_power(
+    resp_rate: float, tidal_volume: float, peak: float, plateau: float, peep: float
+) -> float:
+    """
+    Mechanical power (simplified Gattinoni), J/min =
+    0.098 × RR × Vt(L) × (Ppeak − ½ × (Pplat − PEEP)).
+    tidal_volume in mL, pressures in cmH2O. > 17 J/min associated with higher ARDS mortality.
+    """
+    if resp_rate <= 0:
+        raise ValueError("Respiratory rate must be positive")
+    if tidal_volume <= 0:
+        raise ValueError("Tidal volume must be positive")
+    if peep < 0:
+        raise ValueError("PEEP must be non-negative")
+    if plateau < peep:
+        raise ValueError("Plateau pressure must be at least PEEP")
+    if peak < plateau:
+        raise ValueError("Peak pressure must be at least plateau pressure")
+    return round(0.098 * resp_rate * tidal_volume / 1000 * (peak - (plateau - peep) / 2), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

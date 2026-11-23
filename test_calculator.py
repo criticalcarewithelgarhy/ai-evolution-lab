@@ -150,6 +150,13 @@ def test_crcl_bad_weight_zero():
         creatinine_clearance(50, 0, 1.0, "male")
 
 
+def test_crcl_weight_upper_bound():
+    # Extra-digit typo (700 for 70 kg) would silently inflate CrCl tenfold
+    with pytest.raises(ValueError):
+        creatinine_clearance(50, 700, 1.0, "male")
+    assert creatinine_clearance(50, 650, 1.0, "male") == 812.5
+
+
 def test_crcl_sex_case_and_whitespace():
     assert creatinine_clearance(50, 70, 1.0, " Female ") == 74.4
     assert creatinine_clearance(50, 70, 1.0, "M") == 87.5

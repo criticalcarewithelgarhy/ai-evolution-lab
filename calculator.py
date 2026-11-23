@@ -78,6 +78,9 @@ def creatinine_clearance(
         raise ValueError("Age must be between 1 and 120 years")
     if weight <= 0:
         raise ValueError("Weight must be positive")
+    if weight > 650:
+        # Above the heaviest recorded human; almost always an extra-digit typo (700 for 70)
+        raise ValueError("Weight must not exceed 650 kg")
     sex_key = str(sex).strip().lower()
     if sex_key not in ("m", "male", "f", "female"):
         raise ValueError("Sex must be 'male' or 'female'")

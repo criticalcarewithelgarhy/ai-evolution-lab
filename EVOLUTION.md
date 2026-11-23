@@ -124,3 +124,13 @@ outcome: accepted
 metrics: lines=993 dead=0
 note: Added driving_pressure() (Pplat − PEEP) with UI card flagging ≥ 15 cmH2O as associated with higher ARDS mortality; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0012 tag push.
 ---
+
+---
+gen: wild-0013
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: add static compliance
+outcome: accepted
+metrics: lines=1046 dead=0
+note: Added static_compliance() (Vt / (Pplat − PEEP)) with UI card flagging < 40 mL/cmH2O as reduced; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0013 tag push.
+---

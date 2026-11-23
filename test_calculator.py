@@ -20,6 +20,7 @@ from calculator import (
     predicted_body_weight,
     shock_index,
     free_water_deficit,
+    rox_index,
     DISCLAIMER,
 )
 
@@ -223,3 +224,20 @@ def test_fwd_bad_weight():
 
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER
+
+
+def test_rox_typical():
+    # SpO2 95, FiO2 0.5, RR 20 → 190 / 20 = 9.5
+    assert rox_index(95, 0.5, 20) == 9.5
+
+
+def test_rox_failure_range():
+    # SpO2 88, FiO2 0.8, RR 30 → 110 / 30 = 3.67
+    assert rox_index(88, 0.8, 30) == 3.67
+
+
+def test_rox_bad_inputs():
+    with pytest.raises(ValueError):
+        rox_index(95, 0, 20)
+    with pytest.raises(ValueError):
+        rox_index(95, 0.5, 0)

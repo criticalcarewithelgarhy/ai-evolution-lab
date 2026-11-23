@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -341,10 +341,26 @@ TEMPLATE = """{% macro result(key, unit="") %}
     {{ result("fwd", "L") }}
   </div>
 
+  <div class="card">
+    <h2>ROX Index</h2>
+    <div class="formula">ROX = (SpO₂ / FiO₂) / RR</div>
+    <form method="POST" action="/#rox">
+      <input type="hidden" name="calc" value="rox">
+      <div class="field"><label>SpO₂ (%)</label>
+        <input type="number" name="rox_spo2" value="{{ form.rox_spo2 or '' }}" placeholder="95"></div>
+      <div class="field"><label>FiO₂ (0.21 – 1.0)</label>
+        <input type="number" name="rox_fio2" step="0.01" value="{{ form.rox_fio2 or '' }}" placeholder="0.5"></div>
+      <div class="field"><label>Respiratory Rate (breaths/min)</label>
+        <input type="number" name="rox_rr" value="{{ form.rox_rr or '' }}" placeholder="20"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {{ result("rox") }}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -428,6 +444,11 @@ def _fwd_interp(v):
     if v <= 3:  return "Mild deficit — correct Na ≤ 10 mEq/L per 24 h", "warn"
     return "Significant deficit — correct Na ≤ 10 mEq/L per 24 h", "crit"
 
+def _rox_interp(v):
+    if v >= 4.88: return "≥ 4.88 — HFNC success likely", "normal"
+    if v >= 3.85: return "3.85–4.88 — indeterminate, reassess in 1–2 h", "warn"
+    return "< 3.85 — high risk of HFNC failure, consider intubation", "crit"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -471,6 +492,8 @@ CALCS = {
            lambda v, f: _si_interp(v)),
     "fwd": (lambda f: free_water_deficit(_n(f, "fwd_na"), _n(f, "fwd_wt"), f.get("fwd_sex", "male")),
             lambda v, f: _fwd_interp(v)),
+    "rox": (lambda f: rox_index(_n(f, "rox_spo2"), _n(f, "rox_fio2"), _n(f, "rox_rr")),
+            lambda v, f: _rox_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

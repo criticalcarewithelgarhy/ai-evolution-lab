@@ -136,6 +136,18 @@ def free_water_deficit(sodium: float, weight: float, sex: str) -> float:
     return round(tbw * (sodium / 140 - 1), 1)
 
 
+def rox_index(spo2: float, fio2: float, resp_rate: float) -> float:
+    """
+    ROX index = (SpO2 / FiO2) / RR (Roca, 2016). Predicts high-flow nasal cannula success.
+    spo2 in %, FiO2 as fraction 0-1, resp_rate in breaths/min. >= 4.88 suggests HFNC success.
+    """
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+    if resp_rate <= 0 or not (0 <= spo2 <= 100):
+        raise ValueError("RR must be positive and SpO2 between 0 and 100")
+    return round(spo2 / fio2 / resp_rate, 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

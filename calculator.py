@@ -45,6 +45,21 @@ def anion_gap(sodium: float, chloride: float, bicarbonate: float) -> float:
     return round(sodium - (chloride + bicarbonate), 1)
 
 
+def corrected_anion_gap(
+    sodium: float, chloride: float, bicarbonate: float, albumin: float
+) -> float:
+    """
+    Albumin-corrected AG (Figge): AG + 2.5 * (4.0 - albumin), albumin in g/dL.
+    Hypoalbuminaemia lowers the measured AG and can mask a high-AG acidosis.
+    """
+    _require_finite(albumin=albumin)
+    if not (0 < albumin <= 10):
+        raise ValueError("Albumin must be between 0 and 10 g/dL")
+    anion_gap(sodium, chloride, bicarbonate)  # reuse electrolyte validation
+    ag = sodium - (chloride + bicarbonate)
+    return round(ag + 2.5 * (4.0 - albumin), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

@@ -9,7 +9,7 @@ a .js file with formula logic, metrics.py will flag it.
 from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
-    creatinine_clearance, DISCLAIMER,
+    creatinine_clearance, corrected_anion_gap, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -134,12 +134,17 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" step="any" name="cl" value="{{ form.cl or '' }}" placeholder="104"></div>
       <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L)</label>
         <input type="number" step="any" name="hco3" value="{{ form.hco3 or '' }}" placeholder="24"></div>
+      <div class="field"><label>Albumin (g/dL, optional — corrects AG)</label>
+        <input type="number" step="any" name="albumin" value="{{ form.albumin or '' }}" placeholder="4.0"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
     {% if results.ag is defined %}
     <div class="result" id="ag">
       <span class="val">{{ results.ag }}</span><span class="unit">mEq/L</span>
       <div class="interp {{ results.ag_cls }}">{{ results.ag_interp }}</div>
+      {% if results.ag_corr is defined %}
+      <div class="interp {{ results.ag_corr_cls }}">Albumin-corrected AG {{ results.ag_corr }} mEq/L — {{ results.ag_corr_interp }}</div>
+      {% endif %}
     </div>
     {% elif results.ag_error is defined %}
     <div class="error">{{ results.ag_error }}</div>
@@ -239,6 +244,11 @@ def index():
             v = anion_gap(float(form["na"]), float(form["cl"]), float(form["hco3"]))
             interp, cls = _ag_interp(v)
             results.update(ag=v, ag_interp=interp, ag_cls=cls)
+            if form.get("albumin", "").strip():
+                c = corrected_anion_gap(float(form["na"]), float(form["cl"]),
+                                        float(form["hco3"]), float(form["albumin"]))
+                ci, cc = _ag_interp(c)
+                results.update(ag_corr=c, ag_corr_interp=ci, ag_corr_cls=cc)
         except Exception as e:
             results["ag_error"] = str(e)
 

@@ -90,6 +90,29 @@ def test_anion_gap_zero_bicarbonate():
     assert anion_gap(140, 100, 0) == 40.0
 
 
+def test_corrected_anion_gap():
+    # Normal measured AG 12 with albumin 2.0 g/dL → corrected 17 (masked high-AG acidosis)
+    from calculator import corrected_anion_gap
+    assert corrected_anion_gap(140, 104, 24, 2.0) == 17.0
+    assert corrected_anion_gap(140, 104, 24, 4.0) == 12.0
+    for bad in (0, -1, 11, float("nan")):
+        with pytest.raises(ValueError):
+            corrected_anion_gap(140, 104, 24, bad)
+    with pytest.raises(ValueError):
+        corrected_anion_gap(140, 104, -24, 2.0)
+
+
+def test_corrected_anion_gap_in_app():
+    from app import app
+    c = app.test_client()
+    html = c.post("/", data={"calc": "ag", "na": "140", "cl": "104", "hco3": "24",
+                             "albumin": "2.0"}).get_data(as_text=True)
+    assert "Albumin-corrected AG 17.0" in html and "12.0" in html
+    html = c.post("/", data={"calc": "ag", "na": "140", "cl": "104", "hco3": "24",
+                             "albumin": ""}).get_data(as_text=True)
+    assert "Albumin-corrected" not in html
+
+
 def test_crcl_male():
     # 50yo, 70kg, Cr 1.0 → 87.5  (Cockcroft-Gault: (90×70)/72)
     assert creatinine_clearance(50, 70, 1.0, "male") == 87.5

@@ -114,3 +114,13 @@ outcome: accepted
 metrics: lines=945 dead=0
 note: Added rox_index() ((SpO2/FiO2)/RR) with UI card flagging HFNC failure risk (≥4.88 low, <3.85 high); metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0011 tag push.
 ---
+
+---
+gen: wild-0012
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: add driving pressure
+outcome: accepted
+metrics: lines=993 dead=0
+note: Added driving_pressure() (Pplat − PEEP) with UI card flagging ≥ 15 cmH2O as associated with higher ARDS mortality; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0012 tag push.
+---

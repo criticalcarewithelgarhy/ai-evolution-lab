@@ -107,3 +107,12 @@ outcome: accepted
 metrics: gen=0009 lines=214 dead=0 cap=1500 headroom=1286
 note: Added delta_ratio ((AG − 12) / (24 − HCO3)) reusing anion_gap, with two tests, so a raised gap can be checked for a co-existing non-gap acidosis or metabolic alkalosis.
 ---
+---
+gen: 0011
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: add glucose-corrected sodium
+outcome: accepted
+metrics: gen=0010 lines=225 dead=0 cap=1500 headroom=1275
+note: Added corrected_sodium (Katz: Na + 1.6 × (glucose − 100)/100) with two tests, so hyperglycaemic pseudohyponatraemia can be unmasked in DKA/HHS.
+---

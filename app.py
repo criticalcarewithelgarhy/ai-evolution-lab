@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -494,10 +494,31 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Rapid Shallow Breathing Index</h2>
+    <div class="formula">RSBI = RR / VT (L) — Yang–Tobin weaning predictor</div>
+    <form method="POST" action="/#rsbi">
+      <input type="hidden" name="calc" value="rsbi">
+      <div class="field"><label>Respiratory rate (/min)</label>
+        <input type="number" name="rsbi_rr" step="1" value="{{ form.rsbi_rr or '' }}" placeholder="25"></div>
+      <div class="field"><label>Tidal volume (mL)</label>
+        <input type="number" name="rsbi_vt" step="1" value="{{ form.rsbi_vt or '' }}" placeholder="500"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.rsbi is defined %}
+    <div class="result" id="rsbi">
+      <span class="val">{{ results.rsbi }} breaths/min/L</span>
+      <div class="interp {{ results.rsbi_cls }}">{{ results.rsbi_interp }}</div>
+    </div>
+    {% elif results.rsbi_error is defined %}
+    <div class="error">{{ results.rsbi_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0011 · 2026-11-23 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW</span>
+  <span>gen-breadth-0012 · 2026-11-23 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -601,6 +622,11 @@ def _ibw_interp(v):
     if v <= 0: return f"{v} kg — Height too low for Devine formula", "crit"
     lo, hi = round(v * 4), round(v * 8)
     return f"Lung-protective VT 6 mL/kg = {round(v * 6)} mL (range 4–8 mL/kg: {lo}–{hi} mL)", "normal"
+
+
+def _rsbi_interp(v):
+    if v < 105: return f"{v} — < 105 — Weaning likely to succeed (proceed to SBT)", "normal"
+    return f"{v} — ≥ 105 — High risk of weaning failure", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -757,6 +783,14 @@ def index():
             results.update(ibw=v, ibw_interp=interp, ibw_cls=cls)
         except Exception as e:
             results["ibw_error"] = str(e)
+
+    elif calc == "rsbi":
+        try:
+            v = rsbi(float(form["rsbi_rr"]), float(form["rsbi_vt"]))
+            interp, cls = _rsbi_interp(v)
+            results.update(rsbi=v, rsbi_interp=interp, rsbi_cls=cls)
+        except Exception as e:
+            results["rsbi_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

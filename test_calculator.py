@@ -22,6 +22,7 @@ from calculator import (
     winters_formula,
     delta_ratio,
     free_water_deficit,
+    rsbi,
     DISCLAIMER,
 )
 
@@ -305,3 +306,18 @@ def test_ibw_female():
 def test_ibw_bad_height():
     with pytest.raises(ValueError):
         ideal_body_weight(0, "male")
+
+
+def test_rsbi_typical():
+    # RR 25, VT 500 mL: 25 / 0.5 = 50.0
+    assert rsbi(25, 500) == 50.0
+
+
+def test_rsbi_failure_range():
+    # RR 35, VT 250 mL: 35 / 0.25 = 140.0
+    assert rsbi(35, 250) == 140.0
+
+
+def test_rsbi_bad_volume():
+    with pytest.raises(ValueError):
+        rsbi(20, 0)

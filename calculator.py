@@ -195,3 +195,15 @@ def ideal_body_weight(height_cm: float, sex: str) -> float:
         raise ValueError("Height must be positive")
     base = 45.5 if sex.lower() in ("f", "female") else 50.0
     return round(base + 0.91 * (height_cm - 152.4), 1)
+
+
+def rsbi(resp_rate: float, tidal_volume_ml: float) -> float:
+    """
+    Rapid Shallow Breathing Index (Yang–Tobin) = RR / VT (litres).
+    resp_rate in breaths/min, tidal volume in mL. < 105 predicts weaning success.
+    """
+    if resp_rate < 0:
+        raise ValueError("Respiratory rate must be non-negative")
+    if tidal_volume_ml <= 0:
+        raise ValueError("Tidal volume must be positive")
+    return round(resp_rate / (tidal_volume_ml / 1000), 1)

@@ -93,3 +93,11 @@ idea: free-water-deficit
 outcome: accepted
 metrics: lines=149 dead=-1 cap=1500 headroom=1351
 note: Added freeWaterDeficit (TBW × (Na/140 − 1), TBW 0.6/0.5 × weight by sex) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0011
+date: 2026-11-23
+model: claude-sonnet-4-6
+idea: rox-index
+outcome: accepted
+metrics: lines=160 dead=-1 cap=1500 headroom=1340
+note: Added roxIndex ((SpO2/FiO2)/RR, rounded to 2 dp) with two tests; four original formulas untouched, oracle 16/16 passing.

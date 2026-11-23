@@ -37,7 +37,17 @@ def _current_gen_info():
         pass
     return "gen-0000"
 
-TEMPLATE = """<!DOCTYPE html>
+TEMPLATE = """{% macro result(key, unit="") %}
+  {% if results[key] is defined %}
+  <div class="result" id="{{ key }}">
+    <span class="val">{{ results[key] }}</span>{% if unit %}<span class="unit">{{ unit }}</span>{% endif %}
+    <div class="interp {{ results[key ~ '_cls'] }}">{{ results[key ~ '_interp'] }}</div>
+  </div>
+  {% elif results[key ~ '_error'] is defined %}
+  <div class="error">{{ results[key ~ '_error'] }}</div>
+  {% endif %}
+{% endmacro -%}
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -112,14 +122,7 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" name="dbp" value="{{ form.dbp or '' }}" placeholder="80"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.map is defined %}
-    <div class="result" id="map">
-      <span class="val">{{ results.map }}</span><span class="unit">mmHg</span>
-      <div class="interp {{ results.map_cls }}">{{ results.map_interp }}</div>
-    </div>
-    {% elif results.map_error is defined %}
-    <div class="error">{{ results.map_error }}</div>
-    {% endif %}
+    {{ result("map", "mmHg") }}
   </div>
 
   <div class="card">
@@ -133,14 +136,7 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" name="fio2" step="0.01" value="{{ form.fio2 or '' }}" placeholder="0.21"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.pf is defined %}
-    <div class="result" id="pf">
-      <span class="val">{{ results.pf }}</span><span class="unit">mmHg</span>
-      <div class="interp {{ results.pf_cls }}">{{ results.pf_interp }}</div>
-    </div>
-    {% elif results.pf_error is defined %}
-    <div class="error">{{ results.pf_error }}</div>
-    {% endif %}
+    {{ result("pf", "mmHg") }}
   </div>
 
   <div class="card">
@@ -156,14 +152,7 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" name="hco3" value="{{ form.hco3 or '' }}" placeholder="24"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.ag is defined %}
-    <div class="result" id="ag">
-      <span class="val">{{ results.ag }}</span><span class="unit">mEq/L</span>
-      <div class="interp {{ results.ag_cls }}">{{ results.ag_interp }}</div>
-    </div>
-    {% elif results.ag_error is defined %}
-    <div class="error">{{ results.ag_error }}</div>
-    {% endif %}
+    {{ result("ag", "mEq/L") }}
   </div>
 
   <div class="card">
@@ -185,14 +174,7 @@ TEMPLATE = """<!DOCTYPE html>
       </div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.crcl is defined %}
-    <div class="result" id="crcl">
-      <span class="val">{{ results.crcl }}</span><span class="unit">mL/min</span>
-      <div class="interp {{ results.crcl_cls }}">{{ results.crcl_interp }}</div>
-    </div>
-    {% elif results.crcl_error is defined %}
-    <div class="error">{{ results.crcl_error }}</div>
-    {% endif %}
+    {{ result("crcl", "mL/min") }}
   </div>
 
   <div class="card">
@@ -210,14 +192,7 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" name="albumin" step="0.1" value="{{ form.albumin or '' }}" placeholder="4.0"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.cag is defined %}
-    <div class="result" id="cag">
-      <span class="val">{{ results.cag }}</span><span class="unit">mEq/L</span>
-      <div class="interp {{ results.cag_cls }}">{{ results.cag_interp }}</div>
-    </div>
-    {% elif results.cag_error is defined %}
-    <div class="error">{{ results.cag_error }}</div>
-    {% endif %}
+    {{ result("cag", "mEq/L") }}
   </div>
 
   <div class="card">
@@ -231,14 +206,7 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" name="glucose" value="{{ form.glucose or '' }}" placeholder="100"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.cna is defined %}
-    <div class="result" id="cna">
-      <span class="val">{{ results.cna }}</span><span class="unit">mEq/L</span>
-      <div class="interp {{ results.cna_cls }}">{{ results.cna_interp }}</div>
-    </div>
-    {% elif results.cna_error is defined %}
-    <div class="error">{{ results.cna_error }}</div>
-    {% endif %}
+    {{ result("cna", "mEq/L") }}
   </div>
 
   <div class="card">
@@ -252,14 +220,7 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" name="win_paco2" step="0.1" value="{{ form.win_paco2 or '' }}" placeholder="26"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.win is defined %}
-    <div class="result" id="win">
-      <span class="val">{{ results.win }}</span><span class="unit">mmHg (± 2)</span>
-      <div class="interp {{ results.win_cls }}">{{ results.win_interp }}</div>
-    </div>
-    {% elif results.win_error is defined %}
-    <div class="error">{{ results.win_error }}</div>
-    {% endif %}
+    {{ result("win", "mmHg (± 2)") }}
   </div>
 
   <div class="card">
@@ -275,14 +236,7 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" name="dr_hco3" step="0.1" value="{{ form.dr_hco3 or '' }}" placeholder="10"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.dr is defined %}
-    <div class="result" id="dr">
-      <span class="val">{{ results.dr }}</span>
-      <div class="interp {{ results.dr_cls }}">{{ results.dr_interp }}</div>
-    </div>
-    {% elif results.dr_error is defined %}
-    <div class="error">{{ results.dr_error }}</div>
-    {% endif %}
+    {{ result("dr") }}
   </div>
 
   <div class="card">
@@ -300,14 +254,7 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" name="aa_age" value="{{ form.aa_age or '' }}" placeholder="50"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.aa is defined %}
-    <div class="result" id="aa">
-      <span class="val">{{ results.aa }}</span><span class="unit">mmHg</span>
-      <div class="interp {{ results.aa_cls }}">{{ results.aa_interp }}</div>
-    </div>
-    {% elif results.aa_error is defined %}
-    <div class="error">{{ results.aa_error }}</div>
-    {% endif %}
+    {{ result("aa", "mmHg") }}
   </div>
 
   <div class="card">
@@ -325,14 +272,7 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" name="osm_meas" value="{{ form.osm_meas or '' }}" placeholder="300"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.osm is defined %}
-    <div class="result" id="osm">
-      <span class="val">{{ results.osm }}</span><span class="unit">mOsm/kg</span>
-      <div class="interp {{ results.osm_cls }}">{{ results.osm_interp }}</div>
-    </div>
-    {% elif results.osm_error is defined %}
-    <div class="error">{{ results.osm_error }}</div>
-    {% endif %}
+    {{ result("osm", "mOsm/kg") }}
   </div>
 
   <div class="card">
@@ -346,14 +286,7 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" name="cca_alb" step="0.1" value="{{ form.cca_alb or '' }}" placeholder="4.0"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.cca is defined %}
-    <div class="result" id="cca">
-      <span class="val">{{ results.cca }}</span><span class="unit">mg/dL</span>
-      <div class="interp {{ results.cca_cls }}">{{ results.cca_interp }}</div>
-    </div>
-    {% elif results.cca_error is defined %}
-    <div class="error">{{ results.cca_error }}</div>
-    {% endif %}
+    {{ result("cca", "mg/dL") }}
   </div>
 
   <div class="card">
@@ -371,14 +304,7 @@ TEMPLATE = """<!DOCTYPE html>
       </div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.pbw is defined %}
-    <div class="result" id="pbw">
-      <span class="val">{{ results.pbw }}</span><span class="unit">kg</span>
-      <div class="interp {{ results.pbw_cls }}">{{ results.pbw_interp }}</div>
-    </div>
-    {% elif results.pbw_error is defined %}
-    <div class="error">{{ results.pbw_error }}</div>
-    {% endif %}
+    {{ result("pbw", "kg") }}
   </div>
 
   <div class="card">
@@ -392,14 +318,7 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" name="si_sbp" value="{{ form.si_sbp or '' }}" placeholder="120"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
-    {% if results.si is defined %}
-    <div class="result" id="si">
-      <span class="val">{{ results.si }}</span>
-      <div class="interp {{ results.si_cls }}">{{ results.si_interp }}</div>
-    </div>
-    {% elif results.si_error is defined %}
-    <div class="error">{{ results.si_error }}</div>
-    {% endif %}
+    {{ result("si") }}
   </div>
 
 </div>

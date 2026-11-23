@@ -492,124 +492,58 @@ def _crcl_interp(v):
     return "Normal (≥ 90 mL/min)", "normal"
 
 
+def _n(f, k):
+    return float(f[k])
+
+def _opt(f, k):
+    return float(f[k]) if f.get(k) else None
+
+
+# calc key -> (compute(form) -> value, interpret(value, form) -> (text, css class))
+CALCS = {
+    "map": (lambda f: mean_arterial_pressure(_n(f, "sbp"), _n(f, "dbp")),
+            lambda v, f: _map_interp(v)),
+    "pf": (lambda f: pf_ratio(_n(f, "pao2"), _n(f, "fio2")),
+           lambda v, f: _pf_interp(v)),
+    "ag": (lambda f: anion_gap(_n(f, "na"), _n(f, "cl"), _n(f, "hco3")),
+           lambda v, f: _ag_interp(v)),
+    "cag": (lambda f: corrected_anion_gap(_n(f, "cag_na"), _n(f, "cag_cl"), _n(f, "cag_hco3"), _n(f, "albumin")),
+            lambda v, f: _cag_interp(v)),
+    "cna": (lambda f: corrected_sodium(_n(f, "cna_na"), _n(f, "glucose")),
+            lambda v, f: _cna_interp(v)),
+    "win": (lambda f: winters_formula(_n(f, "win_hco3")),
+            lambda v, f: _win_interp(v, _opt(f, "win_paco2"))),
+    "dr": (lambda f: delta_ratio(_n(f, "dr_na"), _n(f, "dr_cl"), _n(f, "dr_hco3")),
+           lambda v, f: _dr_interp(v)),
+    "aa": (lambda f: aa_gradient(_n(f, "aa_pao2"), _n(f, "aa_paco2"), _n(f, "aa_fio2")),
+           lambda v, f: _aa_interp(v, _opt(f, "aa_age"))),
+    "osm": (lambda f: serum_osmolality(_n(f, "osm_na"), _n(f, "osm_glu"), _n(f, "osm_bun")),
+            lambda v, f: _osm_interp(v, _opt(f, "osm_meas"))),
+    "cca": (lambda f: corrected_calcium(_n(f, "cca_ca"), _n(f, "cca_alb")),
+            lambda v, f: _cca_interp(v)),
+    "pbw": (lambda f: predicted_body_weight(_n(f, "pbw_ht"), f.get("pbw_sex", "male")),
+            lambda v, f: _pbw_interp(v)),
+    "si": (lambda f: shock_index(_n(f, "si_hr"), _n(f, "si_sbp")),
+           lambda v, f: _si_interp(v)),
+    "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
+             lambda v, f: _crcl_interp(v)),
+}
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     results = {}
     form = request.form if request.method == "POST" else {}
     calc = form.get("calc")
 
-    if calc == "map":
+    if calc in CALCS:
+        compute, interpret = CALCS[calc]
         try:
-            v = mean_arterial_pressure(float(form["sbp"]), float(form["dbp"]))
-            interp, cls = _map_interp(v)
-            results.update(map=v, map_interp=interp, map_cls=cls)
+            v = compute(form)
+            interp, cls = interpret(v, form)
+            results.update({calc: v, f"{calc}_interp": interp, f"{calc}_cls": cls})
         except Exception as e:
-            results["map_error"] = str(e)
-
-    elif calc == "pf":
-        try:
-            v = pf_ratio(float(form["pao2"]), float(form["fio2"]))
-            interp, cls = _pf_interp(v)
-            results.update(pf=v, pf_interp=interp, pf_cls=cls)
-        except Exception as e:
-            results["pf_error"] = str(e)
-
-    elif calc == "ag":
-        try:
-            v = anion_gap(float(form["na"]), float(form["cl"]), float(form["hco3"]))
-            interp, cls = _ag_interp(v)
-            results.update(ag=v, ag_interp=interp, ag_cls=cls)
-        except Exception as e:
-            results["ag_error"] = str(e)
-
-    elif calc == "cag":
-        try:
-            v = corrected_anion_gap(
-                float(form["cag_na"]), float(form["cag_cl"]),
-                float(form["cag_hco3"]), float(form["albumin"]),
-            )
-            interp, cls = _cag_interp(v)
-            results.update(cag=v, cag_interp=interp, cag_cls=cls)
-        except Exception as e:
-            results["cag_error"] = str(e)
-
-    elif calc == "cna":
-        try:
-            v = corrected_sodium(float(form["cna_na"]), float(form["glucose"]))
-            interp, cls = _cna_interp(v)
-            results.update(cna=v, cna_interp=interp, cna_cls=cls)
-        except Exception as e:
-            results["cna_error"] = str(e)
-
-    elif calc == "win":
-        try:
-            v = winters_formula(float(form["win_hco3"]))
-            measured = float(form["win_paco2"]) if form.get("win_paco2") else None
-            interp, cls = _win_interp(v, measured)
-            results.update(win=v, win_interp=interp, win_cls=cls)
-        except Exception as e:
-            results["win_error"] = str(e)
-
-    elif calc == "dr":
-        try:
-            v = delta_ratio(float(form["dr_na"]), float(form["dr_cl"]), float(form["dr_hco3"]))
-            interp, cls = _dr_interp(v)
-            results.update(dr=v, dr_interp=interp, dr_cls=cls)
-        except Exception as e:
-            results["dr_error"] = str(e)
-
-    elif calc == "aa":
-        try:
-            v = aa_gradient(float(form["aa_pao2"]), float(form["aa_paco2"]), float(form["aa_fio2"]))
-            age = float(form["aa_age"]) if form.get("aa_age") else None
-            interp, cls = _aa_interp(v, age)
-            results.update(aa=v, aa_interp=interp, aa_cls=cls)
-        except Exception as e:
-            results["aa_error"] = str(e)
-
-    elif calc == "osm":
-        try:
-            v = serum_osmolality(float(form["osm_na"]), float(form["osm_glu"]), float(form["osm_bun"]))
-            measured = float(form["osm_meas"]) if form.get("osm_meas") else None
-            interp, cls = _osm_interp(v, measured)
-            results.update(osm=v, osm_interp=interp, osm_cls=cls)
-        except Exception as e:
-            results["osm_error"] = str(e)
-
-    elif calc == "cca":
-        try:
-            v = corrected_calcium(float(form["cca_ca"]), float(form["cca_alb"]))
-            interp, cls = _cca_interp(v)
-            results.update(cca=v, cca_interp=interp, cca_cls=cls)
-        except Exception as e:
-            results["cca_error"] = str(e)
-
-    elif calc == "pbw":
-        try:
-            v = predicted_body_weight(float(form["pbw_ht"]), form.get("pbw_sex", "male"))
-            interp, cls = _pbw_interp(v)
-            results.update(pbw=v, pbw_interp=interp, pbw_cls=cls)
-        except Exception as e:
-            results["pbw_error"] = str(e)
-
-    elif calc == "si":
-        try:
-            v = shock_index(float(form["si_hr"]), float(form["si_sbp"]))
-            interp, cls = _si_interp(v)
-            results.update(si=v, si_interp=interp, si_cls=cls)
-        except Exception as e:
-            results["si_error"] = str(e)
-
-    elif calc == "crcl":
-        try:
-            v = creatinine_clearance(
-                float(form["age"]), float(form["weight"]),
-                float(form["creatinine"]), form.get("sex", "male"),
-            )
-            interp, cls = _crcl_interp(v)
-            results.update(crcl=v, crcl_interp=interp, crcl_cls=cls)
-        except Exception as e:
-            results["crcl_error"] = str(e)
+            results[f"{calc}_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER,
                                    gen_info=_current_gen_info(), results=results, form=form)

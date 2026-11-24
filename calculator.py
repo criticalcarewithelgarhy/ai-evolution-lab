@@ -103,3 +103,26 @@ def creatinine_clearance(
     if sex_key in ("f", "female"):
         result *= 0.85
     return round(result, 1)
+
+
+def crcl_dosing_weight(weight: float, height_cm: float, sex: str) -> tuple:
+    """
+    Weight for Cockcroft-Gault (actual-weight CG overestimates CrCl in obesity).
+    IBW (Devine): 50 kg male / 45.5 kg female + 2.3 kg per inch over 60 in
+    (no subtraction below 5 ft). Use actual weight if below IBW, adjusted weight
+    IBW + 0.4 * (actual - IBW) if above 120% of IBW, otherwise IBW.
+    Returns (kg, basis).
+    """
+    _require_finite(weight=weight, height_cm=height_cm)
+    if not (100 <= height_cm <= 250):
+        raise ValueError("Height must be between 100 and 250 cm")
+    sex_key = str(sex).strip().lower()
+    if sex_key not in ("m", "male", "f", "female"):
+        raise ValueError("Sex must be 'male' or 'female'")
+    base = 50.0 if sex_key in ("m", "male") else 45.5
+    ibw = base + 2.3 * max(0.0, height_cm / 2.54 - 60)
+    if weight < ibw:
+        return weight, "actual"
+    if weight > 1.2 * ibw:
+        return round(ibw + 0.4 * (weight - ibw), 1), "adjusted"
+    return round(ibw, 1), "ideal"

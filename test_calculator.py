@@ -244,3 +244,30 @@ def test_form_inputs_accept_any_decimal():
     resp = app.test_client().post("/", data={
         "calc": "crcl", "age": "50", "weight": "70", "creatinine": "0.85", "sex": "male"})
     assert "102.9" in resp.get_data(as_text=True)
+
+
+def test_crcl_dosing_weight():
+    # Actual-weight Cockcroft-Gault overestimates CrCl in obesity
+    from calculator import crcl_dosing_weight
+    # 177.8 cm (70 in) male: IBW 73 kg
+    assert crcl_dosing_weight(60, 177.8, "male") == (60, "actual")
+    assert crcl_dosing_weight(80, 177.8, "male") == (73.0, "ideal")
+    assert crcl_dosing_weight(150, 177.8, "male") == (103.8, "adjusted")
+    # below 5 ft: no subtraction (female IBW floor 45.5)
+    assert crcl_dosing_weight(50, 140, "female") == (45.5, "ideal")
+    for h in (50, 300, float("nan")):
+        with pytest.raises(ValueError):
+            crcl_dosing_weight(70, h, "male")
+    with pytest.raises(ValueError):
+        crcl_dosing_weight(70, 170, "x")
+
+
+def test_crcl_adjusted_in_app():
+    from app import app
+    c = app.test_client()
+    data = {"calc": "crcl", "age": "50", "weight": "150", "creatinine": "1.0",
+            "sex": "male", "height": "177.8"}
+    html = c.post("/", data=data).get_data(as_text=True)
+    assert "187.5" in html and "adjusted body weight 103.8 kg: CrCl 129.8" in html
+    data["height"] = ""
+    assert "body weight" not in c.post("/", data=data).get_data(as_text=True)

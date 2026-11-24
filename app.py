@@ -9,7 +9,7 @@ a .js file with formula logic, metrics.py will flag it.
 from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
-    creatinine_clearance, corrected_anion_gap, DISCLAIMER,
+    creatinine_clearance, corrected_anion_gap, crcl_dosing_weight, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -162,6 +162,8 @@ TEMPLATE = """<!DOCTYPE html>
         <input type="number" step="any" name="weight" value="{{ form.weight or '' }}" placeholder="70"></div>
       <div class="field"><label>Serum Creatinine (mg/dL)</label>
         <input type="number" step="any" name="creatinine" value="{{ form.creatinine or '' }}" placeholder="1.0"></div>
+      <div class="field"><label>Height (cm, optional — weight-adjusted CrCl)</label>
+        <input type="number" step="any" name="height" value="{{ form.height or '' }}" placeholder="170"></div>
       <div class="field"><label>Sex</label>
         <select name="sex">
           <option value="male" {% if form.sex == 'male' %}selected{% endif %}>Male</option>
@@ -174,6 +176,9 @@ TEMPLATE = """<!DOCTYPE html>
     <div class="result" id="crcl">
       <span class="val">{{ results.crcl }}</span><span class="unit">mL/min</span>
       <div class="interp {{ results.crcl_cls }}">{{ results.crcl_interp }}</div>
+      {% if results.crcl_adj is defined %}
+      <div class="interp {{ results.crcl_adj_cls }}">Using {{ results.crcl_basis }} body weight {{ results.crcl_wt }} kg: CrCl {{ results.crcl_adj }} mL/min — {{ results.crcl_adj_interp }}</div>
+      {% endif %}
     </div>
     {% elif results.crcl_error is defined %}
     <div class="error">{{ results.crcl_error }}</div>
@@ -260,6 +265,14 @@ def index():
             )
             interp, cls = _crcl_interp(v)
             results.update(crcl=v, crcl_interp=interp, crcl_cls=cls)
+            if form.get("height", "").strip():
+                wt, basis = crcl_dosing_weight(float(form["weight"]), float(form["height"]),
+                                               form.get("sex", "male"))
+                a = creatinine_clearance(float(form["age"]), wt,
+                                         float(form["creatinine"]), form.get("sex", "male"))
+                ai, ac = _crcl_interp(a)
+                results.update(crcl_adj=a, crcl_adj_interp=ai, crcl_adj_cls=ac,
+                               crcl_basis=basis, crcl_wt=wt)
         except Exception as e:
             results["crcl_error"] = str(e)
 

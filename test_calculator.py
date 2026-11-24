@@ -26,6 +26,7 @@ from calculator import (
     oxygenation_index,
     mechanical_power,
     fractional_excretion_sodium,
+    fractional_excretion_urea,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -326,6 +327,21 @@ def test_fena_atn():
 def test_fena_bad_creatinine():
     with pytest.raises(ValueError):
         fractional_excretion_sodium(20, 140, 0, 1.0)
+
+
+def test_feurea_prerenal():
+    # UUrea 300, PUrea 40, UCr 100, PCr 2.0 → 600 / 4000 × 100 = 15.0
+    assert fractional_excretion_urea(300, 40, 100, 2.0) == 15.0
+
+
+def test_feurea_atn():
+    # UUrea 200, PUrea 60, UCr 30, PCr 3.0 → 600 / 1800 × 100 = 33.3
+    assert fractional_excretion_urea(200, 60, 30, 3.0) == 33.3
+
+
+def test_feurea_bad_plasma_urea():
+    with pytest.raises(ValueError):
+        fractional_excretion_urea(300, 0, 100, 2.0)
 
 
 def test_crcl_male():

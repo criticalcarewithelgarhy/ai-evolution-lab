@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -530,6 +530,31 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Fractional Excretion of Urea</h2>
+    <div class="formula">FEUrea = (U_urea × P_Cr) / (P_urea × U_Cr) × 100</div>
+    <form method="POST" action="/#feu">
+      <input type="hidden" name="calc" value="feu">
+      <div class="field"><label>Urine Urea Nitrogen (mg/dL)</label>
+        <input type="number" name="feu_uurea" value="{{ form.feu_uurea or '' }}" placeholder="300"></div>
+      <div class="field"><label>Plasma BUN (mg/dL)</label>
+        <input type="number" name="feu_purea" value="{{ form.feu_purea or '' }}" placeholder="40"></div>
+      <div class="field"><label>Urine Creatinine (mg/dL)</label>
+        <input type="number" name="feu_ucr" step="0.1" value="{{ form.feu_ucr or '' }}" placeholder="100"></div>
+      <div class="field"><label>Plasma Creatinine (mg/dL)</label>
+        <input type="number" name="feu_pcr" step="0.1" value="{{ form.feu_pcr or '' }}" placeholder="2.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.feu is defined %}
+    <div class="result" id="feu">
+      <span class="val">{{ results.feu }}</span><span class="unit">%</span>
+      <div class="interp {{ results.feu_cls }}">{{ results.feu_interp }}</div>
+    </div>
+    {% elif results.feu_error is defined %}
+    <div class="error">{{ results.feu_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -561,7 +586,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0017 · 2026-11-24 · Added: FENa</span>
+  <span>gen-wild-0018 · 2026-11-24 · Added: FEUrea</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -667,6 +692,11 @@ def _fena_interp(v):
     if v < 1:    return "< 1% — suggests prerenal AKI (unreliable on diuretics)", "warn"
     if v <= 2:   return "1–2% — indeterminate", "warn"
     return "> 2% — suggests intrinsic renal injury (ATN)", "crit"
+
+def _feu_interp(v):
+    if v < 35:   return "< 35% — suggests prerenal AKI (reliable on diuretics)", "warn"
+    if v <= 50:  return "35–50% — indeterminate", "warn"
+    return "> 50% — suggests intrinsic renal injury (ATN)", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -855,6 +885,17 @@ def index():
             results.update(fena=v, fena_interp=interp, fena_cls=cls)
         except Exception as e:
             results["fena_error"] = str(e)
+
+    elif calc == "feu":
+        try:
+            v = fractional_excretion_urea(
+                float(form["feu_uurea"]), float(form["feu_purea"]),
+                float(form["feu_ucr"]), float(form["feu_pcr"]),
+            )
+            interp, cls = _feu_interp(v)
+            results.update(feu=v, feu_interp=interp, feu_cls=cls)
+        except Exception as e:
+            results["feu_error"] = str(e)
 
     elif calc == "crcl":
         try:

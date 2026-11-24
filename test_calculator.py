@@ -99,6 +99,14 @@ def test_anion_gap_negative_electrolytes(na, cl, hco3):
         anion_gap(na, cl, hco3)
 
 
+def test_anion_gap_sodium_upper_bound():
+    # Extra-digit typo (1400 for 140) would report a false AG of 1272 (or a normal-looking
+    # AG when Cl/HCO3 are similarly mistyped) instead of flagging the entry error
+    with pytest.raises(ValueError):
+        anion_gap(1400, 104, 24)
+    assert anion_gap(250, 104, 24) == 122.0
+
+
 def test_anion_gap_zero_bicarbonate():
     # HCO3 of 0 is extreme but measurable; must still compute
     assert anion_gap(140, 100, 0) == 40.0

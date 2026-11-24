@@ -47,6 +47,9 @@ def anion_gap(sodium: float, chloride: float, bicarbonate: float) -> float:
     _require_finite(sodium=sodium, chloride=chloride, bicarbonate=bicarbonate)
     if sodium <= 0:
         raise ValueError("Sodium must be positive")
+    if sodium > 250:
+        # Above any survivable recorded value (~255); almost always an extra-digit typo (1400 for 140)
+        raise ValueError("Sodium must not exceed 250 mEq/L")
     if chloride < 0 or bicarbonate < 0:
         raise ValueError("Chloride and bicarbonate cannot be negative")
     return round(sodium - (chloride + bicarbonate), 1)

@@ -147,3 +147,12 @@ outcome: accepted
 metrics: lines=792 dead=0
 note: Added rox_index() ((SpO2/FiO2)/RR, Roca 2016) with 3 tests and a 15th app card flagging ≥ 4.88 as likely HFNC success and < 3.85 as high failure risk; tag gen-0014 was not pushed (git proxy refused tag push).
 ---
+---
+gen: 0015
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: add qSOFA score
+outcome: accepted
+metrics: lines=832 dead=0
+note: Added qsofa_score() (1 pt each for RR ≥ 22, SBP ≤ 100, altered mentation; Seymour 2016) with 3 tests and a 16th app card flagging ≥ 2 as high risk in suspected sepsis; tag gen-0015 was not pushed (git proxy refused tag push).
+---

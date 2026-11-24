@@ -109,3 +109,11 @@ idea: oxygenation-index
 outcome: accepted
 metrics: lines=171 dead=-1 cap=1500 headroom=1329
 note: Added oxygenationIndex ((FiO2×100×mPaw)/PaO2, rounded to 1 dp) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0013
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: ideal-body-weight
+outcome: accepted
+metrics: lines=182 dead=-1 cap=1500 headroom=1318
+note: Added idealBodyWeight (Devine: 50/45.5 + 2.3 × (height[in] − 60), height in cm) with two tests; four original formulas untouched, oracle 16/16 passing.

@@ -154,3 +154,12 @@ outcome: accepted
 metrics: lines=523 dead=0
 note: anion_gap silently turned an extra-digit sodium typo (1400 for 140) into a false AG of 1272; it now raises ValueError for sodium above 250 mEq/L (beyond any survivable recorded value), leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0016
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: validate-creatinine-upper-bound
+outcome: accepted
+metrics: lines=529 dead=0
+note: creatinine_clearance silently accepted creatinine entered in µmol/L as mg/dL (88 for 1.0), reporting a near-anuric CrCl of ~1 instead of ~87 mL/min and driving drug underdosing; it now raises ValueError above 40 mg/dL with a conversion hint, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).

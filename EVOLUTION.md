@@ -165,3 +165,12 @@ outcome: accepted
 metrics: lines=1344 dead=0
 note: Added Bazett corrected QT (QT / √(60/HR)) with 3 tests and Flask card flagging sex-specific prolongation (> 450 M / > 470 F) and > 500 ms torsades risk; metrics.py still crashes on breadth- labels so lines/dead came from its count functions.
 ---
+---
+gen: breadth-0017
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: add osmolal gap
+outcome: accepted
+metrics: lines=1399 dead=0
+note: Added osmolal gap (measured osm − (2×Na + glucose/18 + BUN/2.8), > 10 abnormal, > 20 suspect toxic alcohol) with 3 tests and Flask card; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0017 exists locally only.
+---

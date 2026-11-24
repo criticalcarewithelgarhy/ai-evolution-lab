@@ -107,6 +107,18 @@ def test_anion_gap_sodium_upper_bound():
     assert anion_gap(250, 104, 24) == 122.0
 
 
+@pytest.mark.parametrize("cl,hco3", [(1040, 24), (104, 240)])
+def test_anion_gap_chloride_bicarbonate_upper_bound(cl, hco3):
+    # Extra-digit typo would return a large negative AG instead of flagging the entry error
+    with pytest.raises(ValueError):
+        anion_gap(140, cl, hco3)
+
+
+def test_anion_gap_chloride_bicarbonate_at_bounds():
+    assert anion_gap(250, 200, 0) == 50.0
+    assert anion_gap(140, 30, 100) == 10.0
+
+
 def test_anion_gap_zero_bicarbonate():
     # HCO3 of 0 is extreme but measurable; must still compute
     assert anion_gap(140, 100, 0) == 40.0

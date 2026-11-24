@@ -52,6 +52,12 @@ def test_pf_ratio_bad_fio2():
         pf_ratio(100, 0)
 
 
+def test_pf_ratio_subatmospheric_fio2():
+    with pytest.raises(ValueError):
+        pf_ratio(100, 0.05)  # typo for 0.5
+    assert pf_ratio(84, 0.21) == 400.0
+
+
 def test_pf_ratio_nonpositive_pao2():
     with pytest.raises(ValueError):
         pf_ratio(0, 0.5)

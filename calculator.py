@@ -37,6 +37,8 @@ def pf_ratio(pao2: float, fio2: float) -> float:
         raise ValueError("PaO2 above 800 mmHg is implausible — check for a typo or kPa/mmHg mix-up")
     if not (0 < fio2 <= 1):
         raise ValueError("FiO2 must be between 0 and 1")
+    if fio2 < 0.21:
+        raise ValueError("FiO2 below 0.21 (room air) is implausible — check for a typo")
     return round(pao2 / fio2, 1)
 
 

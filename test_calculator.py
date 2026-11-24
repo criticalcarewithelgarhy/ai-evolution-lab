@@ -128,6 +128,12 @@ def test_crcl_creatinine_unit_confusion():
     assert creatinine_clearance(50, 70, 30, "male") == 2.9
 
 
+def test_crcl_implausible_low_creatinine():
+    with pytest.raises(ValueError):
+        creatinine_clearance(50, 70, 0.01, "male")  # typo for 0.1/1.0
+    assert creatinine_clearance(50, 72, 0.1, "male") == 900.0
+
+
 def test_crcl_nonpositive_weight():
     with pytest.raises(ValueError):
         creatinine_clearance(50, 0, 1.0, "male")

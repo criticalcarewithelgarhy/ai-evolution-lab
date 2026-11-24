@@ -173,5 +173,5 @@ model: claude-sonnet-4-6
 idea: jinja number field macro
 outcome: accepted
 metrics: lines=828 dead=0
-note: Replaced 43 duplicated two-line numeric input blocks in app.py's template with a single Jinja num(name, label, placeholder, step) macro, cutting 39 lines with byte-identical rendered HTML; tag gen-0017 push attempted separately.
+note: Replaced 43 duplicated two-line numeric input blocks in app.py's template with a single Jinja num(name, label, placeholder, step) macro, cutting 39 lines with byte-identical rendered HTML; tag gen-0017 was not pushed (git proxy refused tag push).
 ---

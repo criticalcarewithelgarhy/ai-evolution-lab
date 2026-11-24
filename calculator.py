@@ -249,3 +249,16 @@ def rox_index(spo2: float, fio2: float, resp_rate: float) -> float:
     if resp_rate <= 0:
         raise ValueError("Respiratory rate must be positive")
     return round(spo2 / fio2 / resp_rate, 2)
+
+
+def qtc_bazett(qt_ms: float, heart_rate: float) -> float:
+    """
+    Corrected QT interval (Bazett) = QT / sqrt(RR), RR = 60 / HR in seconds.
+    QT in ms, heart rate in beats/min; result in ms.
+    Prolonged: > 450 ms (male) / > 470 ms (female); > 500 ms high torsades risk.
+    """
+    if qt_ms <= 0:
+        raise ValueError("QT interval must be positive")
+    if heart_rate <= 0:
+        raise ValueError("Heart rate must be positive")
+    return round(qt_ms / (60 / heart_rate) ** 0.5, 1)

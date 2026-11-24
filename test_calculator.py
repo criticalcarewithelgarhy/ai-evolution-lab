@@ -26,6 +26,7 @@ from calculator import (
     rsbi,
     driving_pressure,
     rox_index,
+    qtc_bazett,
     DISCLAIMER,
 )
 
@@ -369,3 +370,18 @@ def test_rox_high_risk():
 def test_rox_bad_rr():
     with pytest.raises(ValueError):
         rox_index(95, 0.5, 0)
+
+
+def test_qtc_hr60():
+    # HR 60 → RR 1 s: QTc = QT = 400.0
+    assert qtc_bazett(400, 60) == 400.0
+
+
+def test_qtc_tachycardia():
+    # QT 360, HR 100 → RR 0.6 s: 360 / sqrt(0.6) = 464.76 → 464.8
+    assert qtc_bazett(360, 100) == 464.8
+
+
+def test_qtc_bad_hr():
+    with pytest.raises(ValueError):
+        qtc_bazett(400, 0)

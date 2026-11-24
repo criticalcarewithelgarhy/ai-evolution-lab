@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -585,10 +585,33 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>QTc (Bazett)</h2>
+    <div class="formula">QTc = QT / √(RR), RR = 60 / HR (s)</div>
+    <form method="POST" action="/#qtc">
+      <input type="hidden" name="calc" value="qtc">
+      <div class="field"><label>QT interval (ms)</label>
+        <input type="number" name="qtc_qt" step="1" value="{{ form.qtc_qt or '' }}" placeholder="400"></div>
+      <div class="field"><label>Heart rate (/min)</label>
+        <input type="number" name="qtc_hr" step="1" value="{{ form.qtc_hr or '' }}" placeholder="75"></div>
+      <div class="field"><label>Sex (M/F)</label>
+        <input type="text" name="qtc_sex" value="{{ form.qtc_sex or '' }}" placeholder="M"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.qtc is defined %}
+    <div class="result" id="qtc">
+      <span class="val">{{ results.qtc }}</span><span class="unit">ms</span>
+      <div class="interp {{ results.qtc_cls }}">{{ results.qtc_interp }}</div>
+    </div>
+    {% elif results.qtc_error is defined %}
+    <div class="error">{{ results.qtc_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0015 · 2026-11-24 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX</span>
+  <span>gen-breadth-0016 · 2026-11-24 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -715,6 +738,13 @@ def _rox_interp(v):
     if v >= 4.88: return f"{v} — ≥ 4.88 — HFNC likely to succeed", "normal"
     if v >= 3.85: return f"{v} — 3.85–4.88 — Indeterminate; reassess in 1–2 h", "warn"
     return f"{v} — < 3.85 — High risk of HFNC failure; consider intubation", "crit"
+
+
+def _qtc_interp(v, sex):
+    limit = 470 if sex.lower() in ("f", "female") else 450
+    if v > 500: return f"{v} ms — > 500 ms — High risk of torsades; review QT-prolonging drugs, K⁺, Mg²⁺", "crit"
+    if v > limit: return f"{v} ms — Prolonged (> {limit} ms)", "warn"
+    return f"{v} ms — Normal (≤ {limit} ms); Bazett over-corrects at high HR", "normal"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -905,6 +935,14 @@ def index():
             results.update(rox=v, rox_interp=interp, rox_cls=cls)
         except Exception as e:
             results["rox_error"] = str(e)
+
+    elif calc == "qtc":
+        try:
+            v = qtc_bazett(float(form["qtc_qt"]), float(form["qtc_hr"]))
+            interp, cls = _qtc_interp(v, form.get("qtc_sex") or "m")
+            results.update(qtc=v, qtc_interp=interp, qtc_cls=cls)
+        except Exception as e:
+            results["qtc_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

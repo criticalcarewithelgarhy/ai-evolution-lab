@@ -20,6 +20,7 @@ from calculator import (
     ideal_body_weight,
     shock_index,
     rox_index,
+    sf_ratio,
     driving_pressure,
     static_compliance,
     oxygenation_index,
@@ -294,6 +295,21 @@ def test_mechanical_power_low():
 def test_mechanical_power_bad_peak():
     with pytest.raises(ValueError):
         mechanical_power(20, 450, 20, 25, 10)
+
+
+def test_sf_ratio_typical():
+    # SpO2 92 / FiO2 0.4 → 230.0
+    assert sf_ratio(92, 0.4) == 230.0
+
+
+def test_sf_ratio_room_air():
+    # SpO2 96 / FiO2 0.21 → 457.142… → 457.1
+    assert sf_ratio(96, 0.21) == 457.1
+
+
+def test_sf_ratio_bad_fio2():
+    with pytest.raises(ValueError):
+        sf_ratio(95, 0)
 
 
 def test_crcl_male():

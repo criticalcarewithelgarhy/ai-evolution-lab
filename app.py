@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, driving_pressure, static_compliance, oxygenation_index, mechanical_power, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -457,6 +457,27 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>S/F Ratio</h2>
+    <div class="formula">S/F = SpO₂ / FiO₂</div>
+    <form method="POST" action="/#sf">
+      <input type="hidden" name="calc" value="sf">
+      <div class="field"><label>SpO₂ (%)</label>
+        <input type="number" name="sf_spo2" value="{{ form.sf_spo2 or '' }}" placeholder="92"></div>
+      <div class="field"><label>FiO₂ (0.21 – 1.0)</label>
+        <input type="number" name="sf_fio2" step="0.01" value="{{ form.sf_fio2 or '' }}" placeholder="0.5"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.sf is defined %}
+    <div class="result" id="sf">
+      <span class="val">{{ results.sf }}</span>
+      <div class="interp {{ results.sf_cls }}">{{ results.sf_interp }}</div>
+    </div>
+    {% elif results.sf_error is defined %}
+    <div class="error">{{ results.sf_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Mechanical Power</h2>
     <div class="formula">MP = 0.098 × RR × Vt(L) × (Ppeak − ΔP/2)</div>
     <form method="POST" action="/#mp">
@@ -515,7 +536,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0015 · 2026-11-23 · Added: mechanical power</span>
+  <span>gen-wild-0016 · 2026-11-24 · Added: S/F ratio</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -605,6 +626,12 @@ def _oi_interp(v):
     if v < 15:   return "< 15 — mild hypoxaemia", "normal"
     if v <= 25:  return "15–25 — moderate hypoxaemic respiratory failure", "warn"
     return "> 25 — severe; consider rescue therapies (prone, ECMO referral)", "crit"
+
+def _sf_interp(v, spo2):
+    note = " (SpO₂ > 97% — S/F unreliable, titrate FiO₂ down)" if spo2 > 97 else ""
+    if v <= 235: return "≤ 235 — ≈ P/F ≤ 200, moderate–severe hypoxaemia" + note, "crit"
+    if v <= 315: return "236–315 — ≈ P/F 200–300, mild hypoxaemia" + note, "warn"
+    return "> 315 — ≈ P/F > 300" + note, "normal"
 
 def _mp_interp(v):
     if v <= 12:  return "≤ 12 J/min — within commonly cited safe range", "normal"
@@ -767,6 +794,15 @@ def index():
             results.update(oi=v, oi_interp=interp, oi_cls=cls)
         except Exception as e:
             results["oi_error"] = str(e)
+
+    elif calc == "sf":
+        try:
+            spo2 = float(form["sf_spo2"])
+            v = sf_ratio(spo2, float(form["sf_fio2"]))
+            interp, cls = _sf_interp(v, spo2)
+            results.update(sf=v, sf_interp=interp, sf_cls=cls)
+        except Exception as e:
+            results["sf_error"] = str(e)
 
     elif calc == "mp":
         try:

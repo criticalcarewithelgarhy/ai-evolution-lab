@@ -172,6 +172,19 @@ def rox_index(spo2: float, fio2: float, resp_rate: float) -> float:
     return round((spo2 / fio2) / resp_rate, 2)
 
 
+def sf_ratio(spo2: float, fio2: float) -> float:
+    """
+    S/F ratio = SpO2 / FiO2 (SpO2 in %, FiO2 as fraction 0-1).
+    Non-invasive surrogate for P/F (Rice 2007): S/F 235 ≈ P/F 200, S/F 315 ≈ P/F 300.
+    Only reliable when SpO2 ≤ 97% (flat top of the dissociation curve).
+    """
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+    if not (0 <= spo2 <= 100):
+        raise ValueError("SpO2 must be between 0 and 100")
+    return round(spo2 / fio2, 1)
+
+
 def driving_pressure(plateau: float, peep: float) -> float:
     """
     Driving pressure (ΔP) = plateau pressure − PEEP (cmH2O).

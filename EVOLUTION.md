@@ -175,3 +175,12 @@ outcome: accepted
 metrics: lines=828 dead=0
 note: Replaced 43 duplicated two-line numeric input blocks in app.py's template with a single Jinja num(name, label, placeholder, step) macro, cutting 39 lines with byte-identical rendered HTML; tag gen-0017 was not pushed (git proxy refused tag push).
 ---
+---
+gen: 0018
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: add oxygenation index
+outcome: accepted
+metrics: lines=867 dead=0
+note: Added oxygenation_index() (FiO2 × mPaw × 100 / PaO2) with 3 tests and an 18th app card grading severity and flagging > 40 for ECMO referral, complementing P/F by accounting for ventilator mean airway pressure; tag gen-0018 was not pushed (git proxy refused tag push).
+---

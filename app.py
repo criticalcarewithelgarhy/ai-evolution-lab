@@ -47,6 +47,10 @@ TEMPLATE = """{% macro result(key, unit="") %}
   <div class="error">{{ results[key ~ '_error'] }}</div>
   {% endif %}
 {% endmacro -%}
+{% macro num(name, label, ph, step=None) %}
+      <div class="field"><label>{{ label }}</label>
+        <input type="number" name="{{ name }}"{% if step %} step="{{ step }}"{% endif %} value="{{ form[name] or '' }}" placeholder="{{ ph }}"></div>
+{% endmacro -%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -116,10 +120,8 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">MAP = DBP + (SBP − DBP) / 3</div>
     <form method="POST" action="/#map">
       <input type="hidden" name="calc" value="map">
-      <div class="field"><label>Systolic BP (mmHg)</label>
-        <input type="number" name="sbp" value="{{ form.sbp or '' }}" placeholder="120"></div>
-      <div class="field"><label>Diastolic BP (mmHg)</label>
-        <input type="number" name="dbp" value="{{ form.dbp or '' }}" placeholder="80"></div>
+      {{ num("sbp", "Systolic BP (mmHg)", "120") }}
+      {{ num("dbp", "Diastolic BP (mmHg)", "80") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("map", "mmHg") }}
@@ -130,10 +132,8 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">P/F = PaO₂ / FiO₂</div>
     <form method="POST" action="/#pf">
       <input type="hidden" name="calc" value="pf">
-      <div class="field"><label>PaO₂ (mmHg)</label>
-        <input type="number" name="pao2" value="{{ form.pao2 or '' }}" placeholder="100"></div>
-      <div class="field"><label>FiO₂ (0.21 – 1.0)</label>
-        <input type="number" name="fio2" step="0.01" value="{{ form.fio2 or '' }}" placeholder="0.21"></div>
+      {{ num("pao2", "PaO₂ (mmHg)", "100") }}
+      {{ num("fio2", "FiO₂ (0.21 – 1.0)", "0.21", "0.01") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("pf", "mmHg") }}
@@ -144,12 +144,9 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">AG = Na⁺ − (Cl⁻ + HCO₃⁻)</div>
     <form method="POST" action="/#ag">
       <input type="hidden" name="calc" value="ag">
-      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
-        <input type="number" name="na" value="{{ form.na or '' }}" placeholder="140"></div>
-      <div class="field"><label>Chloride Cl⁻ (mEq/L)</label>
-        <input type="number" name="cl" value="{{ form.cl or '' }}" placeholder="104"></div>
-      <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L)</label>
-        <input type="number" name="hco3" value="{{ form.hco3 or '' }}" placeholder="24"></div>
+      {{ num("na", "Sodium Na⁺ (mEq/L)", "140") }}
+      {{ num("cl", "Chloride Cl⁻ (mEq/L)", "104") }}
+      {{ num("hco3", "Bicarbonate HCO₃⁻ (mEq/L)", "24") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("ag", "mEq/L") }}
@@ -160,12 +157,9 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
       <input type="hidden" name="calc" value="crcl">
-      <div class="field"><label>Age (years)</label>
-        <input type="number" name="age" value="{{ form.age or '' }}" placeholder="50"></div>
-      <div class="field"><label>Weight (kg)</label>
-        <input type="number" name="weight" value="{{ form.weight or '' }}" placeholder="70"></div>
-      <div class="field"><label>Serum Creatinine (mg/dL)</label>
-        <input type="number" name="creatinine" step="0.1" value="{{ form.creatinine or '' }}" placeholder="1.0"></div>
+      {{ num("age", "Age (years)", "50") }}
+      {{ num("weight", "Weight (kg)", "70") }}
+      {{ num("creatinine", "Serum Creatinine (mg/dL)", "1.0", "0.1") }}
       <div class="field"><label>Sex</label>
         <select name="sex">
           <option value="male" {% if form.sex == 'male' %}selected{% endif %}>Male</option>
@@ -182,14 +176,10 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">AG<sub>corr</sub> = AG + 2.5 × (4 − Albumin)</div>
     <form method="POST" action="/#cag">
       <input type="hidden" name="calc" value="cag">
-      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
-        <input type="number" name="cag_na" value="{{ form.cag_na or '' }}" placeholder="140"></div>
-      <div class="field"><label>Chloride Cl⁻ (mEq/L)</label>
-        <input type="number" name="cag_cl" value="{{ form.cag_cl or '' }}" placeholder="104"></div>
-      <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L)</label>
-        <input type="number" name="cag_hco3" value="{{ form.cag_hco3 or '' }}" placeholder="24"></div>
-      <div class="field"><label>Albumin (g/dL)</label>
-        <input type="number" name="albumin" step="0.1" value="{{ form.albumin or '' }}" placeholder="4.0"></div>
+      {{ num("cag_na", "Sodium Na⁺ (mEq/L)", "140") }}
+      {{ num("cag_cl", "Chloride Cl⁻ (mEq/L)", "104") }}
+      {{ num("cag_hco3", "Bicarbonate HCO₃⁻ (mEq/L)", "24") }}
+      {{ num("albumin", "Albumin (g/dL)", "4.0", "0.1") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("cag", "mEq/L") }}
@@ -200,10 +190,8 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">Na<sub>corr</sub> = Na<sub>meas</sub> + 1.6 × (Glucose − 100) / 100</div>
     <form method="POST" action="/#cna">
       <input type="hidden" name="calc" value="cna">
-      <div class="field"><label>Measured Sodium Na⁺ (mEq/L)</label>
-        <input type="number" name="cna_na" value="{{ form.cna_na or '' }}" placeholder="135"></div>
-      <div class="field"><label>Blood Glucose (mg/dL)</label>
-        <input type="number" name="glucose" value="{{ form.glucose or '' }}" placeholder="100"></div>
+      {{ num("cna_na", "Measured Sodium Na⁺ (mEq/L)", "135") }}
+      {{ num("glucose", "Blood Glucose (mg/dL)", "100") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("cna", "mEq/L") }}
@@ -214,10 +202,8 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">Expected PaCO₂ = 1.5 × HCO₃⁻ + 8 ± 2</div>
     <form method="POST" action="/#win">
       <input type="hidden" name="calc" value="win">
-      <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L)</label>
-        <input type="number" name="win_hco3" step="0.1" value="{{ form.win_hco3 or '' }}" placeholder="12"></div>
-      <div class="field"><label>Measured PaCO₂ (mmHg, optional)</label>
-        <input type="number" name="win_paco2" step="0.1" value="{{ form.win_paco2 or '' }}" placeholder="26"></div>
+      {{ num("win_hco3", "Bicarbonate HCO₃⁻ (mEq/L)", "12", "0.1") }}
+      {{ num("win_paco2", "Measured PaCO₂ (mmHg, optional)", "26", "0.1") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("win", "mmHg (± 2)") }}
@@ -228,12 +214,9 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">Δ/Δ = (AG − 12) / (24 − HCO₃⁻)</div>
     <form method="POST" action="/#dr">
       <input type="hidden" name="calc" value="dr">
-      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
-        <input type="number" name="dr_na" value="{{ form.dr_na or '' }}" placeholder="138"></div>
-      <div class="field"><label>Chloride Cl⁻ (mEq/L)</label>
-        <input type="number" name="dr_cl" value="{{ form.dr_cl or '' }}" placeholder="98"></div>
-      <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L)</label>
-        <input type="number" name="dr_hco3" step="0.1" value="{{ form.dr_hco3 or '' }}" placeholder="10"></div>
+      {{ num("dr_na", "Sodium Na⁺ (mEq/L)", "138") }}
+      {{ num("dr_cl", "Chloride Cl⁻ (mEq/L)", "98") }}
+      {{ num("dr_hco3", "Bicarbonate HCO₃⁻ (mEq/L)", "10", "0.1") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("dr") }}
@@ -244,14 +227,10 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">A–a = FiO₂ × (760 − 47) − PaCO₂ / 0.8 − PaO₂</div>
     <form method="POST" action="/#aa">
       <input type="hidden" name="calc" value="aa">
-      <div class="field"><label>PaO₂ (mmHg)</label>
-        <input type="number" name="aa_pao2" value="{{ form.aa_pao2 or '' }}" placeholder="90"></div>
-      <div class="field"><label>PaCO₂ (mmHg)</label>
-        <input type="number" name="aa_paco2" value="{{ form.aa_paco2 or '' }}" placeholder="40"></div>
-      <div class="field"><label>FiO₂ (0.21 – 1.0)</label>
-        <input type="number" name="aa_fio2" step="0.01" value="{{ form.aa_fio2 or '' }}" placeholder="0.21"></div>
-      <div class="field"><label>Age (years, optional)</label>
-        <input type="number" name="aa_age" value="{{ form.aa_age or '' }}" placeholder="50"></div>
+      {{ num("aa_pao2", "PaO₂ (mmHg)", "90") }}
+      {{ num("aa_paco2", "PaCO₂ (mmHg)", "40") }}
+      {{ num("aa_fio2", "FiO₂ (0.21 – 1.0)", "0.21", "0.01") }}
+      {{ num("aa_age", "Age (years, optional)", "50") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("aa", "mmHg") }}
@@ -262,14 +241,10 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">Osm = 2 × Na⁺ + Glucose / 18 + BUN / 2.8</div>
     <form method="POST" action="/#osm">
       <input type="hidden" name="calc" value="osm">
-      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
-        <input type="number" name="osm_na" value="{{ form.osm_na or '' }}" placeholder="140"></div>
-      <div class="field"><label>Glucose (mg/dL)</label>
-        <input type="number" name="osm_glu" value="{{ form.osm_glu or '' }}" placeholder="90"></div>
-      <div class="field"><label>BUN (mg/dL)</label>
-        <input type="number" name="osm_bun" value="{{ form.osm_bun or '' }}" placeholder="14"></div>
-      <div class="field"><label>Measured Osmolality (mOsm/kg, optional)</label>
-        <input type="number" name="osm_meas" value="{{ form.osm_meas or '' }}" placeholder="300"></div>
+      {{ num("osm_na", "Sodium Na⁺ (mEq/L)", "140") }}
+      {{ num("osm_glu", "Glucose (mg/dL)", "90") }}
+      {{ num("osm_bun", "BUN (mg/dL)", "14") }}
+      {{ num("osm_meas", "Measured Osmolality (mOsm/kg, optional)", "300") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("osm", "mOsm/kg") }}
@@ -280,10 +255,8 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">Ca<sub>corr</sub> = Ca + 0.8 × (4 − Albumin)</div>
     <form method="POST" action="/#cca">
       <input type="hidden" name="calc" value="cca">
-      <div class="field"><label>Total Calcium (mg/dL)</label>
-        <input type="number" name="cca_ca" step="0.1" value="{{ form.cca_ca or '' }}" placeholder="8.0"></div>
-      <div class="field"><label>Albumin (g/dL)</label>
-        <input type="number" name="cca_alb" step="0.1" value="{{ form.cca_alb or '' }}" placeholder="4.0"></div>
+      {{ num("cca_ca", "Total Calcium (mg/dL)", "8.0", "0.1") }}
+      {{ num("cca_alb", "Albumin (g/dL)", "4.0", "0.1") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("cca", "mg/dL") }}
@@ -294,8 +267,7 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">PBW = 50 (♂) / 45.5 (♀) + 0.91 × (Height − 152.4); V<sub>T</sub> 6–8 mL/kg</div>
     <form method="POST" action="/#pbw">
       <input type="hidden" name="calc" value="pbw">
-      <div class="field"><label>Height (cm)</label>
-        <input type="number" name="pbw_ht" step="0.1" value="{{ form.pbw_ht or '' }}" placeholder="170"></div>
+      {{ num("pbw_ht", "Height (cm)", "170", "0.1") }}
       <div class="field"><label>Sex</label>
         <select name="pbw_sex">
           <option value="male" {% if form.pbw_sex == 'male' %}selected{% endif %}>Male</option>
@@ -312,10 +284,8 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">SI = HR / SBP</div>
     <form method="POST" action="/#si">
       <input type="hidden" name="calc" value="si">
-      <div class="field"><label>Heart Rate (bpm)</label>
-        <input type="number" name="si_hr" value="{{ form.si_hr or '' }}" placeholder="80"></div>
-      <div class="field"><label>Systolic BP (mmHg)</label>
-        <input type="number" name="si_sbp" value="{{ form.si_sbp or '' }}" placeholder="120"></div>
+      {{ num("si_hr", "Heart Rate (bpm)", "80") }}
+      {{ num("si_sbp", "Systolic BP (mmHg)", "120") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("si") }}
@@ -326,10 +296,8 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">FWD = TBW × (Na⁺ / 140 − 1); TBW = 0.6 (♂) / 0.5 (♀) × Weight</div>
     <form method="POST" action="/#fwd">
       <input type="hidden" name="calc" value="fwd">
-      <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
-        <input type="number" name="fwd_na" value="{{ form.fwd_na or '' }}" placeholder="160"></div>
-      <div class="field"><label>Weight (kg)</label>
-        <input type="number" name="fwd_wt" step="0.1" value="{{ form.fwd_wt or '' }}" placeholder="70"></div>
+      {{ num("fwd_na", "Sodium Na⁺ (mEq/L)", "160") }}
+      {{ num("fwd_wt", "Weight (kg)", "70", "0.1") }}
       <div class="field"><label>Sex</label>
         <select name="fwd_sex">
           <option value="male" {% if form.fwd_sex == 'male' %}selected{% endif %}>Male</option>
@@ -346,12 +314,9 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">ROX = (SpO₂ / FiO₂) / RR</div>
     <form method="POST" action="/#rox">
       <input type="hidden" name="calc" value="rox">
-      <div class="field"><label>SpO₂ (%)</label>
-        <input type="number" name="rox_spo2" value="{{ form.rox_spo2 or '' }}" placeholder="95"></div>
-      <div class="field"><label>FiO₂ (0.21 – 1.0)</label>
-        <input type="number" name="rox_fio2" step="0.01" value="{{ form.rox_fio2 or '' }}" placeholder="0.5"></div>
-      <div class="field"><label>Respiratory Rate (breaths/min)</label>
-        <input type="number" name="rox_rr" value="{{ form.rox_rr or '' }}" placeholder="20"></div>
+      {{ num("rox_spo2", "SpO₂ (%)", "95") }}
+      {{ num("rox_fio2", "FiO₂ (0.21 – 1.0)", "0.5", "0.01") }}
+      {{ num("rox_rr", "Respiratory Rate (breaths/min)", "20") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("rox") }}
@@ -362,10 +327,8 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">1 pt each: RR ≥ 22 · SBP ≤ 100 · altered mentation</div>
     <form method="POST" action="/#qsofa">
       <input type="hidden" name="calc" value="qsofa">
-      <div class="field"><label>Respiratory Rate (breaths/min)</label>
-        <input type="number" name="qs_rr" value="{{ form.qs_rr or '' }}" placeholder="18"></div>
-      <div class="field"><label>Systolic BP (mmHg)</label>
-        <input type="number" name="qs_sbp" value="{{ form.qs_sbp or '' }}" placeholder="120"></div>
+      {{ num("qs_rr", "Respiratory Rate (breaths/min)", "18") }}
+      {{ num("qs_sbp", "Systolic BP (mmHg)", "120") }}
       <div class="field"><label>Altered mentation (GCS &lt; 15)</label>
         <select name="qs_ams">
           <option value="no" {% if form.qs_ams == 'no' %}selected{% endif %}>No</option>
@@ -382,10 +345,8 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <div class="formula">ΔP = P<sub>plat</sub> − PEEP</div>
     <form method="POST" action="/#dp">
       <input type="hidden" name="calc" value="dp">
-      <div class="field"><label>Plateau Pressure (cmH₂O)</label>
-        <input type="number" name="dp_pplat" step="0.1" value="{{ form.dp_pplat or '' }}" placeholder="25"></div>
-      <div class="field"><label>PEEP (cmH₂O)</label>
-        <input type="number" name="dp_peep" step="0.1" value="{{ form.dp_peep or '' }}" placeholder="10"></div>
+      {{ num("dp_pplat", "Plateau Pressure (cmH₂O)", "25", "0.1") }}
+      {{ num("dp_peep", "PEEP (cmH₂O)", "10", "0.1") }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("dp", "cmH₂O") }}

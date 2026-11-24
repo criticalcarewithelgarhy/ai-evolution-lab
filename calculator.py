@@ -122,3 +122,12 @@ def corrected_calcium(calcium: float, albumin: float) -> float:
     if calcium <= 0 or albumin <= 0:
         raise ValueError("Calcium and albumin must be positive")
     return round(calcium + 0.8 * (4.0 - albumin), 1)
+
+
+def aa_gradient(pao2: float, paco2: float, fio2: float) -> float:
+    """A-a gradient = FiO2 * (760 - 47) - PaCO2 / 0.8 - PaO2, mmHg at sea level"""
+    if pao2 <= 0 or paco2 <= 0:
+        raise ValueError("PaO2 and PaCO2 must be positive")
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+    return round(fio2 * (760 - 47) - paco2 / 0.8 - pao2, 1)

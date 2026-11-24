@@ -18,6 +18,7 @@ from calculator import (
     corrected_sodium,
     free_water_deficit,
     corrected_calcium,
+    aa_gradient,
     DISCLAIMER,
 )
 
@@ -158,3 +159,13 @@ def test_corrected_calcium_low_albumin():
 def test_corrected_calcium_bad_input():
     with pytest.raises(ValueError):
         corrected_calcium(8.0, 0)
+
+
+def test_aa_gradient_room_air():
+    # FiO2 0.21, PaCO2 40, PaO2 90 → 0.21 × 713 − 50 − 90 = 9.7
+    assert aa_gradient(90, 40, 0.21) == 9.7
+
+
+def test_aa_gradient_bad_fio2():
+    with pytest.raises(ValueError):
+        aa_gradient(90, 40, 0)

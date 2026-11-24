@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -357,10 +357,30 @@ TEMPLATE = """{% macro result(key, unit="") %}
     {{ result("rox") }}
   </div>
 
+  <div class="card">
+    <h2>qSOFA</h2>
+    <div class="formula">1 pt each: RR ≥ 22 · SBP ≤ 100 · altered mentation</div>
+    <form method="POST" action="/#qsofa">
+      <input type="hidden" name="calc" value="qsofa">
+      <div class="field"><label>Respiratory Rate (breaths/min)</label>
+        <input type="number" name="qs_rr" value="{{ form.qs_rr or '' }}" placeholder="18"></div>
+      <div class="field"><label>Systolic BP (mmHg)</label>
+        <input type="number" name="qs_sbp" value="{{ form.qs_sbp or '' }}" placeholder="120"></div>
+      <div class="field"><label>Altered mentation (GCS &lt; 15)</label>
+        <select name="qs_ams">
+          <option value="no" {% if form.qs_ams == 'no' %}selected{% endif %}>No</option>
+          <option value="yes" {% if form.qs_ams == 'yes' %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {{ result("qsofa", "/ 3") }}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -449,6 +469,10 @@ def _rox_interp(v):
     if v >= 3.85: return "3.85–4.88 — indeterminate, reassess in 1–2 h", "warn"
     return "< 3.85 — high risk of HFNC failure, consider intubation", "crit"
 
+def _qsofa_interp(v):
+    if v >= 2: return "≥ 2 — high risk of poor outcome, assess for sepsis/organ dysfunction", "crit"
+    return "< 2 — low risk, but does not exclude sepsis", "normal"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -494,6 +518,8 @@ CALCS = {
             lambda v, f: _fwd_interp(v)),
     "rox": (lambda f: rox_index(_n(f, "rox_spo2"), _n(f, "rox_fio2"), _n(f, "rox_rr")),
             lambda v, f: _rox_interp(v)),
+    "qsofa": (lambda f: qsofa_score(_n(f, "qs_rr"), _n(f, "qs_sbp"), f.get("qs_ams") == "yes"),
+              lambda v, f: _qsofa_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

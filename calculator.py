@@ -148,6 +148,16 @@ def rox_index(spo2: float, fio2: float, resp_rate: float) -> float:
     return round(spo2 / fio2 / resp_rate, 2)
 
 
+def qsofa_score(resp_rate: float, systolic: float, altered_mentation: bool) -> int:
+    """
+    qSOFA (Seymour, 2016): 1 point each for RR >= 22, SBP <= 100, altered mentation (GCS < 15).
+    Score >= 2 flags higher risk of poor outcome in suspected infection.
+    """
+    if resp_rate < 0 or systolic < 0:
+        raise ValueError("RR and SBP must be non-negative")
+    return int(resp_rate >= 22) + int(systolic <= 100) + int(bool(altered_mentation))
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

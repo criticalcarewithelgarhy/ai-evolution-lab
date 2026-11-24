@@ -21,6 +21,7 @@ from calculator import (
     shock_index,
     free_water_deficit,
     rox_index,
+    qsofa_score,
     DISCLAIMER,
 )
 
@@ -241,3 +242,18 @@ def test_rox_bad_inputs():
         rox_index(95, 0, 20)
     with pytest.raises(ValueError):
         rox_index(95, 0.5, 0)
+
+
+
+def test_qsofa_zero():
+    assert qsofa_score(16, 120, False) == 0
+
+
+def test_qsofa_full():
+    # RR 22, SBP 100, altered → 3 (thresholds inclusive)
+    assert qsofa_score(22, 100, True) == 3
+
+
+def test_qsofa_bad_inputs():
+    with pytest.raises(ValueError):
+        qsofa_score(-1, 120, False)

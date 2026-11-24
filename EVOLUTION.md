@@ -167,3 +167,12 @@ outcome: accepted
 metrics: lines=494 dead=0
 note: creatinine_clearance now raises ValueError for weight above 400 kg (e.g. 70000 typed in grams, which produced a bogus CrCl of 87500); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0016
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: require-explicit-sex-in-form
+outcome: accepted
+metrics: lines=502 dead=0
+note: app.py no longer silently defaults a missing CrCl sex field to "male" (a POST without sex returned a male-calculated CrCl); it now shows "Sex must be 'male' or 'female'", with a Flask test-client test added; formula outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and the proxy again refused the tag push (branch pushed fine).
+---

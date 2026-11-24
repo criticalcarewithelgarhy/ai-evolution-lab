@@ -23,6 +23,7 @@ from calculator import (
     rox_index,
     qsofa_score,
     driving_pressure,
+    oxygenation_index,
     DISCLAIMER,
 )
 
@@ -274,3 +275,21 @@ def test_dp_bad_inputs():
         driving_pressure(8, 10)
     with pytest.raises(ValueError):
         driving_pressure(20, -1)
+
+
+
+def test_oi_typical():
+    # FiO2 0.6, mPaw 15, PaO2 75 → 900 / 75 = 12
+    assert oxygenation_index(0.6, 15, 75) == 12.0
+
+
+def test_oi_severe():
+    # FiO2 1.0, mPaw 25, PaO2 55 → 2500 / 55 = 45.45 → 45.5
+    assert oxygenation_index(1.0, 25, 55) == 45.5
+
+
+def test_oi_bad_inputs():
+    with pytest.raises(ValueError):
+        oxygenation_index(0, 15, 75)
+    with pytest.raises(ValueError):
+        oxygenation_index(0.6, 15, 0)

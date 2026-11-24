@@ -167,6 +167,18 @@ def driving_pressure(plateau: float, peep: float) -> float:
     return round(plateau - peep, 1)
 
 
+def oxygenation_index(fio2: float, mean_airway_pressure: float, pao2: float) -> float:
+    """
+    Oxygenation index = FiO2 × mPaw × 100 / PaO2. FiO2 as fraction 0-1, mPaw in cmH2O, PaO2 in mmHg.
+    Higher is worse; > 40 is a common threshold for considering ECMO.
+    """
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+    if pao2 <= 0 or mean_airway_pressure < 0:
+        raise ValueError("PaO2 must be positive and mPaw non-negative")
+    return round(fio2 * mean_airway_pressure * 100 / pao2, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

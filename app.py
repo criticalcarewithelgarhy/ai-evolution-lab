@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -352,10 +352,23 @@ TEMPLATE = """{% macro result(key, unit="") %}
     {{ result("dp", "cmH₂O") }}
   </div>
 
+  <div class="card">
+    <h2>Oxygenation Index</h2>
+    <div class="formula">OI = FiO₂ × mPaw × 100 / PaO₂</div>
+    <form method="POST" action="/#oi">
+      <input type="hidden" name="calc" value="oi">
+      {{ num("oi_fio2", "FiO₂ (0.21 – 1.0)", "0.6", "0.01") }}
+      {{ num("oi_mpaw", "Mean Airway Pressure (cmH₂O)", "15", "0.1") }}
+      {{ num("oi_pao2", "PaO₂ (mmHg)", "75") }}
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {{ result("oi") }}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -452,6 +465,12 @@ def _dp_interp(v):
     if v <= 15: return "≤ 15 cmH₂O — within lung-protective target", "normal"
     return "> 15 cmH₂O — associated with higher ARDS mortality, consider lowering VT", "crit"
 
+def _oi_interp(v):
+    if v < 15:  return "< 15 — mild oxygenation impairment", "normal"
+    if v <= 25: return "15–25 — moderate impairment", "warn"
+    if v <= 40: return "25–40 — severe impairment", "crit"
+    return "> 40 — very severe, consider ECMO referral", "crit"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -501,6 +520,8 @@ CALCS = {
               lambda v, f: _qsofa_interp(v)),
     "dp": (lambda f: driving_pressure(_n(f, "dp_pplat"), _n(f, "dp_peep")),
            lambda v, f: _dp_interp(v)),
+    "oi": (lambda f: oxygenation_index(_n(f, "oi_fio2"), _n(f, "oi_mpaw"), _n(f, "oi_pao2")),
+           lambda v, f: _oi_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

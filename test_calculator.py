@@ -179,3 +179,13 @@ def test_non_numeric_inputs_rejected(call):
 
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER
+
+
+def test_app_crcl_missing_sex_not_defaulted_to_male():
+    from app import app
+    client = app.test_client()
+    data = {"calc": "crcl", "age": "50", "weight": "70", "creatinine": "1.0"}
+    html = client.post("/", data=data).get_data(as_text=True)
+    assert "Sex must be" in html and "87.5" not in html
+    html = client.post("/", data={**data, "sex": "female"}).get_data(as_text=True)
+    assert "74.4" in html

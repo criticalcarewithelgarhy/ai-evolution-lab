@@ -256,7 +256,7 @@ def index():
         try:
             v = creatinine_clearance(
                 _num(form, "age"), _num(form, "weight"),
-                _num(form, "creatinine"), form.get("sex", "male"),
+                _num(form, "creatinine"), form.get("sex"),
             )
             interp, cls = _crcl_interp(v)
             results.update(crcl=v, crcl_interp=interp, crcl_cls=cls)

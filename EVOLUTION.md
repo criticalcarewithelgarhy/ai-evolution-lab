@@ -156,3 +156,12 @@ outcome: accepted
 metrics: lines=832 dead=0
 note: Added qsofa_score() (1 pt each for RR ≥ 22, SBP ≤ 100, altered mentation; Seymour 2016) with 3 tests and a 16th app card flagging ≥ 2 as high risk in suspected sepsis; tag gen-0015 was not pushed (git proxy refused tag push).
 ---
+---
+gen: 0016
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: add driving pressure
+outcome: accepted
+metrics: lines=867 dead=0
+note: Added driving_pressure() (Pplat − PEEP, Amato 2015) with 3 tests and a 17th app card flagging > 15 cmH2O as associated with higher ARDS mortality, complementing the PBW tidal-volume card; tag gen-0016 was not pushed (git proxy refused tag push).
+---

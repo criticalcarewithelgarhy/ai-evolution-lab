@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -505,6 +505,31 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Fractional Excretion of Sodium</h2>
+    <div class="formula">FENa = (U_Na × P_Cr) / (P_Na × U_Cr) × 100</div>
+    <form method="POST" action="/#fena">
+      <input type="hidden" name="calc" value="fena">
+      <div class="field"><label>Urine Sodium (mEq/L)</label>
+        <input type="number" name="fena_una" value="{{ form.fena_una or '' }}" placeholder="20"></div>
+      <div class="field"><label>Plasma Sodium (mEq/L)</label>
+        <input type="number" name="fena_pna" value="{{ form.fena_pna or '' }}" placeholder="140"></div>
+      <div class="field"><label>Urine Creatinine (mg/dL)</label>
+        <input type="number" name="fena_ucr" step="0.1" value="{{ form.fena_ucr or '' }}" placeholder="100"></div>
+      <div class="field"><label>Plasma Creatinine (mg/dL)</label>
+        <input type="number" name="fena_pcr" step="0.1" value="{{ form.fena_pcr or '' }}" placeholder="2.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.fena is defined %}
+    <div class="result" id="fena">
+      <span class="val">{{ results.fena }}</span><span class="unit">%</span>
+      <div class="interp {{ results.fena_cls }}">{{ results.fena_interp }}</div>
+    </div>
+    {% elif results.fena_error is defined %}
+    <div class="error">{{ results.fena_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -536,7 +561,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0016 · 2026-11-24 · Added: S/F ratio</span>
+  <span>gen-wild-0017 · 2026-11-24 · Added: FENa</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -637,6 +662,11 @@ def _mp_interp(v):
     if v <= 12:  return "≤ 12 J/min — within commonly cited safe range", "normal"
     if v <= 17:  return "12–17 J/min — moderate; consider lowering RR / Vt", "warn"
     return "> 17 J/min — associated with higher ARDS mortality", "crit"
+
+def _fena_interp(v):
+    if v < 1:    return "< 1% — suggests prerenal AKI (unreliable on diuretics)", "warn"
+    if v <= 2:   return "1–2% — indeterminate", "warn"
+    return "> 2% — suggests intrinsic renal injury (ATN)", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -814,6 +844,17 @@ def index():
             results.update(mp=v, mp_interp=interp, mp_cls=cls)
         except Exception as e:
             results["mp_error"] = str(e)
+
+    elif calc == "fena":
+        try:
+            v = fractional_excretion_sodium(
+                float(form["fena_una"]), float(form["fena_pna"]),
+                float(form["fena_ucr"]), float(form["fena_pcr"]),
+            )
+            interp, cls = _fena_interp(v)
+            results.update(fena=v, fena_interp=interp, fena_cls=cls)
+        except Exception as e:
+            results["fena_error"] = str(e)
 
     elif calc == "crcl":
         try:

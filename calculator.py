@@ -247,6 +247,23 @@ def mechanical_power(
     return round(0.098 * resp_rate * tidal_volume / 1000 * (peak - (plateau - peep) / 2), 1)
 
 
+def fractional_excretion_sodium(
+    urine_sodium: float, plasma_sodium: float, urine_creatinine: float, plasma_creatinine: float
+) -> float:
+    """
+    FENa (%) = (U_Na × P_Cr) / (P_Na × U_Cr) × 100.
+    Sodium in mEq/L, creatinine in mg/dL (same units for urine and plasma).
+    < 1% suggests prerenal AKI; > 2% suggests intrinsic renal (ATN). Unreliable on diuretics.
+    """
+    if urine_sodium < 0:
+        raise ValueError("Urine sodium must be non-negative")
+    if plasma_sodium <= 0:
+        raise ValueError("Plasma sodium must be positive")
+    if urine_creatinine <= 0 or plasma_creatinine <= 0:
+        raise ValueError("Creatinine must be positive")
+    return round(urine_sodium * plasma_creatinine / (plasma_sodium * urine_creatinine) * 100, 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

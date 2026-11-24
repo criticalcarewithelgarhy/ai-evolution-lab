@@ -25,6 +25,7 @@ from calculator import (
     static_compliance,
     oxygenation_index,
     mechanical_power,
+    fractional_excretion_sodium,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -310,6 +311,21 @@ def test_sf_ratio_room_air():
 def test_sf_ratio_bad_fio2():
     with pytest.raises(ValueError):
         sf_ratio(95, 0)
+
+
+def test_fena_prerenal():
+    # UNa 10, PNa 140, UCr 100, PCr 2.0 → 20 / 14000 × 100 = 0.14
+    assert fractional_excretion_sodium(10, 140, 100, 2.0) == 0.14
+
+
+def test_fena_atn():
+    # UNa 60, PNa 135, UCr 40, PCr 3.0 → 180 / 5400 × 100 = 3.33
+    assert fractional_excretion_sodium(60, 135, 40, 3.0) == 3.33
+
+
+def test_fena_bad_creatinine():
+    with pytest.raises(ValueError):
+        fractional_excretion_sodium(20, 140, 0, 1.0)
 
 
 def test_crcl_male():

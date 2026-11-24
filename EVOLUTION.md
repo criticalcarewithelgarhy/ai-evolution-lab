@@ -134,3 +134,12 @@ outcome: accepted
 metrics: gen=0012 lines=240 dead=0 cap=1500 headroom=1260
 note: Factored the duplicated sex parsing/validation in creatinine_clearance and free_water_deficit into a shared _is_female helper, with no change to numerical output.
 ---
+---
+gen: 0014
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: add calculated serum osmolality
+outcome: accepted
+metrics: gen=0013 lines=275 dead=0 cap=1500 headroom=1225
+note: Added serum_osmolality (2 × Na + glucose/18 + BUN/2.8) with two tests, enabling osmolar-gap assessment for toxic alcohol ingestion alongside the anion-gap tools.
+---

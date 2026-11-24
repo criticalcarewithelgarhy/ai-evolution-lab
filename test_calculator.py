@@ -150,6 +150,13 @@ def test_crcl_bad_creatinine():
         creatinine_clearance(50, 70, 0, "male")
 
 
+def test_crcl_creatinine_upper_bound():
+    # µmol/L entered as mg/dL (88 for 1.0) would report near-anuric CrCl and drive underdosing
+    with pytest.raises(ValueError):
+        creatinine_clearance(50, 70, 88, "male")
+    assert creatinine_clearance(50, 72, 40, "male") == 2.2
+
+
 def test_crcl_bad_age_zero():
     with pytest.raises(ValueError):
         creatinine_clearance(0, 70, 1.0, "male")

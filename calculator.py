@@ -81,6 +81,10 @@ def creatinine_clearance(
     _require_finite(age=age, weight=weight, creatinine=creatinine)
     if creatinine <= 0:
         raise ValueError("Creatinine must be positive")
+    if creatinine > 40:
+        # Above any recorded value in mg/dL; almost always µmol/L entered as mg/dL
+        # (88 µmol/L read as 88 mg/dL reports CrCl ~1 instead of ~87 mL/min)
+        raise ValueError("Creatinine must not exceed 40 mg/dL (convert µmol/L ÷ 88.4)")
     if not (1 <= age <= 120):
         raise ValueError("Age must be between 1 and 120 years")
     if weight <= 0:

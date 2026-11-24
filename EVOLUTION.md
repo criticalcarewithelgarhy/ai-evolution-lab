@@ -155,3 +155,13 @@ outcome: accepted
 metrics: lines=1291 dead=0
 note: Added ROX index ((SpO2/FiO2)/RR, Roca thresholds 4.88 / 3.85) with 3 tests and Flask card predicting HFNC success vs failure; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0015 exists locally only.
 ---
+
+---
+gen: breadth-0016
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: add QTc Bazett
+outcome: accepted
+metrics: lines=1344 dead=0
+note: Added Bazett corrected QT (QT / √(60/HR)) with 3 tests and Flask card flagging sex-specific prolongation (> 450 M / > 470 F) and > 500 ms torsades risk; metrics.py still crashes on breadth- labels so lines/dead came from its count functions.
+---

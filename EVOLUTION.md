@@ -149,3 +149,12 @@ outcome: accepted
 metrics: lines=482 dead=0
 note: pf_ratio now raises ValueError for PaO2 above 800 mmHg (e.g. a typo of 1000 for 100, which produced a bogus P/F of 1000); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions).
 ---
+---
+gen: robust-0014
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: reject-subatmospheric-fio2
+outcome: accepted
+metrics: lines=488 dead=0
+note: pf_ratio now raises ValueError for FiO2 below 0.21 (e.g. a typo of 0.05 for 0.5, which produced a bogus P/F of 2000); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and the proxy again refused the tag push (branch pushed fine).
+---

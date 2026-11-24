@@ -88,6 +88,13 @@ function oxygenationIndex(fio2, mpaw, pao2) {
     return Math.round((fio2 * 100 * mpaw / pao2) * 10) / 10;
 }
 
+function idealBodyWeight(heightCm, sex) {
+    // Devine IBW (kg): 50 (male) or 45.5 (female) + 2.3 × (height[in] − 60) — used for lung-protective tidal volume
+    if (heightCm <= 0) throw new Error("Height must be > 0");
+    const base = sex === "female" ? 45.5 : 50;
+    return Math.round((base + 2.3 * (heightCm / 2.54 - 60)) * 10) / 10;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -95,4 +102,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, creatinineClearance };

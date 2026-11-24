@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -147,6 +147,16 @@ test("oxygenation index moderate", () => {
 
 test("oxygenation index bad PaO2", () => {
     expect(() => oxygenationIndex(0.6, 15, 0)).toThrow();
+});
+
+test("ideal body weight male", () => {
+    // 175 cm = 68.9 in → 50 + 2.3 × 8.9 = 70.46 → 70.5
+    expect(idealBodyWeight(175, "male")).toBe(70.5);
+});
+
+test("ideal body weight female", () => {
+    // 160 cm = 62.99 in → 45.5 + 2.3 × 2.99 = 52.38 → 52.4
+    expect(idealBodyWeight(160, "female")).toBe(52.4);
 });
 
 test("CrCl male", () => {

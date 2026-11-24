@@ -17,6 +17,7 @@ from calculator import (
     delta_ratio,
     corrected_sodium,
     free_water_deficit,
+    corrected_calcium,
     DISCLAIMER,
 )
 
@@ -147,3 +148,13 @@ def test_free_water_deficit_hypernatraemia():
 def test_free_water_deficit_bad_sex():
     with pytest.raises(ValueError):
         free_water_deficit(160, 70, "x")
+
+
+def test_corrected_calcium_low_albumin():
+    # Ca 7.6, albumin 2.0 → 7.6 + 0.8 × 2 = 9.2
+    assert corrected_calcium(7.6, 2.0) == 9.2
+
+
+def test_corrected_calcium_bad_input():
+    with pytest.raises(ValueError):
+        corrected_calcium(8.0, 0)

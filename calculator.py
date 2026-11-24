@@ -115,3 +115,10 @@ def free_water_deficit(sodium: float, weight: float, sex: str) -> float:
         raise ValueError("Sodium and weight must be positive")
     tbw = (0.5 if _is_female(sex) else 0.6) * weight
     return round(tbw * (sodium / 140 - 1), 1)
+
+
+def corrected_calcium(calcium: float, albumin: float) -> float:
+    """Payne-corrected Ca = Ca + 0.8 * (4.0 - albumin); Ca mg/dL, albumin g/dL"""
+    if calcium <= 0 or albumin <= 0:
+        raise ValueError("Calcium and albumin must be positive")
+    return round(calcium + 0.8 * (4.0 - albumin), 1)

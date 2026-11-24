@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -157,6 +157,15 @@ test("ideal body weight male", () => {
 test("ideal body weight female", () => {
     // 160 cm = 62.99 in → 45.5 + 2.3 × 2.99 = 52.38 → 52.4
     expect(idealBodyWeight(160, "female")).toBe(52.4);
+});
+
+test("protective tidal volume default 6 mL/kg", () => {
+    // IBW 70.5 kg (175 cm male) × 6 = 423
+    expect(protectiveTidalVolume(175, "male")).toBe(423);
+});
+
+test("protective tidal volume out-of-range mL/kg", () => {
+    expect(() => protectiveTidalVolume(175, "male", 10)).toThrow();
 });
 
 test("CrCl male", () => {

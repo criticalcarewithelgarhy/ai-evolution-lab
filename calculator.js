@@ -95,6 +95,12 @@ function idealBodyWeight(heightCm, sex) {
     return Math.round((base + 2.3 * (heightCm / 2.54 - 60)) * 10) / 10;
 }
 
+function protectiveTidalVolume(heightCm, sex, mlPerKg = 6) {
+    // Lung-protective tidal volume (mL): mlPerKg (default 6, ARDSNet range 4–8) × Devine IBW
+    if (mlPerKg < 4 || mlPerKg > 8) throw new Error("mL/kg must be in [4, 8]");
+    return Math.round(mlPerKg * idealBodyWeight(heightCm, sex));
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -102,4 +108,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, creatinineClearance };

@@ -143,3 +143,13 @@ outcome: accepted
 metrics: gen=0013 lines=275 dead=0 cap=1500 headroom=1225
 note: Added serum_osmolality (2 × Na + glucose/18 + BUN/2.8) with two tests, enabling osmolar-gap assessment for toxic alcohol ingestion alongside the anion-gap tools.
 ---
+
+---
+gen: 0015
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: add osmolar gap
+outcome: accepted
+metrics: gen=0014 lines=286 dead=0 cap=1500 headroom=1214
+note: Added osmolar_gap (measured − calculated Osm) reusing serum_osmolality, with two tests, completing the toxic-alcohol workup that gen 0014 set up.
+---

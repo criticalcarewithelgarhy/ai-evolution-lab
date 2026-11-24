@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -562,10 +562,33 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>ROX Index</h2>
+    <div class="formula">ROX = (SpO2 / FiO2) / Respiratory rate</div>
+    <form method="POST" action="/#rox">
+      <input type="hidden" name="calc" value="rox">
+      <div class="field"><label>SpO2 (%)</label>
+        <input type="number" name="rox_spo2" step="1" value="{{ form.rox_spo2 or '' }}" placeholder="95"></div>
+      <div class="field"><label>FiO2 (0–1)</label>
+        <input type="number" name="rox_fio2" step="0.01" value="{{ form.rox_fio2 or '' }}" placeholder="0.5"></div>
+      <div class="field"><label>Respiratory rate (/min)</label>
+        <input type="number" name="rox_rr" step="1" value="{{ form.rox_rr or '' }}" placeholder="20"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.rox is defined %}
+    <div class="result" id="rox">
+      <span class="val">{{ results.rox }}</span>
+      <div class="interp {{ results.rox_cls }}">{{ results.rox_interp }}</div>
+    </div>
+    {% elif results.rox_error is defined %}
+    <div class="error">{{ results.rox_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0014 · 2026-11-23 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure</span>
+  <span>gen-breadth-0015 · 2026-11-24 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -686,6 +709,12 @@ def _oi_interp(v):
 def _dp_interp(v):
     if v <= 15: return f"{v} — ≤ 15 cmH2O — Within lung-protective target", "normal"
     return f"{v} — > 15 cmH2O — Associated with higher ARDS mortality; reduce VT", "crit"
+
+
+def _rox_interp(v):
+    if v >= 4.88: return f"{v} — ≥ 4.88 — HFNC likely to succeed", "normal"
+    if v >= 3.85: return f"{v} — 3.85–4.88 — Indeterminate; reassess in 1–2 h", "warn"
+    return f"{v} — < 3.85 — High risk of HFNC failure; consider intubation", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -868,6 +897,14 @@ def index():
                 results["dp_crs"] = round(float(form["dp_vt"]) / v, 1)
         except Exception as e:
             results["dp_error"] = str(e)
+
+    elif calc == "rox":
+        try:
+            v = rox_index(float(form["rox_spo2"]), float(form["rox_fio2"]), float(form["rox_rr"]))
+            interp, cls = _rox_interp(v)
+            results.update(rox=v, rox_interp=interp, rox_cls=cls)
+        except Exception as e:
+            results["rox_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

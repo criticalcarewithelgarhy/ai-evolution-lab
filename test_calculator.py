@@ -25,6 +25,7 @@ from calculator import (
     free_water_deficit,
     rsbi,
     driving_pressure,
+    rox_index,
     DISCLAIMER,
 )
 
@@ -353,3 +354,18 @@ def test_dp_protective():
 def test_dp_bad_inputs():
     with pytest.raises(ValueError):
         driving_pressure(5, 10)
+
+
+def test_rox_typical():
+    # SpO2 95, FiO2 0.5, RR 20: 190 / 20 = 9.5
+    assert rox_index(95, 0.5, 20) == 9.5
+
+
+def test_rox_high_risk():
+    # SpO2 88, FiO2 0.8, RR 32: 110 / 32 = 3.4375 → 3.44
+    assert rox_index(88, 0.8, 32) == 3.44
+
+
+def test_rox_bad_rr():
+    with pytest.raises(ValueError):
+        rox_index(95, 0.5, 0)

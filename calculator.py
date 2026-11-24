@@ -234,3 +234,18 @@ def driving_pressure(plateau_pressure: float, peep: float) -> float:
     if plateau_pressure < peep:
         raise ValueError("Plateau pressure must be at least PEEP")
     return round(plateau_pressure - peep, 1)
+
+
+def rox_index(spo2: float, fio2: float, resp_rate: float) -> float:
+    """
+    ROX index (Roca 2016) = (SpO2 / FiO2) / respiratory rate.
+    SpO2 in %, FiO2 as fraction 0–1, RR in breaths/min.
+    On high-flow nasal cannula: ≥ 4.88 predicts HFNC success; < 3.85 high risk of intubation.
+    """
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+    if not (0 <= spo2 <= 100):
+        raise ValueError("SpO2 must be between 0 and 100")
+    if resp_rate <= 0:
+        raise ValueError("Respiratory rate must be positive")
+    return round(spo2 / fio2 / resp_rate, 2)

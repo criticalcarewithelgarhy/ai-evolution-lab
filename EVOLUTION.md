@@ -117,3 +117,11 @@ idea: ideal-body-weight
 outcome: accepted
 metrics: lines=182 dead=-1 cap=1500 headroom=1318
 note: Added idealBodyWeight (Devine: 50/45.5 + 2.3 × (height[in] − 60), height in cm) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0014
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: protective-tidal-volume
+outcome: accepted
+metrics: lines=200 dead=-1 cap=1500 headroom=1300
+note: Added protectiveTidalVolume (mL/kg [4–8, default 6] × Devine IBW, rounded to mL) reusing idealBodyWeight, with two tests; four original formulas untouched, oracle 16/16 passing.

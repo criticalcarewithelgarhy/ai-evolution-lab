@@ -165,3 +165,13 @@ outcome: accepted
 metrics: lines=867 dead=0
 note: Added driving_pressure() (Pplat − PEEP, Amato 2015) with 3 tests and a 17th app card flagging > 15 cmH2O as associated with higher ARDS mortality, complementing the PBW tidal-volume card; tag gen-0016 was not pushed (git proxy refused tag push).
 ---
+
+---
+gen: 0017
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: jinja number field macro
+outcome: accepted
+metrics: lines=828 dead=0
+note: Replaced 43 duplicated two-line numeric input blocks in app.py's template with a single Jinja num(name, label, placeholder, step) macro, cutting 39 lines with byte-identical rendered HTML; tag gen-0017 push attempted separately.
+---

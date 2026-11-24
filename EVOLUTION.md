@@ -125,3 +125,11 @@ idea: protective-tidal-volume
 outcome: accepted
 metrics: lines=200 dead=-1 cap=1500 headroom=1300
 note: Added protectiveTidalVolume (mL/kg [4–8, default 6] × Devine IBW, rounded to mL) reusing idealBodyWeight, with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0015
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: driving-pressure
+outcome: accepted
+metrics: lines=202 dead=-1 cap=1500 headroom=1298
+note: Added drivingPressure (Pplat − PEEP, cmH2O, throws if Pplat < PEEP) with two tests; four original formulas untouched, oracle 16/16 passing (lines = non-blank, non-comment in both files; prior-gen count methodology may differ slightly).

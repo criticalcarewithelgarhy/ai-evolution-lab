@@ -168,3 +168,12 @@ outcome: accepted
 metrics: lines=1280 dead=0
 note: Added fractional_excretion_sodium() ((UNa × PCr)/(PNa × UCr) × 100) with UI card classifying < 1% prerenal, 1–2% indeterminate, > 2% ATN; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0017 tag push.
 ---
+---
+gen: wild-0018
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: add fractional excretion urea
+outcome: accepted
+metrics: lines=1341 dead=0
+note: Added fractional_excretion_urea() ((UUrea × PCr)/(PUrea × UCr) × 100) with UI card classifying < 35% prerenal, 35–50% indeterminate, > 50% ATN as a diuretic-robust complement to FENa; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0018 tag push.
+---

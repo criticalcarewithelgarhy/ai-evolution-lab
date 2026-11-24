@@ -158,6 +158,15 @@ def qsofa_score(resp_rate: float, systolic: float, altered_mentation: bool) -> i
     return int(resp_rate >= 22) + int(systolic <= 100) + int(bool(altered_mentation))
 
 
+def driving_pressure(plateau: float, peep: float) -> float:
+    """
+    Driving pressure = Pplat − PEEP (Amato, 2015). cmH2O; <= 15 associated with lower ARDS mortality.
+    """
+    if peep < 0 or plateau < peep:
+        raise ValueError("PEEP must be non-negative and Pplat >= PEEP")
+    return round(plateau - peep, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

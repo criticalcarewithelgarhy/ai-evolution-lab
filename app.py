@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -377,10 +377,24 @@ TEMPLATE = """{% macro result(key, unit="") %}
     {{ result("qsofa", "/ 3") }}
   </div>
 
+  <div class="card">
+    <h2>Driving Pressure</h2>
+    <div class="formula">ΔP = P<sub>plat</sub> − PEEP</div>
+    <form method="POST" action="/#dp">
+      <input type="hidden" name="calc" value="dp">
+      <div class="field"><label>Plateau Pressure (cmH₂O)</label>
+        <input type="number" name="dp_pplat" step="0.1" value="{{ form.dp_pplat or '' }}" placeholder="25"></div>
+      <div class="field"><label>PEEP (cmH₂O)</label>
+        <input type="number" name="dp_peep" step="0.1" value="{{ form.dp_peep or '' }}" placeholder="10"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {{ result("dp", "cmH₂O") }}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -473,6 +487,10 @@ def _qsofa_interp(v):
     if v >= 2: return "≥ 2 — high risk of poor outcome, assess for sepsis/organ dysfunction", "crit"
     return "< 2 — low risk, but does not exclude sepsis", "normal"
 
+def _dp_interp(v):
+    if v <= 15: return "≤ 15 cmH₂O — within lung-protective target", "normal"
+    return "> 15 cmH₂O — associated with higher ARDS mortality, consider lowering VT", "crit"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -520,6 +538,8 @@ CALCS = {
             lambda v, f: _rox_interp(v)),
     "qsofa": (lambda f: qsofa_score(_n(f, "qs_rr"), _n(f, "qs_sbp"), f.get("qs_ams") == "yes"),
               lambda v, f: _qsofa_interp(v)),
+    "dp": (lambda f: driving_pressure(_n(f, "dp_pplat"), _n(f, "dp_peep")),
+           lambda v, f: _dp_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

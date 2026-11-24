@@ -22,6 +22,7 @@ from calculator import (
     free_water_deficit,
     rox_index,
     qsofa_score,
+    driving_pressure,
     DISCLAIMER,
 )
 
@@ -257,3 +258,19 @@ def test_qsofa_full():
 def test_qsofa_bad_inputs():
     with pytest.raises(ValueError):
         qsofa_score(-1, 120, False)
+
+
+def test_dp_typical():
+    # Pplat 25, PEEP 10 → 15
+    assert driving_pressure(25, 10) == 15.0
+
+
+def test_dp_high():
+    assert driving_pressure(32.5, 8) == 24.5
+
+
+def test_dp_bad_inputs():
+    with pytest.raises(ValueError):
+        driving_pressure(8, 10)
+    with pytest.raises(ValueError):
+        driving_pressure(20, -1)

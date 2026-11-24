@@ -71,6 +71,8 @@ def creatinine_clearance(
         raise ValueError("Creatinine above 30 mg/dL is implausible — was it entered in µmol/L?")
     if weight <= 0:
         raise ValueError("Weight must be positive")
+    if weight > 400:
+        raise ValueError("Weight above 400 kg is implausible — was it entered in grams or pounds?")
     if not (0 <= age < 140):
         raise ValueError("Age must be between 0 and 140 years")
     sex_key = sex.strip().lower() if isinstance(sex, str) else ""

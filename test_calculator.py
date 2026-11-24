@@ -133,6 +133,12 @@ def test_crcl_nonpositive_weight():
         creatinine_clearance(50, 0, 1.0, "male")
 
 
+def test_crcl_implausible_weight():
+    with pytest.raises(ValueError):
+        creatinine_clearance(50, 70000, 1.0, "male")  # grams typed as kg
+    assert creatinine_clearance(50, 400, 1.0, "male") == 500.0
+
+
 def test_crcl_age_out_of_range():
     with pytest.raises(ValueError):
         creatinine_clearance(150, 70, 1.0, "male")

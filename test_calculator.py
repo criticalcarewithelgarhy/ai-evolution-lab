@@ -27,6 +27,7 @@ from calculator import (
     driving_pressure,
     rox_index,
     qtc_bazett,
+    osmolal_gap,
     DISCLAIMER,
 )
 
@@ -385,3 +386,19 @@ def test_qtc_tachycardia():
 def test_qtc_bad_hr():
     with pytest.raises(ValueError):
         qtc_bazett(400, 0)
+
+
+
+def test_osm_gap_normal():
+    # measured 295, calc 290 (Na 140, glu 90, BUN 14) → 5.0
+    assert osmolal_gap(295, 140, 90, 14) == 5.0
+
+
+def test_osm_gap_toxic_alcohol():
+    # measured 330, calc 290 → 40.0
+    assert osmolal_gap(330, 140, 90, 14) == 40.0
+
+
+def test_osm_gap_bad_measured():
+    with pytest.raises(ValueError):
+        osmolal_gap(0, 140, 90, 14)

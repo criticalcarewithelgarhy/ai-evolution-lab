@@ -262,3 +262,16 @@ def qtc_bazett(qt_ms: float, heart_rate: float) -> float:
     if heart_rate <= 0:
         raise ValueError("Heart rate must be positive")
     return round(qt_ms / (60 / heart_rate) ** 0.5, 1)
+
+
+def osmolal_gap(measured_osm: float, sodium: float, glucose: float, bun: float) -> float:
+    """
+    Osmolal gap = measured osmolality − calculated osmolality.
+    calculated = 2 × Na + glucose / 18 + BUN / 2.8 (mOsm/kg).
+    > 10 mOsm/kg suggests unmeasured osmoles (toxic alcohols, mannitol).
+    """
+    if measured_osm <= 0:
+        raise ValueError("Measured osmolality must be positive")
+    if sodium < 0 or glucose < 0 or bun < 0:
+        raise ValueError("Sodium, glucose and BUN must be non-negative")
+    return round(measured_osm - (2 * sodium + glucose / 18 + bun / 2.8), 1)

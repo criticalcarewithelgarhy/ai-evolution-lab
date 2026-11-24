@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -608,10 +608,35 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Osmolal Gap</h2>
+    <div class="formula">OG = Measured Osm − (2 × Na⁺ + Glucose / 18 + BUN / 2.8)</div>
+    <form method="POST" action="/#og">
+      <input type="hidden" name="calc" value="og">
+      <div class="field"><label>Measured osmolality (mOsm/kg)</label>
+        <input type="number" name="og_meas" step="0.1" value="{{ form.og_meas or '' }}" placeholder="295"></div>
+      <div class="field"><label>Na⁺ (mEq/L)</label>
+        <input type="number" name="og_na" step="0.1" value="{{ form.og_na or '' }}" placeholder="140"></div>
+      <div class="field"><label>Glucose (mg/dL)</label>
+        <input type="number" name="og_glucose" step="0.1" value="{{ form.og_glucose or '' }}" placeholder="90"></div>
+      <div class="field"><label>BUN (mg/dL)</label>
+        <input type="number" name="og_bun" step="0.1" value="{{ form.og_bun or '' }}" placeholder="14"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.og is defined %}
+    <div class="result" id="og">
+      <span class="val">{{ results.og }}</span><span class="unit">mOsm/kg</span>
+      <div class="interp {{ results.og_cls }}">{{ results.og_interp }}</div>
+    </div>
+    {% elif results.og_error is defined %}
+    <div class="error">{{ results.og_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0016 · 2026-11-24 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc</span>
+  <span>gen-breadth-0017 · 2026-11-24 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -745,6 +770,13 @@ def _qtc_interp(v, sex):
     if v > 500: return f"{v} ms — > 500 ms — High risk of torsades; review QT-prolonging drugs, K⁺, Mg²⁺", "crit"
     if v > limit: return f"{v} ms — Prolonged (> {limit} ms)", "warn"
     return f"{v} ms — Normal (≤ {limit} ms); Bazett over-corrects at high HR", "normal"
+
+
+def _og_interp(v):
+    if v < -10: return f"{v} mOsm/kg — Negative gap; check measurement / lab error", "warn"
+    if v <= 10: return f"{v} mOsm/kg — Normal (≤ 10)", "normal"
+    if v <= 20: return f"{v} mOsm/kg — Elevated; consider ethanol, mannitol or toxic alcohol", "warn"
+    return f"{v} mOsm/kg — Markedly elevated (> 20); suspect methanol / ethylene glycol", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -943,6 +975,14 @@ def index():
             results.update(qtc=v, qtc_interp=interp, qtc_cls=cls)
         except Exception as e:
             results["qtc_error"] = str(e)
+
+    elif calc == "og":
+        try:
+            v = osmolal_gap(float(form["og_meas"]), float(form["og_na"]), float(form["og_glucose"]), float(form["og_bun"]))
+            interp, cls = _og_interp(v)
+            results.update(og=v, og_interp=interp, og_cls=cls)
+        except Exception as e:
+            results["og_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

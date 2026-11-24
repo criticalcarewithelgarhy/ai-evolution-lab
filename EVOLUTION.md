@@ -174,3 +174,12 @@ outcome: accepted
 metrics: lines=1399 dead=0
 note: Added osmolal gap (measured osm − (2×Na + glucose/18 + BUN/2.8), > 10 abnormal, > 20 suspect toxic alcohol) with 3 tests and Flask card; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0017 exists locally only.
 ---
+---
+gen: breadth-0018
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: add albumin-corrected anion gap
+outcome: accepted
+metrics: lines=1452 dead=0
+note: Added Figge albumin-corrected anion gap (AG + 2.5 × (4.0 − albumin), normal 8–12) with 3 tests and Flask card that flags high AG acidosis masked by hypoalbuminaemia; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0018 exists locally only.
+---

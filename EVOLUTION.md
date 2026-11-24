@@ -151,3 +151,12 @@ outcome: accepted
 metrics: lines=1167 dead=0
 note: Added mechanical_power() (simplified Gattinoni: 0.098 × RR × Vt(L) × (Ppeak − ΔP/2)) with UI card flagging > 17 J/min; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0015 tag push.
 ---
+---
+gen: wild-0016
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: add SpO2 FiO2 ratio
+outcome: accepted
+metrics: lines=1219 dead=0
+note: Added sf_ratio() (SpO2 / FiO2) with UI card mapping S/F 235/315 to P/F 200/300 and warning when SpO2 > 97%; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0016 tag push.
+---

@@ -164,3 +164,13 @@ outcome: accepted
 metrics: lines=529 dead=0
 note: creatinine_clearance silently accepted creatinine entered in µmol/L as mg/dL (88 for 1.0), reporting a near-anuric CrCl of ~1 instead of ~87 mL/min and driving drug underdosing; it now raises ValueError above 40 mg/dL with a conversion hint, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0017
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: validate-chloride-bicarbonate-upper-bounds
+outcome: accepted
+metrics: lines=538 dead=0
+note: anion_gap silently turned an extra-digit chloride or bicarbonate typo (1040 for 104) into a large negative AG that masks a real high-AG acidosis; it now raises ValueError for chloride above 200 or bicarbonate above 100 mEq/L, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

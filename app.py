@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -633,10 +633,35 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Albumin-Corrected Anion Gap</h2>
+    <div class="formula">cAG = Na⁺ − (Cl⁻ + HCO₃⁻) + 2.5 × (4.0 − Albumin)</div>
+    <form method="POST" action="/#cag">
+      <input type="hidden" name="calc" value="cag">
+      <div class="field"><label>Na⁺ (mEq/L)</label>
+        <input type="number" name="cag_na" step="0.1" value="{{ form.cag_na or '' }}" placeholder="140"></div>
+      <div class="field"><label>Cl⁻ (mEq/L)</label>
+        <input type="number" name="cag_cl" step="0.1" value="{{ form.cag_cl or '' }}" placeholder="104"></div>
+      <div class="field"><label>HCO₃⁻ (mEq/L)</label>
+        <input type="number" name="cag_hco3" step="0.1" value="{{ form.cag_hco3 or '' }}" placeholder="24"></div>
+      <div class="field"><label>Albumin (g/dL)</label>
+        <input type="number" name="cag_alb" step="0.1" value="{{ form.cag_alb or '' }}" placeholder="4.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.cag is defined %}
+    <div class="result" id="cag">
+      <span class="val">{{ results.cag }}</span><span class="unit">mEq/L</span>
+      <div class="interp {{ results.cag_cls }}">{{ results.cag_interp }}</div>
+    </div>
+    {% elif results.cag_error is defined %}
+    <div class="error">{{ results.cag_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0017 · 2026-11-24 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap</span>
+  <span>gen-breadth-0018 · 2026-11-24 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -777,6 +802,12 @@ def _og_interp(v):
     if v <= 10: return f"{v} mOsm/kg — Normal (≤ 10)", "normal"
     if v <= 20: return f"{v} mOsm/kg — Elevated; consider ethanol, mannitol or toxic alcohol", "warn"
     return f"{v} mOsm/kg — Markedly elevated (> 20); suspect methanol / ethylene glycol", "crit"
+
+def _cag_interp(v):
+    if v < 8:    return f"{v} mEq/L — Low corrected AG; check lab error / paraproteinaemia", "warn"
+    if v <= 12:  return f"{v} mEq/L — Normal (8–12)", "normal"
+    if v <= 20:  return f"{v} mEq/L — Elevated; high AG acidosis likely (unmasked by albumin correction)", "warn"
+    return f"{v} mEq/L — Markedly elevated (> 20)", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -983,6 +1014,14 @@ def index():
             results.update(og=v, og_interp=interp, og_cls=cls)
         except Exception as e:
             results["og_error"] = str(e)
+
+    elif calc == "cag":
+        try:
+            v = albumin_corrected_anion_gap(float(form["cag_na"]), float(form["cag_cl"]), float(form["cag_hco3"]), float(form["cag_alb"]))
+            interp, cls = _cag_interp(v)
+            results.update(cag=v, cag_interp=interp, cag_cls=cls)
+        except Exception as e:
+            results["cag_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

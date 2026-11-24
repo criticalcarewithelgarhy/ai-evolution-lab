@@ -28,6 +28,7 @@ from calculator import (
     rox_index,
     qtc_bazett,
     osmolal_gap,
+    albumin_corrected_anion_gap,
     DISCLAIMER,
 )
 
@@ -402,3 +403,16 @@ def test_osm_gap_toxic_alcohol():
 def test_osm_gap_bad_measured():
     with pytest.raises(ValueError):
         osmolal_gap(0, 140, 90, 14)
+
+
+def test_corrected_ag_normal_albumin():
+    assert albumin_corrected_anion_gap(140, 104, 24, 4.0) == 12.0
+
+
+def test_corrected_ag_hypoalbuminaemia():
+    assert albumin_corrected_anion_gap(140, 104, 24, 2.0) == 17.0
+
+
+def test_corrected_ag_negative_albumin():
+    with pytest.raises(ValueError):
+        albumin_corrected_anion_gap(140, 104, 24, -1)

@@ -275,3 +275,14 @@ def osmolal_gap(measured_osm: float, sodium: float, glucose: float, bun: float) 
     if sodium < 0 or glucose < 0 or bun < 0:
         raise ValueError("Sodium, glucose and BUN must be non-negative")
     return round(measured_osm - (2 * sodium + glucose / 18 + bun / 2.8), 1)
+
+
+def albumin_corrected_anion_gap(sodium: float, chloride: float, bicarbonate: float, albumin: float) -> float:
+    """
+    Albumin-corrected anion gap (Figge) = AG + 2.5 × (4.0 − albumin).
+    AG = Na − (Cl + HCO3) in mEq/L, albumin in g/dL.
+    Unmasks a high anion gap acidosis hidden by hypoalbuminaemia; normal ≈ 8–12.
+    """
+    if albumin < 0:
+        raise ValueError("Albumin must be non-negative")
+    return round(sodium - (chloride + bicarbonate) + 2.5 * (4.0 - albumin), 1)

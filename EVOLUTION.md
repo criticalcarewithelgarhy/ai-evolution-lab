@@ -176,3 +176,12 @@ outcome: accepted
 metrics: lines=502 dead=0
 note: app.py no longer silently defaults a missing CrCl sex field to "male" (a POST without sex returned a male-calculated CrCl); it now shows "Sex must be 'male' or 'female'", with a Flask test-client test added; formula outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0017
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: reject-implausible-creatinine-floor
+outcome: accepted
+metrics: lines=508 dead=0
+note: creatinine_clearance now raises ValueError for creatinine below 0.1 mg/dL (e.g. a misplaced decimal of 0.01 for 1.0, which produced a bogus CrCl of 8750); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and the proxy again refused the tag push (branch pushed fine).
+---

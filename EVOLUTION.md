@@ -158,3 +158,12 @@ outcome: accepted
 metrics: lines=488 dead=0
 note: pf_ratio now raises ValueError for FiO2 below 0.21 (e.g. a typo of 0.05 for 0.5, which produced a bogus P/F of 2000); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0015
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: reject-implausible-weight-ceiling
+outcome: accepted
+metrics: lines=494 dead=0
+note: creatinine_clearance now raises ValueError for weight above 400 kg (e.g. 70000 typed in grams, which produced a bogus CrCl of 87500); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and the proxy again refused the tag push (branch pushed fine).
+---

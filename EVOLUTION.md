@@ -174,3 +174,13 @@ outcome: accepted
 metrics: lines=538 dead=0
 note: anion_gap silently turned an extra-digit chloride or bicarbonate typo (1040 for 104) into a large negative AG that masks a real high-AG acidosis; it now raises ValueError for chloride above 200 or bicarbonate above 100 mEq/L, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0018
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: crcl-adjusted-body-weight-variant
+outcome: accepted
+metrics: lines=592 dead=0
+note: Actual-weight Cockcroft-Gault overestimates CrCl in obesity (150 kg, 178 cm male: 187.5 vs 129.8 mL/min on adjusted weight), so added crcl_dosing_weight (Devine IBW; actual if below IBW, AdjBW if >120% IBW) with an optional height field showing the weight-adjusted CrCl alongside the unchanged raw value (git tag push was refused by the session proxy; commit is on the branch).
+---

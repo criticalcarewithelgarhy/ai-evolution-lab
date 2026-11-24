@@ -163,3 +163,4 @@ idea: validate-creatinine-upper-bound
 outcome: accepted
 metrics: lines=529 dead=0
 note: creatinine_clearance silently accepted creatinine entered in µmol/L as mg/dL (88 for 1.0), reporting a near-anuric CrCl of ~1 instead of ~87 mL/min and driving drug underdosing; it now raises ValueError above 40 mg/dL with a conversion hint, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

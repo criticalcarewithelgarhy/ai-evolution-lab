@@ -19,6 +19,7 @@ from calculator import (
     free_water_deficit,
     corrected_calcium,
     aa_gradient,
+    serum_osmolality,
     DISCLAIMER,
 )
 
@@ -169,3 +170,13 @@ def test_aa_gradient_room_air():
 def test_aa_gradient_bad_fio2():
     with pytest.raises(ValueError):
         aa_gradient(90, 40, 0)
+
+
+def test_serum_osmolality_normal():
+    # Na 140, glucose 90, BUN 14 → 280 + 5 + 5 = 290
+    assert serum_osmolality(140, 90, 14) == 290.0
+
+
+def test_serum_osmolality_bad_input():
+    with pytest.raises(ValueError):
+        serum_osmolality(140, 90, 0)

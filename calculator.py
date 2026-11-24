@@ -131,3 +131,10 @@ def aa_gradient(pao2: float, paco2: float, fio2: float) -> float:
     if not (0 < fio2 <= 1):
         raise ValueError("FiO2 must be between 0 and 1")
     return round(fio2 * (760 - 47) - paco2 / 0.8 - pao2, 1)
+
+
+def serum_osmolality(sodium: float, glucose: float, bun: float) -> float:
+    """Calculated Osm = 2 * Na + glucose / 18 + BUN / 2.8; glucose, BUN in mg/dL"""
+    if sodium <= 0 or glucose <= 0 or bun <= 0:
+        raise ValueError("Sodium, glucose and BUN must be positive")
+    return round(2 * sodium + glucose / 18 + bun / 2.8, 1)

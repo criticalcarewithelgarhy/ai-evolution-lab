@@ -20,6 +20,7 @@ from calculator import (
     corrected_calcium,
     aa_gradient,
     serum_osmolality,
+    osmolar_gap,
     DISCLAIMER,
 )
 
@@ -180,3 +181,13 @@ def test_serum_osmolality_normal():
 def test_serum_osmolality_bad_input():
     with pytest.raises(ValueError):
         serum_osmolality(140, 90, 0)
+
+
+def test_osmolar_gap_elevated():
+    # Measured 320, calculated 290 → gap 30
+    assert osmolar_gap(320, 140, 90, 14) == 30.0
+
+
+def test_osmolar_gap_bad_measured():
+    with pytest.raises(ValueError):
+        osmolar_gap(0, 140, 90, 14)

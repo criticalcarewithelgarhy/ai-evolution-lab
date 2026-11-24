@@ -138,3 +138,10 @@ def serum_osmolality(sodium: float, glucose: float, bun: float) -> float:
     if sodium <= 0 or glucose <= 0 or bun <= 0:
         raise ValueError("Sodium, glucose and BUN must be positive")
     return round(2 * sodium + glucose / 18 + bun / 2.8, 1)
+
+
+def osmolar_gap(measured: float, sodium: float, glucose: float, bun: float) -> float:
+    """Osmolar gap = measured Osm - calculated Osm; > 10 suggests toxic alcohols"""
+    if measured <= 0:
+        raise ValueError("Measured osmolality must be positive")
+    return round(measured - serum_osmolality(sodium, glucose, bun), 1)

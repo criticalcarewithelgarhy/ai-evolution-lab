@@ -145,3 +145,12 @@ outcome: accepted
 metrics: lines=517 dead=0
 note: pf_ratio silently accepted an extra-digit PaO2 typo (850 for 85 at FiO2 1.0), mislabelling severe ARDS as normal oxygenation; it now raises ValueError for PaO2 above 800 mmHg (beyond the alveolar-gas-equation ceiling at sea level), leaving all valid outputs unchanged.
 ---
+---
+gen: accuracy-0015
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: validate-sodium-upper-bound
+outcome: accepted
+metrics: lines=523 dead=0
+note: anion_gap silently turned an extra-digit sodium typo (1400 for 140) into a false AG of 1272; it now raises ValueError for sodium above 250 mEq/L (beyond any survivable recorded value), leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

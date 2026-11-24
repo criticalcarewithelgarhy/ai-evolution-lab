@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -138,6 +138,15 @@ test("ROX index favourable", () => {
 test("ROX index HFNC failure risk", () => {
     // (88 / 0.8) / 30 = 3.667 → 3.67
     expect(roxIndex(88, 0.8, 30)).toBe(3.67);
+});
+
+test("oxygenation index moderate", () => {
+    // (0.6 × 100 × 15) / 60 = 15.0
+    expect(oxygenationIndex(0.6, 15, 60)).toBe(15.0);
+});
+
+test("oxygenation index bad PaO2", () => {
+    expect(() => oxygenationIndex(0.6, 15, 0)).toThrow();
 });
 
 test("CrCl male", () => {

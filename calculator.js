@@ -81,6 +81,13 @@ function roxIndex(spo2, fio2, rr) {
     return Math.round((spo2 / fio2 / rr) * 100) / 100;
 }
 
+function oxygenationIndex(fio2, mpaw, pao2) {
+    // Oxygenation index: (FiO2 × 100 × mean airway pressure[cmH2O]) / PaO2 — > 16 severe ARDS
+    if (fio2 <= 0 || fio2 > 1) throw new Error("FiO2 must be in (0, 1]");
+    if (pao2 <= 0) throw new Error("PaO2 must be > 0");
+    return Math.round((fio2 * 100 * mpaw / pao2) * 10) / 10;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -88,4 +95,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, creatinineClearance };

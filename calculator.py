@@ -281,6 +281,19 @@ def fractional_excretion_urea(
     return round(urine_urea * plasma_creatinine / (plasma_urea * urine_creatinine) * 100, 1)
 
 
+def qtc_bazett(qt_ms: float, heart_rate: float) -> float:
+    """
+    Corrected QT interval (Bazett) = QT / √(RR), RR = 60 / HR in seconds.
+    qt_ms in milliseconds, heart_rate in bpm, result in ms.
+    > 450 ms (M) / > 470 ms (F) prolonged; > 500 ms high risk of torsades de pointes.
+    """
+    if qt_ms <= 0:
+        raise ValueError("QT interval must be positive")
+    if heart_rate <= 0:
+        raise ValueError("Heart rate must be positive")
+    return round(qt_ms / (60 / heart_rate) ** 0.5, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

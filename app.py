@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -555,6 +555,33 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Corrected QT (Bazett)</h2>
+    <div class="formula">QTc = QT / √(60 / HR)</div>
+    <form method="POST" action="/#qtc">
+      <input type="hidden" name="calc" value="qtc">
+      <div class="field"><label>QT Interval (ms)</label>
+        <input type="number" name="qtc_qt" value="{{ form.qtc_qt or '' }}" placeholder="400"></div>
+      <div class="field"><label>Heart Rate (bpm)</label>
+        <input type="number" name="qtc_hr" value="{{ form.qtc_hr or '' }}" placeholder="80"></div>
+      <div class="field"><label>Sex</label>
+        <select name="qtc_sex">
+          <option value="male" {% if form.qtc_sex == 'male' %}selected{% endif %}>Male</option>
+          <option value="female" {% if form.qtc_sex == 'female' %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.qtc is defined %}
+    <div class="result" id="qtc">
+      <span class="val">{{ results.qtc }}</span><span class="unit">ms</span>
+      <div class="interp {{ results.qtc_cls }}">{{ results.qtc_interp }}</div>
+    </div>
+    {% elif results.qtc_error is defined %}
+    <div class="error">{{ results.qtc_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -586,7 +613,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0018 · 2026-11-24 · Added: FEUrea</span>
+  <span>gen-wild-0019 · 2026-11-24 · Added: QTc (Bazett)</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -697,6 +724,12 @@ def _feu_interp(v):
     if v < 35:   return "< 35% — suggests prerenal AKI (reliable on diuretics)", "warn"
     if v <= 50:  return "35–50% — indeterminate", "warn"
     return "> 50% — suggests intrinsic renal injury (ATN)", "crit"
+
+def _qtc_interp(v, sex):
+    upper = 470 if sex == "female" else 450
+    if v > 500:   return "> 500 ms — high risk of torsades; review QT-prolonging drugs, K⁺, Mg²⁺", "crit"
+    if v > upper: return f"> {upper} ms — prolonged QTc", "warn"
+    return f"≤ {upper} ms — normal (Bazett overcorrects at high HR)", "normal"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -896,6 +929,14 @@ def index():
             results.update(feu=v, feu_interp=interp, feu_cls=cls)
         except Exception as e:
             results["feu_error"] = str(e)
+
+    elif calc == "qtc":
+        try:
+            v = qtc_bazett(float(form["qtc_qt"]), float(form["qtc_hr"]))
+            interp, cls = _qtc_interp(v, form.get("qtc_sex", "male"))
+            results.update(qtc=v, qtc_interp=interp, qtc_cls=cls)
+        except Exception as e:
+            results["qtc_error"] = str(e)
 
     elif calc == "crcl":
         try:

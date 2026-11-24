@@ -27,6 +27,7 @@ from calculator import (
     mechanical_power,
     fractional_excretion_sodium,
     fractional_excretion_urea,
+    qtc_bazett,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -342,6 +343,21 @@ def test_feurea_atn():
 def test_feurea_bad_plasma_urea():
     with pytest.raises(ValueError):
         fractional_excretion_urea(300, 0, 100, 2.0)
+
+
+def test_qtc_bazett_hr60():
+    # HR 60 → RR 1 s → QTc = QT
+    assert qtc_bazett(400, 60) == 400.0
+
+
+def test_qtc_bazett_tachycardia():
+    # QT 360, HR 100 → RR 0.6 s → 360 / 0.7746 = 464.8
+    assert qtc_bazett(360, 100) == 464.8
+
+
+def test_qtc_bazett_bad_hr():
+    with pytest.raises(ValueError):
+        qtc_bazett(400, 0)
 
 
 def test_crcl_male():

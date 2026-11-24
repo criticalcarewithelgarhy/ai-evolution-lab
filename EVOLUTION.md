@@ -101,3 +101,11 @@ idea: rox-index
 outcome: accepted
 metrics: lines=160 dead=-1 cap=1500 headroom=1340
 note: Added roxIndex ((SpO2/FiO2)/RR, rounded to 2 dp) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0012
+date: 2026-11-24
+model: claude-sonnet-4-6
+idea: oxygenation-index
+outcome: accepted
+metrics: lines=171 dead=-1 cap=1500 headroom=1329
+note: Added oxygenationIndex ((FiO2×100×mPaw)/PaO2, rounded to 1 dp) with two tests; four original formulas untouched, oracle 16/16 passing.

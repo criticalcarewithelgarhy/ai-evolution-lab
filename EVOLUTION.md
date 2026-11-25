@@ -157,3 +157,11 @@ idea: sf-ratio
 outcome: accepted
 metrics: lines=233 dead=-1 cap=1500 headroom=1267
 note: Added sfRatio (SpO2/FiO2, rounded to 1 dp, throws if FiO2 outside (0, 1]) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0019
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: ventilatory-ratio
+outcome: accepted
+metrics: lines=243 dead=-1 cap=1500 headroom=1257
+note: Added ventilatoryRatio (Sinha: VE[mL/min] × PaCO2 / (PBW × 100 × 37.5), rounded to 2 dp, throws if PBW <= 0) with two tests; four original formulas untouched, oracle 16/16 passing.

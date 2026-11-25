@@ -214,3 +214,12 @@ outcome: accepted
 metrics: lines=612 dead=0
 note: Cockcroft-Gault was derived and validated only in adults, yet ages 1–17 silently returned a confident adult CrCl (e.g. a 10-year-old) that could misdirect paediatric drug dosing; creatinine_clearance now raises ValueError below 18 years and the form sets min=18, leaving all adult outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+---
+gen: accuracy-0022
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: crcl-interp-drop-ckd-staging
+outcome: accepted
+metrics: lines=621 dead=0
+note: The CrCl interpretation labelled a single Cockcroft-Gault value as "Stage N CKD", which is clinically invalid (CKD staging needs eGFR persisting >3 months and an ICU creatinine in AKI is not at steady state); it now reports FDA renal-dosing bands (kidney failure/severely/moderately/mildly reduced) with boundary tests, leaving all CrCl numerical output unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

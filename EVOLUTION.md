@@ -185,3 +185,12 @@ outcome: accepted
 metrics: lines=508 dead=0
 note: creatinine_clearance now raises ValueError for creatinine below 0.1 mg/dL (e.g. a misplaced decimal of 0.01 for 1.0, which produced a bogus CrCl of 8750); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0018
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: reject-implausible-systolic-floor
+outcome: accepted
+metrics: lines=514 dead=0
+note: mean_arterial_pressure now raises ValueError for systolic below 30 mmHg (e.g. a typo of 12/8 for 120/80, which produced a bogus MAP of 9.3); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, and the proxy again refused the tag push (branch pushed fine).
+---

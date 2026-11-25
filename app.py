@@ -60,6 +60,17 @@ TEMPLATE = """{% macro result(key, unit="") %}
         </select>
       </div>
 {% endmacro -%}
+{% macro card(key, title, formula, unit="") %}
+  <div class="card">
+    <h2>{{ title|safe }}</h2>
+    <div class="formula">{{ formula|safe }}</div>
+    <form method="POST" action="/#{{ key }}">
+      <input type="hidden" name="calc" value="{{ key }}">
+{{ caller() }}      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {{ result(key, unit) }}
+  </div>
+{% endmacro -%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -124,260 +135,120 @@ TEMPLATE = """{% macro result(key, unit="") %}
 
 <div class="grid">
 
-  <div class="card">
-    <h2>Mean Arterial Pressure</h2>
-    <div class="formula">MAP = DBP + (SBP − DBP) / 3</div>
-    <form method="POST" action="/#map">
-      <input type="hidden" name="calc" value="map">
+  {% call card("map", "Mean Arterial Pressure", "MAP = DBP + (SBP − DBP) / 3", "mmHg") %}
       {{ num("sbp", "Systolic BP (mmHg)", "120") }}
       {{ num("dbp", "Diastolic BP (mmHg)", "80") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("map", "mmHg") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>P/F Ratio</h2>
-    <div class="formula">P/F = PaO₂ / FiO₂</div>
-    <form method="POST" action="/#pf">
-      <input type="hidden" name="calc" value="pf">
+  {% call card("pf", "P/F Ratio", "P/F = PaO₂ / FiO₂", "mmHg") %}
       {{ num("pao2", "PaO₂ (mmHg)", "100") }}
       {{ num("fio2", "FiO₂ (0.21 – 1.0)", "0.21", "0.01") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("pf", "mmHg") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Anion Gap</h2>
-    <div class="formula">AG = Na⁺ − (Cl⁻ + HCO₃⁻)</div>
-    <form method="POST" action="/#ag">
-      <input type="hidden" name="calc" value="ag">
+  {% call card("ag", "Anion Gap", "AG = Na⁺ − (Cl⁻ + HCO₃⁻)", "mEq/L") %}
       {{ num("na", "Sodium Na⁺ (mEq/L)", "140") }}
       {{ num("cl", "Chloride Cl⁻ (mEq/L)", "104") }}
       {{ num("hco3", "Bicarbonate HCO₃⁻ (mEq/L)", "24") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("ag", "mEq/L") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Creatinine Clearance</h2>
-    <div class="formula">Cockcroft-Gault</div>
-    <form method="POST" action="/#crcl">
-      <input type="hidden" name="calc" value="crcl">
+  {% call card("crcl", "Creatinine Clearance", "Cockcroft-Gault", "mL/min") %}
       {{ num("age", "Age (years)", "50") }}
       {{ num("weight", "Weight (kg)", "70") }}
       {{ num("creatinine", "Serum Creatinine (mg/dL)", "1.0", "0.1") }}
       {{ sel("sex", "Sex", [("male", "Male"), ("female", "Female")]) }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("crcl", "mL/min") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Corrected Anion Gap</h2>
-    <div class="formula">AG<sub>corr</sub> = AG + 2.5 × (4 − Albumin)</div>
-    <form method="POST" action="/#cag">
-      <input type="hidden" name="calc" value="cag">
+  {% call card("cag", "Corrected Anion Gap", "AG<sub>corr</sub> = AG + 2.5 × (4 − Albumin)", "mEq/L") %}
       {{ num("cag_na", "Sodium Na⁺ (mEq/L)", "140") }}
       {{ num("cag_cl", "Chloride Cl⁻ (mEq/L)", "104") }}
       {{ num("cag_hco3", "Bicarbonate HCO₃⁻ (mEq/L)", "24") }}
       {{ num("albumin", "Albumin (g/dL)", "4.0", "0.1") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("cag", "mEq/L") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Corrected Sodium</h2>
-    <div class="formula">Na<sub>corr</sub> = Na<sub>meas</sub> + 1.6 × (Glucose − 100) / 100</div>
-    <form method="POST" action="/#cna">
-      <input type="hidden" name="calc" value="cna">
+  {% call card("cna", "Corrected Sodium", "Na<sub>corr</sub> = Na<sub>meas</sub> + 1.6 × (Glucose − 100) / 100", "mEq/L") %}
       {{ num("cna_na", "Measured Sodium Na⁺ (mEq/L)", "135") }}
       {{ num("glucose", "Blood Glucose (mg/dL)", "100") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("cna", "mEq/L") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Winter's Formula</h2>
-    <div class="formula">Expected PaCO₂ = 1.5 × HCO₃⁻ + 8 ± 2</div>
-    <form method="POST" action="/#win">
-      <input type="hidden" name="calc" value="win">
+  {% call card("win", "Winter's Formula", "Expected PaCO₂ = 1.5 × HCO₃⁻ + 8 ± 2", "mmHg (± 2)") %}
       {{ num("win_hco3", "Bicarbonate HCO₃⁻ (mEq/L)", "12", "0.1") }}
       {{ num("win_paco2", "Measured PaCO₂ (mmHg, optional)", "26", "0.1") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("win", "mmHg (± 2)") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Delta Ratio</h2>
-    <div class="formula">Δ/Δ = (AG − 12) / (24 − HCO₃⁻)</div>
-    <form method="POST" action="/#dr">
-      <input type="hidden" name="calc" value="dr">
+  {% call card("dr", "Delta Ratio", "Δ/Δ = (AG − 12) / (24 − HCO₃⁻)") %}
       {{ num("dr_na", "Sodium Na⁺ (mEq/L)", "138") }}
       {{ num("dr_cl", "Chloride Cl⁻ (mEq/L)", "98") }}
       {{ num("dr_hco3", "Bicarbonate HCO₃⁻ (mEq/L)", "10", "0.1") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("dr") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>A–a Gradient</h2>
-    <div class="formula">A–a = FiO₂ × (760 − 47) − PaCO₂ / 0.8 − PaO₂</div>
-    <form method="POST" action="/#aa">
-      <input type="hidden" name="calc" value="aa">
+  {% call card("aa", "A–a Gradient", "A–a = FiO₂ × (760 − 47) − PaCO₂ / 0.8 − PaO₂", "mmHg") %}
       {{ num("aa_pao2", "PaO₂ (mmHg)", "90") }}
       {{ num("aa_paco2", "PaCO₂ (mmHg)", "40") }}
       {{ num("aa_fio2", "FiO₂ (0.21 – 1.0)", "0.21", "0.01") }}
       {{ num("aa_age", "Age (years, optional)", "50") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("aa", "mmHg") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Serum Osmolality</h2>
-    <div class="formula">Osm = 2 × Na⁺ + Glucose / 18 + BUN / 2.8</div>
-    <form method="POST" action="/#osm">
-      <input type="hidden" name="calc" value="osm">
+  {% call card("osm", "Serum Osmolality", "Osm = 2 × Na⁺ + Glucose / 18 + BUN / 2.8", "mOsm/kg") %}
       {{ num("osm_na", "Sodium Na⁺ (mEq/L)", "140") }}
       {{ num("osm_glu", "Glucose (mg/dL)", "90") }}
       {{ num("osm_bun", "BUN (mg/dL)", "14") }}
       {{ num("osm_meas", "Measured Osmolality (mOsm/kg, optional)", "300") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("osm", "mOsm/kg") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Corrected Calcium</h2>
-    <div class="formula">Ca<sub>corr</sub> = Ca + 0.8 × (4 − Albumin)</div>
-    <form method="POST" action="/#cca">
-      <input type="hidden" name="calc" value="cca">
+  {% call card("cca", "Corrected Calcium", "Ca<sub>corr</sub> = Ca + 0.8 × (4 − Albumin)", "mg/dL") %}
       {{ num("cca_ca", "Total Calcium (mg/dL)", "8.0", "0.1") }}
       {{ num("cca_alb", "Albumin (g/dL)", "4.0", "0.1") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("cca", "mg/dL") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Predicted Body Weight &amp; Tidal Volume</h2>
-    <div class="formula">PBW = 50 (♂) / 45.5 (♀) + 0.91 × (Height − 152.4); V<sub>T</sub> 6–8 mL/kg</div>
-    <form method="POST" action="/#pbw">
-      <input type="hidden" name="calc" value="pbw">
+  {% call card("pbw", "Predicted Body Weight &amp; Tidal Volume", "PBW = 50 (♂) / 45.5 (♀) + 0.91 × (Height − 152.4); V<sub>T</sub> 6–8 mL/kg", "kg") %}
       {{ num("pbw_ht", "Height (cm)", "170", "0.1") }}
       {{ sel("pbw_sex", "Sex", [("male", "Male"), ("female", "Female")]) }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("pbw", "kg") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Shock Index</h2>
-    <div class="formula">SI = HR / SBP</div>
-    <form method="POST" action="/#si">
-      <input type="hidden" name="calc" value="si">
+  {% call card("si", "Shock Index", "SI = HR / SBP") %}
       {{ num("si_hr", "Heart Rate (bpm)", "80") }}
       {{ num("si_sbp", "Systolic BP (mmHg)", "120") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("si") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Free Water Deficit</h2>
-    <div class="formula">FWD = TBW × (Na⁺ / 140 − 1); TBW = 0.6 (♂) / 0.5 (♀) × Weight</div>
-    <form method="POST" action="/#fwd">
-      <input type="hidden" name="calc" value="fwd">
+  {% call card("fwd", "Free Water Deficit", "FWD = TBW × (Na⁺ / 140 − 1); TBW = 0.6 (♂) / 0.5 (♀) × Weight", "L") %}
       {{ num("fwd_na", "Sodium Na⁺ (mEq/L)", "160") }}
       {{ num("fwd_wt", "Weight (kg)", "70", "0.1") }}
       {{ sel("fwd_sex", "Sex", [("male", "Male"), ("female", "Female")]) }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("fwd", "L") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>ROX Index</h2>
-    <div class="formula">ROX = (SpO₂ / FiO₂) / RR</div>
-    <form method="POST" action="/#rox">
-      <input type="hidden" name="calc" value="rox">
+  {% call card("rox", "ROX Index", "ROX = (SpO₂ / FiO₂) / RR") %}
       {{ num("rox_spo2", "SpO₂ (%)", "95") }}
       {{ num("rox_fio2", "FiO₂ (0.21 – 1.0)", "0.5", "0.01") }}
       {{ num("rox_rr", "Respiratory Rate (breaths/min)", "20") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("rox") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>qSOFA</h2>
-    <div class="formula">1 pt each: RR ≥ 22 · SBP ≤ 100 · altered mentation</div>
-    <form method="POST" action="/#qsofa">
-      <input type="hidden" name="calc" value="qsofa">
+  {% call card("qsofa", "qSOFA", "1 pt each: RR ≥ 22 · SBP ≤ 100 · altered mentation", "/ 3") %}
       {{ num("qs_rr", "Respiratory Rate (breaths/min)", "18") }}
       {{ num("qs_sbp", "Systolic BP (mmHg)", "120") }}
       {{ sel("qs_ams", "Altered mentation (GCS < 15)", [("no", "No"), ("yes", "Yes")]) }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("qsofa", "/ 3") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Driving Pressure</h2>
-    <div class="formula">ΔP = P<sub>plat</sub> − PEEP</div>
-    <form method="POST" action="/#dp">
-      <input type="hidden" name="calc" value="dp">
+  {% call card("dp", "Driving Pressure", "ΔP = P<sub>plat</sub> − PEEP", "cmH₂O") %}
       {{ num("dp_pplat", "Plateau Pressure (cmH₂O)", "25", "0.1") }}
       {{ num("dp_peep", "PEEP (cmH₂O)", "10", "0.1") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("dp", "cmH₂O") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Oxygenation Index</h2>
-    <div class="formula">OI = FiO₂ × mPaw × 100 / PaO₂</div>
-    <form method="POST" action="/#oi">
-      <input type="hidden" name="calc" value="oi">
+  {% call card("oi", "Oxygenation Index", "OI = FiO₂ × mPaw × 100 / PaO₂") %}
       {{ num("oi_fio2", "FiO₂ (0.21 – 1.0)", "0.6", "0.01") }}
       {{ num("oi_mpaw", "Mean Airway Pressure (cmH₂O)", "15", "0.1") }}
       {{ num("oi_pao2", "PaO₂ (mmHg)", "75") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("oi") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>SpO₂/FiO₂ Ratio</h2>
-    <div class="formula">S/F = SpO₂ / FiO₂ (valid if SpO₂ ≤ 97%)</div>
-    <form method="POST" action="/#sf">
-      <input type="hidden" name="calc" value="sf">
+  {% call card("sf", "SpO₂/FiO₂ Ratio", "S/F = SpO₂ / FiO₂ (valid if SpO₂ ≤ 97%)") %}
       {{ num("sf_spo2", "SpO₂ (%)", "92") }}
       {{ num("sf_fio2", "FiO₂ (0.21 – 1.0)", "0.4", "0.01") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("sf") }}
-  </div>
+  {% endcall %}
 
-  <div class="card">
-    <h2>Static Compliance</h2>
-    <div class="formula">C<sub>stat</sub> = V<sub>T</sub> / (P<sub>plat</sub> − PEEP)</div>
-    <form method="POST" action="/#cst">
-      <input type="hidden" name="calc" value="cst">
+  {% call card("cst", "Static Compliance", "C<sub>stat</sub> = V<sub>T</sub> / (P<sub>plat</sub> − PEEP)", "mL/cmH₂O") %}
       {{ num("cst_vt", "Tidal Volume (mL)", "450") }}
       {{ num("cst_pplat", "Plateau Pressure (cmH₂O)", "25", "0.1") }}
       {{ num("cst_peep", "PEEP (cmH₂O)", "10", "0.1") }}
-      <button class="btn" type="submit">Calculate</button>
-    </form>
-    {{ result("cst", "mL/cmH₂O") }}
-  </div>
+  {% endcall %}
 
 </div>
 

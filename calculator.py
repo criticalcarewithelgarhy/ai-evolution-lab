@@ -79,6 +79,8 @@ def creatinine_clearance(
         raise ValueError("Weight above 400 kg is implausible — was it entered in grams or pounds?")
     if not (0 <= age < 140):
         raise ValueError("Age must be between 0 and 140 years")
+    if age < 18:
+        raise ValueError("Cockcroft-Gault is validated only for adults (age ≥ 18) — use a paediatric formula")
     sex_key = sex.strip().lower() if isinstance(sex, str) else ""
     if sex_key not in ("m", "male", "f", "female"):
         raise ValueError("Sex must be 'male' or 'female'")

@@ -156,6 +156,12 @@ def test_crcl_age_out_of_range():
         creatinine_clearance(150, 70, 1.0, "male")
 
 
+def test_crcl_pediatric_age_rejected():
+    with pytest.raises(ValueError):
+        creatinine_clearance(5, 20, 0.4, "male")  # child: CG not validated
+    assert creatinine_clearance(18, 72, 1.0, "male") == 122.0
+
+
 @pytest.mark.parametrize("sex", ["", "xyz", None, 1])
 def test_crcl_invalid_sex_rejected(sex):
     with pytest.raises(ValueError):

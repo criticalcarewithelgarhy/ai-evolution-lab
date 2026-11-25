@@ -212,3 +212,12 @@ outcome: accepted
 metrics: lines=1523 dead=0
 note: Added ventilatory_ratio() ((VE × PaCO2)/(PBW × 100 × 37.5), Sinha) with UI card flagging > 2 as high dead space linked to ARDS mortality; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0022 tag push.
 ---
+---
+gen: wild-0023
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: add dead space fraction
+outcome: accepted
+metrics: lines=1575 dead=0
+note: Added dead_space_fraction() (Enghoff VD/VT = (PaCO2 − PECO2)/PaCO2) with UI card flagging ≥ 0.6 as associated with ARDS mortality; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0023 tag push.
+---

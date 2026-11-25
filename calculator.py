@@ -160,3 +160,12 @@ def tidal_volume(height_cm: float, sex: str, ml_per_kg: float = 6.0) -> float:
     if not (4 <= ml_per_kg <= 8):
         raise ValueError("mL/kg must be between 4 and 8")
     return round(ml_per_kg * predicted_body_weight(height_cm, sex))
+
+
+def driving_pressure(plateau: float, peep: float) -> float:
+    """Driving pressure (cmH2O) = Pplat - PEEP; target < 15 in ARDS"""
+    if plateau <= 0 or peep < 0:
+        raise ValueError("Plateau must be positive and PEEP non-negative")
+    if plateau < peep:
+        raise ValueError("Plateau must be >= PEEP")
+    return round(plateau - peep, 1)

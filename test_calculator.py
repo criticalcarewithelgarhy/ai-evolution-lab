@@ -23,6 +23,7 @@ from calculator import (
     osmolar_gap,
     predicted_body_weight,
     tidal_volume,
+    driving_pressure,
     DISCLAIMER,
 )
 
@@ -213,3 +214,13 @@ def test_tidal_volume_male():
 def test_tidal_volume_bad_ml_per_kg():
     with pytest.raises(ValueError):
         tidal_volume(175, "male", 10)
+
+
+def test_driving_pressure_typical():
+    # Pplat 28, PEEP 10 → 18 cmH2O
+    assert driving_pressure(28, 10) == 18.0
+
+
+def test_driving_pressure_bad_input():
+    with pytest.raises(ValueError):
+        driving_pressure(8, 10)

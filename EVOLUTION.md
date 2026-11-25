@@ -193,3 +193,12 @@ outcome: accepted
 metrics: lines=856 dead=0
 note: Replaced 4 duplicated six-line <select> field blocks (CrCl, PBW, FWD sex; qSOFA mentation) in app.py's template with a single Jinja sel(name, label, opts) macro, cutting 11 lines with rendered HTML identical apart from whitespace; tag gen-0019 was not pushed (git proxy refused tag push).
 ---
+---
+gen: 0020
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: add SpO2/FiO2 ratio
+outcome: accepted
+metrics: lines=894 dead=0
+note: Added sf_ratio() (SpO2 / FiO2, Rice 2007) with 3 tests and a 19th app card mapping S/F 235/315 to P/F 200/300 as a non-invasive oxygenation surrogate, flagging SpO2 > 97% as unreliable; tag gen-0020 was not pushed (git proxy refused tag push).
+---

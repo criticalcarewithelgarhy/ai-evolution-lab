@@ -299,3 +299,16 @@ def parkland_formula(weight: float, tbsa_percent: float) -> float:
     if not (0 <= tbsa_percent <= 100):
         raise ValueError("TBSA must be between 0 and 100 %")
     return round(4 * weight * tbsa_percent, 1)
+
+
+def body_surface_area(height_cm: float, weight: float) -> float:
+    """
+    Body surface area — Mosteller formula.
+    BSA = sqrt(height_cm × weight_kg / 3600); result in m².
+    Used for cardiac index, chemotherapy and some drug dosing. Typical adult ≈ 1.7–2.0 m².
+    """
+    if height_cm <= 0:
+        raise ValueError("Height must be positive")
+    if weight <= 0:
+        raise ValueError("Weight must be positive")
+    return round((height_cm * weight / 3600) ** 0.5, 2)

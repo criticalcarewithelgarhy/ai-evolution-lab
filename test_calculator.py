@@ -28,6 +28,7 @@ from calculator import (
     rox_index,
     qtc_bazett,
     osmolal_gap,
+    body_surface_area,
     parkland_formula,
     albumin_corrected_anion_gap,
     DISCLAIMER,
@@ -431,3 +432,18 @@ def test_parkland_zero_tbsa():
 def test_parkland_bad_tbsa():
     with pytest.raises(ValueError):
         parkland_formula(70, 120)
+
+
+def test_bsa_typical():
+    # 180 cm, 80 kg: sqrt(14400 / 3600) = 2.0
+    assert body_surface_area(180, 80) == 2.0
+
+
+def test_bsa_small_adult():
+    # 160 cm, 60 kg: sqrt(9600 / 3600) = 1.633 → 1.63
+    assert body_surface_area(160, 60) == 1.63
+
+
+def test_bsa_bad_weight():
+    with pytest.raises(ValueError):
+        body_surface_area(170, 0)

@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -679,10 +679,31 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Body Surface Area</h2>
+    <div class="formula">BSA = √(Height (cm) × Weight (kg) / 3600) — Mosteller</div>
+    <form method="POST" action="/#bsa">
+      <input type="hidden" name="calc" value="bsa">
+      <div class="field"><label>Height (cm)</label>
+        <input type="number" name="bsa_ht" step="0.1" value="{{ form.bsa_ht or '' }}" placeholder="175"></div>
+      <div class="field"><label>Weight (kg)</label>
+        <input type="number" name="bsa_wt" step="0.1" value="{{ form.bsa_wt or '' }}" placeholder="70"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.bsa is defined %}
+    <div class="result" id="bsa">
+      <span class="val">{{ results.bsa }}</span><span class="unit">m²</span>
+      <div class="interp {{ results.bsa_cls }}">{{ results.bsa_interp }}</div>
+    </div>
+    {% elif results.bsa_error is defined %}
+    <div class="error">{{ results.bsa_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0019 · 2026-11-25 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland</span>
+  <span>gen-breadth-0020 · 2026-11-25 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -837,6 +858,12 @@ def _pk_interp(v, tbsa):
     if tbsa < 20: return f"TBSA < 20 % — formal resuscitation usually not required (adults). {msg}", "normal"
     if tbsa < 50: return f"Major burn — {msg}", "warn"
     return f"Massive burn (≥ 50 % TBSA) — beware fluid creep. {msg}", "crit"
+
+
+def _bsa_interp(v):
+    if v < 1.5: return f"{v} m² — Below typical adult range (1.7–2.0); use BSA for cardiac index (CI = CO / BSA)", "warn"
+    if v <= 2.2: return f"{v} m² — Typical adult range; cardiac index = CO / BSA", "normal"
+    return f"{v} m² — Large BSA; consider dose caps for BSA-based drugs", "warn"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1060,6 +1087,14 @@ def index():
             results.update(pk=v, pk_interp=interp, pk_cls=cls)
         except Exception as e:
             results["pk_error"] = str(e)
+
+    elif calc == "bsa":
+        try:
+            v = body_surface_area(float(form["bsa_ht"]), float(form["bsa_wt"]))
+            interp, cls = _bsa_interp(v)
+            results.update(bsa=v, bsa_interp=interp, bsa_cls=cls)
+        except Exception as e:
+            results["bsa_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

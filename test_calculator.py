@@ -22,6 +22,7 @@ from calculator import (
     serum_osmolality,
     osmolar_gap,
     predicted_body_weight,
+    tidal_volume,
     DISCLAIMER,
 )
 
@@ -202,3 +203,13 @@ def test_predicted_body_weight_male():
 def test_predicted_body_weight_female():
     # 160 cm female → 45.5 + 0.91 × 7.6 = 52.4
     assert predicted_body_weight(160, "f") == 52.4
+
+
+def test_tidal_volume_male():
+    # 175 cm male → PBW 70.6 × 6 = 423.6 → 424 mL
+    assert tidal_volume(175, "male") == 424
+
+
+def test_tidal_volume_bad_ml_per_kg():
+    with pytest.raises(ValueError):
+        tidal_volume(175, "male", 10)

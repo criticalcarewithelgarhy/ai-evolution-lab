@@ -153,3 +153,10 @@ def predicted_body_weight(height_cm: float, sex: str) -> float:
         raise ValueError("Height must be positive")
     base = 45.5 if _is_female(sex) else 50.0
     return round(base + 0.91 * (height_cm - 152.4), 1)
+
+
+def tidal_volume(height_cm: float, sex: str, ml_per_kg: float = 6.0) -> float:
+    """Lung-protective Vt (mL) = ml_per_kg * PBW; ARDSNet target 4-8 mL/kg"""
+    if not (4 <= ml_per_kg <= 8):
+        raise ValueError("mL/kg must be between 4 and 8")
+    return round(ml_per_kg * predicted_body_weight(height_cm, sex))

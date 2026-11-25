@@ -184,3 +184,13 @@ outcome: accepted
 metrics: lines=592 dead=0
 note: Actual-weight Cockcroft-Gault overestimates CrCl in obesity (150 kg, 178 cm male: 187.5 vs 129.8 mL/min on adjusted weight), so added crcl_dosing_weight (Devine IBW; actual if below IBW, AdjBW if >120% IBW) with an optional height field showing the weight-adjusted CrCl alongside the unchanged raw value (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0019
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: validate-dosing-weight-range
+outcome: accepted
+metrics: lines=600 dead=0
+note: crcl_dosing_weight silently returned impossible dosing weights (0 or -60 kg as "actual", 700 kg as a huge "adjusted" weight) to direct callers; it now raises ValueError outside 0 < weight <= 650 kg, matching creatinine_clearance, with no change to any formula output (git tag push was refused by the session proxy; commit is on the branch).
+---

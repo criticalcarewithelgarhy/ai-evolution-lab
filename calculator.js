@@ -50,6 +50,12 @@ function correctedSodium(na, glucose) {
     return Math.round((na + 1.6 * (glucose - 100) / 100) * 10) / 10;
 }
 
+function sfRatio(spo2, fio2) {
+    // SpO2/FiO2 ratio — non-invasive P/F surrogate (S/F 315 ≈ P/F 300; valid only when SpO2 ≤ 97%)
+    if (fio2 <= 0 || fio2 > 1) throw new Error("FiO2 must be in (0, 1]");
+    return Math.round((spo2 / fio2) * 10) / 10;
+}
+
 function aaGradient(pao2, paco2, fio2, patm = 760) {
     // A–a gradient: PAO2 − PaO2, where PAO2 = FiO2 × (Patm − 47) − PaCO2 / 0.8
     if (fio2 <= 0 || fio2 > 1) throw new Error("FiO2 must be in (0, 1]");
@@ -127,4 +133,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, creatinineClearance };

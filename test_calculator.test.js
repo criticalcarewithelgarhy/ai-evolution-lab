@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -89,6 +89,15 @@ test("corrected sodium hyperglycemia", () => {
 
 test("corrected sodium normoglycemia", () => {
     expect(correctedSodium(140, 100)).toBe(140.0);
+});
+
+test("S/F ratio moderate hypoxaemia", () => {
+    // 94 / 0.4 = 235
+    expect(sfRatio(94, 0.4)).toBe(235.0);
+});
+
+test("S/F ratio bad FiO2", () => {
+    expect(() => sfRatio(94, 1.5)).toThrow();
 });
 
 test("A-a gradient room air", () => {

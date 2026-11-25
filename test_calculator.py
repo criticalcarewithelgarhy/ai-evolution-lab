@@ -24,6 +24,7 @@ from calculator import (
     qsofa_score,
     driving_pressure,
     oxygenation_index,
+    sf_ratio,
     DISCLAIMER,
 )
 
@@ -293,3 +294,19 @@ def test_oi_bad_inputs():
         oxygenation_index(0, 15, 75)
     with pytest.raises(ValueError):
         oxygenation_index(0.6, 15, 0)
+
+
+def test_sf_typical():
+    # SpO2 92 %, FiO2 0.4 → 230
+    assert sf_ratio(92, 0.4) == 230.0
+
+
+def test_sf_room_air():
+    assert sf_ratio(97, 0.21) == 461.9
+
+
+def test_sf_bad_inputs():
+    with pytest.raises(ValueError):
+        sf_ratio(92, 0)
+    with pytest.raises(ValueError):
+        sf_ratio(120, 0.5)

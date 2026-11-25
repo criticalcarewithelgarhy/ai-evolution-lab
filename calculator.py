@@ -179,6 +179,18 @@ def oxygenation_index(fio2: float, mean_airway_pressure: float, pao2: float) -> 
     return round(fio2 * mean_airway_pressure * 100 / pao2, 1)
 
 
+def sf_ratio(spo2: float, fio2: float) -> float:
+    """
+    S/F ratio = SpO2 / FiO2 (Rice, 2007). Non-invasive P/F surrogate; S/F 235 ≈ P/F 200, 315 ≈ P/F 300.
+    spo2 in %, FiO2 as fraction 0-1. Valid only when SpO2 <= 97%.
+    """
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+    if not (0 <= spo2 <= 100):
+        raise ValueError("SpO2 must be between 0 and 100")
+    return round(spo2 / fio2, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

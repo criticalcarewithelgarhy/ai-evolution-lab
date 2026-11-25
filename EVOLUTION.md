@@ -185,3 +185,12 @@ outcome: accepted
 metrics: lines=1398 dead=0
 note: Added qtc_bazett() (QT / √(60/HR)) with UI card flagging prolonged QTc (> 450 M / > 470 F) and > 500 ms torsades risk; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0019 tag push.
 ---
+---
+gen: wild-0020
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: add QTc fridericia
+outcome: accepted
+metrics: lines=1419 dead=0
+note: Added qtc_fridericia() (QT / ∛(60/HR)) shown alongside Bazett in the QTc card as a more rate-robust correction; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0020 tag push.
+---

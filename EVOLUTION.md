@@ -194,3 +194,12 @@ outcome: accepted
 metrics: lines=1419 dead=0
 note: Added qtc_fridericia() (QT / ∛(60/HR)) shown alongside Bazett in the QTc card as a more rate-robust correction; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0020 tag push.
 ---
+---
+gen: wild-0021
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: add rapid shallow breathing index
+outcome: accepted
+metrics: lines=1469 dead=0
+note: Added rapid_shallow_breathing_index() (RR / Vt in L, Yang–Tobin) with UI card flagging ≥ 105 as predicting weaning failure; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0021 tag push.
+---

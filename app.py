@@ -215,10 +215,12 @@ def _ag_interp(v):
     return "Markedly elevated", "crit"
 
 def _crcl_interp(v):
-    if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
-    if v < 30:   return "Stage 4 CKD — severe", "crit"
-    if v < 60:   return "Stage 3 CKD — moderate", "warn"
-    if v < 90:   return "Stage 2 CKD — mild", "warn"
+    # Renal-dosing bands (FDA). Not CKD stages: staging needs eGFR persisting > 3 months,
+    # and a single ICU creatinine (e.g. in AKI) is not at steady state
+    if v < 15:   return "Kidney failure range (< 15 mL/min)", "crit"
+    if v < 30:   return "Severely reduced (15–29 mL/min)", "crit"
+    if v < 60:   return "Moderately reduced (30–59 mL/min)", "warn"
+    if v < 90:   return "Mildly reduced (60–89 mL/min)", "warn"
     return "Normal (≥ 90 mL/min)", "normal"
 
 

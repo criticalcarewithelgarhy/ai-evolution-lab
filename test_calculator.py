@@ -297,3 +297,15 @@ def test_crcl_rejects_paediatric_age(age):
     with pytest.raises(ValueError):
         creatinine_clearance(age, 30, 0.5, "male")
     assert creatinine_clearance(18, 72, 1.0, "male") == 122.0
+
+
+@pytest.mark.parametrize("v,label,cls", [
+    (14.9, "Kidney failure", "crit"), (15.0, "Severely", "crit"), (29.9, "Severely", "crit"),
+    (30.0, "Moderately", "warn"), (59.9, "Moderately", "warn"), (60.0, "Mildly", "warn"),
+    (89.9, "Mildly", "warn"), (90.0, "Normal", "normal"),
+])
+def test_crcl_interp_bands_not_ckd_stages(v, label, cls):
+    # A single Cockcroft-Gault value cannot stage CKD (needs > 3 months; ICU AKI is non-steady-state)
+    from app import _crcl_interp
+    text, c = _crcl_interp(v)
+    assert text.startswith(label) and c == cls and "CKD" not in text

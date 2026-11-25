@@ -28,6 +28,7 @@ from calculator import (
     fractional_excretion_sodium,
     fractional_excretion_urea,
     qtc_bazett,
+    rapid_shallow_breathing_index,
     qtc_fridericia,
     creatinine_clearance,
     DISCLAIMER,
@@ -374,6 +375,21 @@ def test_qtc_fridericia_tachycardia():
 def test_qtc_fridericia_bad_qt():
     with pytest.raises(ValueError):
         qtc_fridericia(0, 80)
+
+
+def test_rsbi_weanable():
+    # RR 20, Vt 400 mL → 20 / 0.4 = 50
+    assert rapid_shallow_breathing_index(20, 400) == 50.0
+
+
+def test_rsbi_rapid_shallow():
+    # RR 35, Vt 250 mL → 35 / 0.25 = 140
+    assert rapid_shallow_breathing_index(35, 250) == 140.0
+
+
+def test_rsbi_bad_vt():
+    with pytest.raises(ValueError):
+        rapid_shallow_breathing_index(20, 0)
 
 
 def test_crcl_male():

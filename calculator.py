@@ -307,6 +307,19 @@ def qtc_fridericia(qt_ms: float, heart_rate: float) -> float:
     return round(qt_ms / (60 / heart_rate) ** (1 / 3), 1)
 
 
+def rapid_shallow_breathing_index(resp_rate: float, tidal_volume: float) -> float:
+    """
+    Rapid shallow breathing index (Yang–Tobin) = RR / Vt(L), breaths/min/L.
+    tidal_volume in mL during a spontaneous breathing trial.
+    < 105 predicts successful weaning from mechanical ventilation.
+    """
+    if resp_rate < 0:
+        raise ValueError("Respiratory rate must be non-negative")
+    if tidal_volume <= 0:
+        raise ValueError("Tidal volume must be positive")
+    return round(resp_rate / (tidal_volume / 1000), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

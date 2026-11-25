@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -583,6 +583,27 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Rapid Shallow Breathing Index</h2>
+    <div class="formula">RSBI = RR / Vt(L)</div>
+    <form method="POST" action="/#rsbi">
+      <input type="hidden" name="calc" value="rsbi">
+      <div class="field"><label>Respiratory Rate (breaths/min, on SBT)</label>
+        <input type="number" name="rsbi_rr" value="{{ form.rsbi_rr or '' }}" placeholder="25"></div>
+      <div class="field"><label>Tidal Volume (mL, on SBT)</label>
+        <input type="number" name="rsbi_vt" value="{{ form.rsbi_vt or '' }}" placeholder="350"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.rsbi is defined %}
+    <div class="result" id="rsbi">
+      <span class="val">{{ results.rsbi }}</span><span class="unit">breaths/min/L</span>
+      <div class="interp {{ results.rsbi_cls }}">{{ results.rsbi_interp }}</div>
+    </div>
+    {% elif results.rsbi_error is defined %}
+    <div class="error">{{ results.rsbi_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -614,7 +635,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0020 · 2026-11-25 · Added: QTc (Fridericia)</span>
+  <span>gen-wild-0021 · 2026-11-25 · Added: RSBI</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -731,6 +752,11 @@ def _qtc_interp(v, sex):
     if v > 500:   return "> 500 ms — high risk of torsades; review QT-prolonging drugs, K⁺, Mg²⁺", "crit"
     if v > upper: return f"> {upper} ms — prolonged QTc", "warn"
     return f"≤ {upper} ms — normal (Bazett overcorrects at high HR)", "normal"
+
+def _rsbi_interp(v):
+    if v < 80:   return "< 80 — favourable for extubation", "normal"
+    if v < 105:  return "80–105 — likely to wean; borderline", "warn"
+    return "≥ 105 — predicts weaning failure", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -939,6 +965,14 @@ def index():
             results.update(qtc=v, qtcf=qtcf, qtc_interp=interp, qtc_cls=cls)
         except Exception as e:
             results["qtc_error"] = str(e)
+
+    elif calc == "rsbi":
+        try:
+            v = rapid_shallow_breathing_index(float(form["rsbi_rr"]), float(form["rsbi_vt"]))
+            interp, cls = _rsbi_interp(v)
+            results.update(rsbi=v, rsbi_interp=interp, rsbi_cls=cls)
+        except Exception as e:
+            results["rsbi_error"] = str(e)
 
     elif calc == "crcl":
         try:

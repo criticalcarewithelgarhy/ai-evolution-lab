@@ -184,3 +184,12 @@ outcome: accepted
 metrics: lines=867 dead=0
 note: Added oxygenation_index() (FiO2 × mPaw × 100 / PaO2) with 3 tests and an 18th app card grading severity and flagging > 40 for ECMO referral, complementing P/F by accounting for ventilator mean airway pressure; tag gen-0018 was not pushed (git proxy refused tag push).
 ---
+---
+gen: 0019
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: jinja select field macro
+outcome: accepted
+metrics: lines=856 dead=0
+note: Replaced 4 duplicated six-line <select> field blocks (CrCl, PBW, FWD sex; qSOFA mentation) in app.py's template with a single Jinja sel(name, label, opts) macro, cutting 11 lines with rendered HTML identical apart from whitespace; tag gen-0019 was not pushed (git proxy refused tag push).
+---

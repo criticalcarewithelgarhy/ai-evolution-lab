@@ -212,3 +212,12 @@ outcome: accepted
 metrics: lines=526 dead=0
 note: pf_ratio now raises ValueError for PaO2 below 20 mmHg (e.g. 13 kPa typed into the mmHg field, which produced a bogus P/F of 61.9 or lower); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions).
 ---
+---
+gen: robust-0021
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: reject-implausible-diastolic-floor
+outcome: accepted
+metrics: lines=532 dead=0
+note: mean_arterial_pressure now raises ValueError for diastolic below 10 mmHg (e.g. a typo of 120/8 for 120/80, which produced a bogus MAP of 45.3); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), the repo had to be attached to the session for pushes, and the proxy again refused the tag push (branch pushed fine).
+---

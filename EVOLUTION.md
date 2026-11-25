@@ -211,3 +211,12 @@ outcome: accepted
 metrics: lines=930 dead=0
 note: Added static_compliance() (VT / (Pplat − PEEP)) with 3 tests and a 20th app card flagging < 40 mL/cmH2O as reduced and < 20 as severely reduced compliance, complementing the driving-pressure card; tag gen-0021 was not pushed (git proxy refused tag push).
 ---
+---
+gen: 0022
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: jinja card call macro
+outcome: accepted
+metrics: lines=801 dead=0
+note: Replaced the 20 duplicated ~9-line card shells (h2, formula, form, hidden calc, button, result) in app.py's template with a single Jinja card(key, title, formula, unit) macro invoked via {% call %}, cutting 129 lines with whitespace-normalised rendered HTML identical across GET, every calculator and every error path; tag gen-0022 was not pushed (git proxy refused tag push).
+---

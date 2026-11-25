@@ -192,3 +192,12 @@ outcome: accepted
 metrics: lines=1505 dead=0
 note: Added Parkland burn resuscitation (4 mL × kg × %TBSA over 24 h, half in first 8 h) with 3 tests and Flask card showing hourly rates and burn-size severity; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0019 exists locally only.
 ---
+---
+gen: breadth-0020
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: add body surface area
+outcome: accepted
+metrics: lines=1555 dead=0
+note: Added Mosteller body surface area (√(height_cm × weight / 3600)) with 3 tests and Flask card noting cardiac index and BSA-dosing use; metrics.py still crashes on breadth- labels so lines/dead came from its count functions.
+---

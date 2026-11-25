@@ -194,3 +194,12 @@ outcome: accepted
 metrics: lines=514 dead=0
 note: mean_arterial_pressure now raises ValueError for systolic below 30 mmHg (e.g. a typo of 12/8 for 120/80, which produced a bogus MAP of 9.3); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0019
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: reject-pediatric-age-crcl
+outcome: accepted
+metrics: lines=520 dead=0
+note: creatinine_clearance now raises ValueError for age below 18 (Cockcroft-Gault is validated only in adults; a 5-year-old previously got a plausible-looking but invalid CrCl); adult outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and pip needed python -m pip plus --ignore-installed blinker.
+---

@@ -203,3 +203,12 @@ outcome: accepted
 metrics: lines=1469 dead=0
 note: Added rapid_shallow_breathing_index() (RR / Vt in L, Yang–Tobin) with UI card flagging ≥ 105 as predicting weaning failure; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0021 tag push.
 ---
+---
+gen: wild-0022
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: add ventilatory ratio
+outcome: accepted
+metrics: lines=1523 dead=0
+note: Added ventilatory_ratio() ((VE × PaCO2)/(PBW × 100 × 37.5), Sinha) with UI card flagging > 2 as high dead space linked to ARDS mortality; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0022 tag push.
+---

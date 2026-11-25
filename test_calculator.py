@@ -30,6 +30,7 @@ from calculator import (
     qtc_bazett,
     rapid_shallow_breathing_index,
     qtc_fridericia,
+    ventilatory_ratio,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -390,6 +391,21 @@ def test_rsbi_rapid_shallow():
 def test_rsbi_bad_vt():
     with pytest.raises(ValueError):
         rapid_shallow_breathing_index(20, 0)
+
+
+def test_ventilatory_ratio_normal():
+    # VE 7500 mL/min, PaCO2 37.5, PBW 75 → 281250 / 281250 = 1.0
+    assert ventilatory_ratio(7500, 37.5, 75) == 1.0
+
+
+def test_ventilatory_ratio_high_dead_space():
+    # VE 12000 mL/min, PaCO2 55, PBW 70 → 660000 / 262500 = 2.51
+    assert ventilatory_ratio(12000, 55, 70) == 2.51
+
+
+def test_ventilatory_ratio_bad_pbw():
+    with pytest.raises(ValueError):
+        ventilatory_ratio(7500, 40, 0)
 
 
 def test_crcl_male():

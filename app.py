@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -604,6 +604,29 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Ventilatory Ratio</h2>
+    <div class="formula">VR = (VE × PaCO₂) / (PBW × 100 × 37.5)</div>
+    <form method="POST" action="/#vr">
+      <input type="hidden" name="calc" value="vr">
+      <div class="field"><label>Minute Ventilation (L/min)</label>
+        <input type="number" name="vr_ve" step="0.1" value="{{ form.vr_ve or '' }}" placeholder="9"></div>
+      <div class="field"><label>PaCO₂ (mmHg)</label>
+        <input type="number" name="vr_paco2" value="{{ form.vr_paco2 or '' }}" placeholder="45"></div>
+      <div class="field"><label>Predicted Body Weight (kg)</label>
+        <input type="number" name="vr_pbw" step="0.1" value="{{ form.vr_pbw or '' }}" placeholder="70"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.vr is defined %}
+    <div class="result" id="vr">
+      <span class="val">{{ results.vr }}</span>
+      <div class="interp {{ results.vr_cls }}">{{ results.vr_interp }}</div>
+    </div>
+    {% elif results.vr_error is defined %}
+    <div class="error">{{ results.vr_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -635,7 +658,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0021 · 2026-11-25 · Added: RSBI</span>
+  <span>gen-wild-0022 · 2026-11-25 · Added: Ventilatory Ratio</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -757,6 +780,11 @@ def _rsbi_interp(v):
     if v < 80:   return "< 80 — favourable for extubation", "normal"
     if v < 105:  return "80–105 — likely to wean; borderline", "warn"
     return "≥ 105 — predicts weaning failure", "crit"
+
+def _vr_interp(v):
+    if v <= 1.5: return "≤ 1.5 — near-normal ventilatory efficiency", "normal"
+    if v <= 2:   return "1.5–2 — increased dead space", "warn"
+    return "> 2 — high dead space; associated with higher ARDS mortality", "crit"
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -973,6 +1001,14 @@ def index():
             results.update(rsbi=v, rsbi_interp=interp, rsbi_cls=cls)
         except Exception as e:
             results["rsbi_error"] = str(e)
+
+    elif calc == "vr":
+        try:
+            v = ventilatory_ratio(float(form["vr_ve"]) * 1000, float(form["vr_paco2"]), float(form["vr_pbw"]))
+            interp, cls = _vr_interp(v)
+            results.update(vr=v, vr_interp=interp, vr_cls=cls)
+        except Exception as e:
+            results["vr_error"] = str(e)
 
     elif calc == "crcl":
         try:

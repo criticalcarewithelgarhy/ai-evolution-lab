@@ -320,6 +320,21 @@ def rapid_shallow_breathing_index(resp_rate: float, tidal_volume: float) -> floa
     return round(resp_rate / (tidal_volume / 1000), 1)
 
 
+def ventilatory_ratio(minute_ventilation: float, paco2: float, pbw: float) -> float:
+    """
+    Ventilatory ratio (Sinha) = (VE × PaCO2) / (PBW × 100 × 37.5).
+    minute_ventilation in mL/min, PaCO2 in mmHg, predicted body weight in kg.
+    Bedside surrogate of dead-space fraction: normal ≈ 1; > 2 associated with higher ARDS mortality.
+    """
+    if minute_ventilation <= 0:
+        raise ValueError("Minute ventilation must be positive")
+    if paco2 <= 0:
+        raise ValueError("PaCO2 must be positive")
+    if pbw <= 0:
+        raise ValueError("Predicted body weight must be positive")
+    return round(minute_ventilation * paco2 / (pbw * 100 * 37.5), 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

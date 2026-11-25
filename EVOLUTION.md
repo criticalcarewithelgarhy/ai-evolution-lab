@@ -149,3 +149,11 @@ idea: mechanical-power
 outcome: accepted
 metrics: lines=223 dead=-1 cap=1500 headroom=1277
 note: Added mechanicalPower (Gattinoni simplified: 0.098 × RR × Vt[L] × (Ppeak − ½·ΔP), J/min, throws if Pplat < PEEP or Ppeak < Pplat) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0018
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: sf-ratio
+outcome: accepted
+metrics: lines=233 dead=-1 cap=1500 headroom=1267
+note: Added sfRatio (SpO2/FiO2, rounded to 1 dp, throws if FiO2 outside (0, 1]) with two tests; four original formulas untouched, oracle 16/16 passing.

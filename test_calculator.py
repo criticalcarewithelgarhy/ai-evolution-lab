@@ -32,6 +32,7 @@ from calculator import (
     parkland_formula,
     albumin_corrected_anion_gap,
     egfr_ckd_epi_2021,
+    wells_pe,
     DISCLAIMER,
 )
 
@@ -463,3 +464,21 @@ def test_egfr_female_low_creatinine():
 def test_egfr_bad_creatinine():
     with pytest.raises(ValueError):
         egfr_ckd_epi_2021(0, 50, "M")
+
+
+def test_wells_pe_zero():
+    assert wells_pe(0, 0, 80, 0, 0, 0, 0) == 0.0
+
+
+def test_wells_pe_likely():
+    # DVT signs 3 + PE most likely 3 + HR 110 1.5 = 7.5
+    assert wells_pe(1, 1, 110, 0, 0, 0, 0) == 7.5
+
+
+def test_wells_pe_max():
+    assert wells_pe(1, 1, 120, 1, 1, 1, 1) == 12.5
+
+
+def test_wells_pe_bad_hr():
+    with pytest.raises(ValueError):
+        wells_pe(0, 0, -1, 0, 0, 0, 0)

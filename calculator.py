@@ -332,3 +332,21 @@ def egfr_ckd_epi_2021(creatinine: float, age: float, sex: str) -> float:
     if female:
         result *= 1.012
     return round(result, 1)
+
+
+def wells_pe(dvt_signs: int, pe_most_likely: int, heart_rate: float, immobilisation: int,
+             prior_vte: int, haemoptysis: int, malignancy: int) -> float:
+    """
+    Wells score for pulmonary embolism (0–12.5).
+    Clinical signs of DVT 3; PE the most likely diagnosis 3; HR > 100 1.5;
+    immobilisation ≥ 3 days or surgery in past 4 weeks 1.5; prior DVT/PE 1.5;
+    haemoptysis 1; active malignancy 1. Flags: 1 = present, 0 = absent.
+    Two-tier: ≤ 4 PE unlikely (D-dimer), > 4 PE likely (CTPA).
+    """
+    if heart_rate < 0:
+        raise ValueError("Heart rate must be non-negative")
+    score = 3.0 * bool(dvt_signs) + 3.0 * bool(pe_most_likely)
+    score += 1.5 if heart_rate > 100 else 0
+    score += 1.5 * bool(immobilisation) + 1.5 * bool(prior_vte)
+    score += 1.0 * bool(haemoptysis) + 1.0 * bool(malignancy)
+    return score

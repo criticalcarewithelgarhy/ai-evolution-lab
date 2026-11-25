@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -726,10 +726,59 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Wells Score (PE)</h2>
+    <div class="formula">DVT signs 3 · PE most likely 3 · HR&gt;100 1.5 · Immobilisation/surgery 1.5 · Prior VTE 1.5 · Haemoptysis 1 · Malignancy 1</div>
+    <form method="POST" action="/#wells">
+      <input type="hidden" name="calc" value="wells">
+      <div class="field"><label>Clinical signs of DVT</label>
+        <select name="wells_dvt">
+          <option value="0" {% if form.wells_dvt != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.wells_dvt == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>PE is the most likely diagnosis</label>
+        <select name="wells_likely">
+          <option value="0" {% if form.wells_likely != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.wells_likely == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Heart rate (beats/min)</label>
+        <input type="number" name="wells_hr" value="{{ form.wells_hr or '' }}" placeholder="90"></div>
+      <div class="field"><label>Immobilisation ≥ 3 d or surgery in past 4 wk</label>
+        <select name="wells_immob">
+          <option value="0" {% if form.wells_immob != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.wells_immob == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Previous DVT/PE</label>
+        <select name="wells_prior">
+          <option value="0" {% if form.wells_prior != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.wells_prior == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Haemoptysis</label>
+        <select name="wells_haem">
+          <option value="0" {% if form.wells_haem != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.wells_haem == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Active malignancy</label>
+        <select name="wells_malig">
+          <option value="0" {% if form.wells_malig != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.wells_malig == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.wells is defined %}
+    <div class="result" id="wells">
+      <span class="val">{{ results.wells }}</span><span class="unit">/ 12.5</span>
+      <div class="interp {{ results.wells_cls }}">{{ results.wells_interp }}</div>
+    </div>
+    {% elif results.wells_error is defined %}
+    <div class="error">{{ results.wells_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0021 · 2026-11-25 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR</span>
+  <span>gen-breadth-0022 · 2026-11-25 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -899,6 +948,12 @@ def _egfr_interp(v):
     if v >= 30: return "G3b — Moderately to severely decreased; review renally cleared drug doses", "warn"
     if v >= 15: return "G4 — Severely decreased", "crit"
     return "G5 — Kidney failure; not valid in AKI (non-steady-state creatinine)", "crit"
+
+
+def _wells_interp(v):
+    if v <= 4: return f"Score {v} — PE unlikely (≤ 4): D-dimer; if negative, PE excluded", "normal"
+    if v <= 6: return f"Score {v} — PE likely (> 4), moderate three-tier risk: CTPA", "warn"
+    return f"Score {v} — PE likely, high three-tier risk (> 6): CTPA; consider empirical anticoagulation", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1138,6 +1193,16 @@ def index():
             results.update(egfr=v, egfr_interp=interp, egfr_cls=cls)
         except Exception as e:
             results["egfr_error"] = str(e)
+
+    elif calc == "wells":
+        try:
+            v = wells_pe(int(form.get("wells_dvt", 0)), int(form.get("wells_likely", 0)), float(form["wells_hr"]),
+                         int(form.get("wells_immob", 0)), int(form.get("wells_prior", 0)),
+                         int(form.get("wells_haem", 0)), int(form.get("wells_malig", 0)))
+            interp, cls = _wells_interp(v)
+            results.update(wells=v, wells_interp=interp, wells_cls=cls)
+        except Exception as e:
+            results["wells_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

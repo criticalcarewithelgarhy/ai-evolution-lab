@@ -289,3 +289,11 @@ def test_crcl_creatinine_lower_bound():
         with pytest.raises(ValueError):
             creatinine_clearance(50, 70, cr, "male")
     assert creatinine_clearance(50, 72, 0.1, "male") == 900.0
+
+
+@pytest.mark.parametrize("age", [1, 10, 17.9])
+def test_crcl_rejects_paediatric_age(age):
+    # Cockcroft-Gault is adult-only; a 10-year-old previously got a confident adult CrCl
+    with pytest.raises(ValueError):
+        creatinine_clearance(age, 30, 0.5, "male")
+    assert creatinine_clearance(18, 72, 1.0, "male") == 122.0

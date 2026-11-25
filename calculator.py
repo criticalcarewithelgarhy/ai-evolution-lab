@@ -93,8 +93,10 @@ def creatinine_clearance(
         # Above any recorded value in mg/dL; almost always µmol/L entered as mg/dL
         # (88 µmol/L read as 88 mg/dL reports CrCl ~1 instead of ~87 mL/min)
         raise ValueError("Creatinine must not exceed 40 mg/dL (convert µmol/L ÷ 88.4)")
-    if not (1 <= age <= 120):
-        raise ValueError("Age must be between 1 and 120 years")
+    if not (18 <= age <= 120):
+        # Cockcroft-Gault was derived and validated in adults only; in children it
+        # misestimates clearance (paediatric dosing uses the bedside Schwartz equation)
+        raise ValueError("Age must be between 18 and 120 years (Cockcroft-Gault is adult-only)")
     if weight <= 0:
         raise ValueError("Weight must be positive")
     if weight > 650:

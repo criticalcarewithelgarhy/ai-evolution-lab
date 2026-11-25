@@ -157,7 +157,7 @@ TEMPLATE = """<!DOCTYPE html>
     <form method="POST" action="/#crcl">
       <input type="hidden" name="calc" value="crcl">
       <div class="field"><label>Age (years)</label>
-        <input type="number" step="any" name="age" value="{{ form.age or '' }}" placeholder="50"></div>
+        <input type="number" step="any" name="age" value="{{ form.age or '' }}" placeholder="50" min="18"></div>
       <div class="field"><label>Weight (kg)</label>
         <input type="number" step="any" name="weight" value="{{ form.weight or '' }}" placeholder="70"></div>
       <div class="field"><label>Serum Creatinine (mg/dL)</label>

@@ -28,6 +28,7 @@ from calculator import (
     fractional_excretion_sodium,
     fractional_excretion_urea,
     qtc_bazett,
+    qtc_fridericia,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -358,6 +359,21 @@ def test_qtc_bazett_tachycardia():
 def test_qtc_bazett_bad_hr():
     with pytest.raises(ValueError):
         qtc_bazett(400, 0)
+
+
+def test_qtc_fridericia_hr60():
+    # HR 60 → RR 1 s → QTcF = QT
+    assert qtc_fridericia(400, 60) == 400.0
+
+
+def test_qtc_fridericia_tachycardia():
+    # QT 360, HR 100 → RR 0.6 s → 360 / 0.8434 = 426.8
+    assert qtc_fridericia(360, 100) == 426.8
+
+
+def test_qtc_fridericia_bad_qt():
+    with pytest.raises(ValueError):
+        qtc_fridericia(0, 80)
 
 
 def test_crcl_male():

@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -555,8 +555,8 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
-    <h2>Corrected QT (Bazett)</h2>
-    <div class="formula">QTc = QT / √(60 / HR)</div>
+    <h2>Corrected QT (Bazett / Fridericia)</h2>
+    <div class="formula">QTcB = QT / √RR · QTcF = QT / ∛RR (RR = 60 / HR)</div>
     <form method="POST" action="/#qtc">
       <input type="hidden" name="calc" value="qtc">
       <div class="field"><label>QT Interval (ms)</label>
@@ -575,6 +575,7 @@ TEMPLATE = """<!DOCTYPE html>
     <div class="result" id="qtc">
       <span class="val">{{ results.qtc }}</span><span class="unit">ms</span>
       <div class="interp {{ results.qtc_cls }}">{{ results.qtc_interp }}</div>
+      <div class="interp">Fridericia: {{ results.qtcf }} ms</div>
     </div>
     {% elif results.qtc_error is defined %}
     <div class="error">{{ results.qtc_error }}</div>
@@ -613,7 +614,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0019 · 2026-11-24 · Added: QTc (Bazett)</span>
+  <span>gen-wild-0020 · 2026-11-25 · Added: QTc (Fridericia)</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -934,7 +935,8 @@ def index():
         try:
             v = qtc_bazett(float(form["qtc_qt"]), float(form["qtc_hr"]))
             interp, cls = _qtc_interp(v, form.get("qtc_sex", "male"))
-            results.update(qtc=v, qtc_interp=interp, qtc_cls=cls)
+            qtcf = qtc_fridericia(float(form["qtc_qt"]), float(form["qtc_hr"]))
+            results.update(qtc=v, qtcf=qtcf, qtc_interp=interp, qtc_cls=cls)
         except Exception as e:
             results["qtc_error"] = str(e)
 

@@ -38,6 +38,12 @@ def test_map_implausible_systolic():
     assert mean_arterial_pressure(300, 100) == 166.7
 
 
+def test_map_implausible_systolic_floor():
+    with pytest.raises(ValueError):
+        mean_arterial_pressure(12, 8)  # typo for 120/80
+    assert mean_arterial_pressure(30, 15) == 20.0
+
+
 def test_pf_ratio_normal():
     assert pf_ratio(100, 1.0) == 100.0
 

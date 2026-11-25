@@ -203,3 +203,12 @@ outcome: accepted
 metrics: lines=520 dead=0
 note: creatinine_clearance now raises ValueError for age below 18 (Cockcroft-Gault is validated only in adults; a 5-year-old previously got a plausible-looking but invalid CrCl); adult outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions) and pip needed python -m pip plus --ignore-installed blinker.
 ---
+---
+gen: robust-0020
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: reject-implausible-pao2-floor
+outcome: accepted
+metrics: lines=526 dead=0
+note: pf_ratio now raises ValueError for PaO2 below 20 mmHg (e.g. 13 kPa typed into the mmHg field, which produced a bogus P/F of 61.9 or lower); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions).
+---

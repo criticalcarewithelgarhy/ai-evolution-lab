@@ -28,6 +28,7 @@ from calculator import (
     rox_index,
     qtc_bazett,
     osmolal_gap,
+    parkland_formula,
     albumin_corrected_anion_gap,
     DISCLAIMER,
 )
@@ -416,3 +417,17 @@ def test_corrected_ag_hypoalbuminaemia():
 def test_corrected_ag_negative_albumin():
     with pytest.raises(ValueError):
         albumin_corrected_anion_gap(140, 104, 24, -1)
+
+
+def test_parkland_typical():
+    # 70 kg, 30 % TBSA: 4 × 70 × 30 = 8400 mL
+    assert parkland_formula(70, 30) == 8400.0
+
+
+def test_parkland_zero_tbsa():
+    assert parkland_formula(70, 0) == 0.0
+
+
+def test_parkland_bad_tbsa():
+    with pytest.raises(ValueError):
+        parkland_formula(70, 120)

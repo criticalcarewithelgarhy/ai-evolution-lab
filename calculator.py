@@ -286,3 +286,16 @@ def albumin_corrected_anion_gap(sodium: float, chloride: float, bicarbonate: flo
     if albumin < 0:
         raise ValueError("Albumin must be non-negative")
     return round(sodium - (chloride + bicarbonate) + 2.5 * (4.0 - albumin), 1)
+
+
+def parkland_formula(weight: float, tbsa_percent: float) -> float:
+    """
+    Parkland formula — 24 h crystalloid (Ringer's lactate) for burn resuscitation.
+    volume = 4 mL × weight (kg) × %TBSA (partial + full thickness burns); result in mL.
+    Give half in the first 8 h from time of burn, the remainder over the next 16 h.
+    """
+    if weight <= 0:
+        raise ValueError("Weight must be positive")
+    if not (0 <= tbsa_percent <= 100):
+        raise ValueError("TBSA must be between 0 and 100 %")
+    return round(4 * weight * tbsa_percent, 1)

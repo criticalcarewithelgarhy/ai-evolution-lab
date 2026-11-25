@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -658,10 +658,31 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Parkland Burn Resuscitation</h2>
+    <div class="formula">24 h RL = 4 mL × Weight (kg) × %TBSA — ½ in first 8 h</div>
+    <form method="POST" action="/#pk">
+      <input type="hidden" name="calc" value="pk">
+      <div class="field"><label>Weight (kg)</label>
+        <input type="number" name="pk_wt" step="0.1" value="{{ form.pk_wt or '' }}" placeholder="70"></div>
+      <div class="field"><label>Burn TBSA (%, partial + full thickness)</label>
+        <input type="number" name="pk_tbsa" step="0.1" value="{{ form.pk_tbsa or '' }}" placeholder="30"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.pk is defined %}
+    <div class="result" id="pk">
+      <span class="val">{{ results.pk }}</span><span class="unit">mL / 24 h</span>
+      <div class="interp {{ results.pk_cls }}">{{ results.pk_interp }}</div>
+    </div>
+    {% elif results.pk_error is defined %}
+    <div class="error">{{ results.pk_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0018 · 2026-11-24 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG</span>
+  <span>gen-breadth-0019 · 2026-11-25 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -808,6 +829,14 @@ def _cag_interp(v):
     if v <= 12:  return f"{v} mEq/L — Normal (8–12)", "normal"
     if v <= 20:  return f"{v} mEq/L — Elevated; high AG acidosis likely (unmasked by albumin correction)", "warn"
     return f"{v} mEq/L — Markedly elevated (> 20)", "crit"
+
+
+def _pk_interp(v, tbsa):
+    first8 = round(v / 2 / 8, 0); next16 = round(v / 2 / 16, 0)
+    msg = f"{first8:.0f} mL/h × 8 h, then {next16:.0f} mL/h × 16 h; titrate to urine output 0.5 mL/kg/h"
+    if tbsa < 20: return f"TBSA < 20 % — formal resuscitation usually not required (adults). {msg}", "normal"
+    if tbsa < 50: return f"Major burn — {msg}", "warn"
+    return f"Massive burn (≥ 50 % TBSA) — beware fluid creep. {msg}", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1022,6 +1051,15 @@ def index():
             results.update(cag=v, cag_interp=interp, cag_cls=cls)
         except Exception as e:
             results["cag_error"] = str(e)
+
+    elif calc == "pk":
+        try:
+            tbsa = float(form["pk_tbsa"])
+            v = parkland_formula(float(form["pk_wt"]), tbsa)
+            interp, cls = _pk_interp(v, tbsa)
+            results.update(pk=v, pk_interp=interp, pk_cls=cls)
+        except Exception as e:
+            results["pk_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

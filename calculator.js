@@ -126,6 +126,12 @@ function mechanicalPower(rr, vt, ppeak, pplat, peep) {
     return Math.round(0.098 * rr * (vt / 1000) * (ppeak - 0.5 * (pplat - peep)) * 10) / 10;
 }
 
+function ventilatoryRatio(ve, paco2, pbw) {
+    // Ventilatory ratio (Sinha): (VE[mL/min] × PaCO2) / (PBW[kg] × 100 × 37.5) — dead-space surrogate, normal ≈ 1
+    if (pbw <= 0) throw new Error("PBW must be > 0");
+    return Math.round((ve * paco2) / (pbw * 100 * 37.5) * 100) / 100;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -133,4 +139,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, creatinineClearance };

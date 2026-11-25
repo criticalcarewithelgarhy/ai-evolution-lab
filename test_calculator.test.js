@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -202,6 +202,15 @@ test("mechanical power typical ARDS", () => {
 
 test("mechanical power Ppeak below Pplat", () => {
     expect(() => mechanicalPower(20, 500, 18, 20, 10)).toThrow();
+});
+
+test("ventilatory ratio elevated dead space", () => {
+    // (10000 × 60) / (70 × 100 × 37.5) = 600000 / 262500 = 2.2857 → 2.29
+    expect(ventilatoryRatio(10000, 60, 70)).toBe(2.29);
+});
+
+test("ventilatory ratio bad PBW", () => {
+    expect(() => ventilatoryRatio(10000, 60, 0)).toThrow();
 });
 
 test("CrCl male", () => {

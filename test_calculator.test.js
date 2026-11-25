@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -184,6 +184,15 @@ test("static compliance ARDS", () => {
 
 test("static compliance zero driving pressure", () => {
     expect(() => staticCompliance(420, 10, 10)).toThrow();
+});
+
+test("mechanical power typical ARDS", () => {
+    // 0.098 × 20 × 0.5 × (25 − 0.5 × (20 − 10)) = 0.98 × 20 = 19.6
+    expect(mechanicalPower(20, 500, 25, 20, 10)).toBe(19.6);
+});
+
+test("mechanical power Ppeak below Pplat", () => {
+    expect(() => mechanicalPower(20, 500, 18, 20, 10)).toThrow();
 });
 
 test("CrCl male", () => {

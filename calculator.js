@@ -113,6 +113,13 @@ function staticCompliance(vt, pplat, peep) {
     return Math.round((vt / (pplat - peep)) * 10) / 10;
 }
 
+function mechanicalPower(rr, vt, ppeak, pplat, peep) {
+    // Mechanical power (J/min), Gattinoni simplified: 0.098 × RR × Vt[L] × (Ppeak − ½ × (Pplat − PEEP)) — > 17 harmful
+    if (pplat < peep) throw new Error("Pplat must be >= PEEP");
+    if (ppeak < pplat) throw new Error("Ppeak must be >= Pplat");
+    return Math.round(0.098 * rr * (vt / 1000) * (ppeak - 0.5 * (pplat - peep)) * 10) / 10;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -120,4 +127,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, creatinineClearance };

@@ -153,3 +153,13 @@ outcome: accepted
 metrics: gen=0014 lines=286 dead=0 cap=1500 headroom=1214
 note: Added osmolar_gap (measured − calculated Osm) reusing serum_osmolality, with two tests, completing the toxic-alcohol workup that gen 0014 set up.
 ---
+
+---
+gen: 0016
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: add predicted body weight
+outcome: accepted
+metrics: gen=0015 lines=297 dead=0 cap=1500 headroom=1203
+note: Added predicted_body_weight (ARDSNet: 50/45.5 + 0.91 × (height − 152.4)) reusing _is_female, with two tests, so lung-protective tidal volumes can be set alongside the ARDS tools.
+---

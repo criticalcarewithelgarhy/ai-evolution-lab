@@ -145,3 +145,11 @@ def osmolar_gap(measured: float, sodium: float, glucose: float, bun: float) -> f
     if measured <= 0:
         raise ValueError("Measured osmolality must be positive")
     return round(measured - serum_osmolality(sodium, glucose, bun), 1)
+
+
+def predicted_body_weight(height_cm: float, sex: str) -> float:
+    """ARDSNet PBW (kg) = 50 (male) or 45.5 (female) + 0.91 * (height_cm - 152.4)"""
+    if height_cm <= 0:
+        raise ValueError("Height must be positive")
+    base = 45.5 if _is_female(sex) else 50.0
+    return round(base + 0.91 * (height_cm - 152.4), 1)

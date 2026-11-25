@@ -21,6 +21,7 @@ from calculator import (
     aa_gradient,
     serum_osmolality,
     osmolar_gap,
+    predicted_body_weight,
     DISCLAIMER,
 )
 
@@ -191,3 +192,13 @@ def test_osmolar_gap_elevated():
 def test_osmolar_gap_bad_measured():
     with pytest.raises(ValueError):
         osmolar_gap(0, 140, 90, 14)
+
+
+def test_predicted_body_weight_male():
+    # 175 cm male → 50 + 0.91 × 22.6 = 70.6
+    assert predicted_body_weight(175, "male") == 70.6
+
+
+def test_predicted_body_weight_female():
+    # 160 cm female → 45.5 + 0.91 × 7.6 = 52.4
+    assert predicted_body_weight(160, "f") == 52.4

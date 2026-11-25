@@ -141,3 +141,11 @@ idea: static-compliance
 outcome: accepted
 metrics: lines=212 dead=-1 cap=1500 headroom=1288
 note: Added staticCompliance (Vt / (Pplat − PEEP), mL/cmH2O, throws if Pplat <= PEEP) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0017
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: mechanical-power
+outcome: accepted
+metrics: lines=223 dead=-1 cap=1500 headroom=1277
+note: Added mechanicalPower (Gattinoni simplified: 0.098 × RR × Vt[L] × (Ppeak − ½·ΔP), J/min, throws if Pplat < PEEP or Ppeak < Pplat) with two tests; four original formulas untouched, oracle 16/16 passing.

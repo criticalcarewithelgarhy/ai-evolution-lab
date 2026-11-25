@@ -210,3 +210,12 @@ outcome: accepted
 metrics: lines=1620 dead=0
 note: Added race-free CKD-EPI 2021 creatinine eGFR (142 × min/max(Scr/κ)^α/−1.2 × 0.9938^age × 1.012 F) with 3 tests and Flask card staging KDIGO G1–G5; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0021 exists locally only.
 ---
+---
+gen: breadth-0022
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: add Wells PE score
+outcome: accepted
+metrics: lines=1707 dead=0
+note: Added Wells score for pulmonary embolism (DVT signs 3, PE most likely 3, HR > 100 1.5, immobilisation 1.5, prior VTE 1.5, haemoptysis 1, malignancy 1) with 4 tests and Flask card giving two-tier (≤ 4 unlikely) and three-tier risk; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0022 exists locally only.
+---

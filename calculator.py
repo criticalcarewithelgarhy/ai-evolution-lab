@@ -335,6 +335,21 @@ def ventilatory_ratio(minute_ventilation: float, paco2: float, pbw: float) -> fl
     return round(minute_ventilation * paco2 / (pbw * 100 * 37.5), 2)
 
 
+def dead_space_fraction(paco2: float, peco2: float) -> float:
+    """
+    Physiological dead space fraction (Enghoff modification of Bohr) =
+    (PaCO2 − PECO2) / PaCO2, with PECO2 = mixed expired CO2 (mmHg).
+    Normal ≈ 0.2–0.3; ≥ 0.6 in early ARDS associated with higher mortality (Nuckton 2002).
+    """
+    if paco2 <= 0:
+        raise ValueError("PaCO2 must be positive")
+    if peco2 < 0:
+        raise ValueError("Mixed expired CO2 must be non-negative")
+    if peco2 > paco2:
+        raise ValueError("Mixed expired CO2 cannot exceed PaCO2")
+    return round((paco2 - peco2) / paco2, 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

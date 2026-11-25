@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -627,6 +627,27 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Dead Space Fraction</h2>
+    <div class="formula">VD/VT = (PaCO₂ − PECO₂) / PaCO₂</div>
+    <form method="POST" action="/#vd">
+      <input type="hidden" name="calc" value="vd">
+      <div class="field"><label>PaCO₂ (mmHg)</label>
+        <input type="number" name="vd_paco2" step="0.1" value="{{ form.vd_paco2 or '' }}" placeholder="45"></div>
+      <div class="field"><label>Mixed Expired CO₂ PECO₂ (mmHg)</label>
+        <input type="number" name="vd_peco2" step="0.1" value="{{ form.vd_peco2 or '' }}" placeholder="25"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.vd is defined %}
+    <div class="result" id="vd">
+      <span class="val">{{ results.vd }}</span>
+      <div class="interp {{ results.vd_cls }}">{{ results.vd_interp }}</div>
+    </div>
+    {% elif results.vd_error is defined %}
+    <div class="error">{{ results.vd_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -658,7 +679,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0022 · 2026-11-25 · Added: Ventilatory Ratio</span>
+  <span>gen-wild-0023 · 2026-11-25 · Added: Dead Space Fraction</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -785,6 +806,12 @@ def _vr_interp(v):
     if v <= 1.5: return "≤ 1.5 — near-normal ventilatory efficiency", "normal"
     if v <= 2:   return "1.5–2 — increased dead space", "warn"
     return "> 2 — high dead space; associated with higher ARDS mortality", "crit"
+
+def _vd_interp(v):
+    if v <= 0.3: return "≤ 0.3 — normal physiological dead space", "normal"
+    if v < 0.6:  return "0.3–0.6 — increased dead space (PE, ARDS, low cardiac output)", "warn"
+    return "≥ 0.6 — markedly elevated; associated with higher ARDS mortality", "crit"
+
 
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
@@ -1009,6 +1036,14 @@ def index():
             results.update(vr=v, vr_interp=interp, vr_cls=cls)
         except Exception as e:
             results["vr_error"] = str(e)
+
+    elif calc == "vd":
+        try:
+            v = dead_space_fraction(float(form["vd_paco2"]), float(form["vd_peco2"]))
+            interp, cls = _vd_interp(v)
+            results.update(vd=v, vd_interp=interp, vd_cls=cls)
+        except Exception as e:
+            results["vd_error"] = str(e)
 
     elif calc == "crcl":
         try:

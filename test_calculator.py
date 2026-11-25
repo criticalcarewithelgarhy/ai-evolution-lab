@@ -31,6 +31,7 @@ from calculator import (
     rapid_shallow_breathing_index,
     qtc_fridericia,
     ventilatory_ratio,
+    dead_space_fraction,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -406,6 +407,21 @@ def test_ventilatory_ratio_high_dead_space():
 def test_ventilatory_ratio_bad_pbw():
     with pytest.raises(ValueError):
         ventilatory_ratio(7500, 40, 0)
+
+
+def test_dead_space_normal():
+    # PaCO2 40, PECO2 30 → 10 / 40 = 0.25
+    assert dead_space_fraction(40, 30) == 0.25
+
+
+def test_dead_space_ards():
+    # PaCO2 50, PECO2 15 → 35 / 50 = 0.7
+    assert dead_space_fraction(50, 15) == 0.7
+
+
+def test_dead_space_bad_peco2():
+    with pytest.raises(ValueError):
+        dead_space_fraction(40, 45)
 
 
 def test_crcl_male():

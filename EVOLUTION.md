@@ -163,3 +163,12 @@ outcome: accepted
 metrics: gen=0015 lines=297 dead=0 cap=1500 headroom=1203
 note: Added predicted_body_weight (ARDSNet: 50/45.5 + 0.91 × (height − 152.4)) reusing _is_female, with two tests, so lung-protective tidal volumes can be set alongside the ARDS tools.
 ---
+---
+gen: 0017
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: add lung-protective tidal volume
+outcome: accepted
+metrics: gen=0016 lines=308 dead=0 cap=1500 headroom=1192
+note: Added tidal_volume (mL/kg × PBW, default 6, bounded 4–8) reusing predicted_body_weight, with two tests, turning gen 0016's PBW into a directly usable ventilator setting.
+---

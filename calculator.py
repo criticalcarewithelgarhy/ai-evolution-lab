@@ -191,6 +191,16 @@ def sf_ratio(spo2: float, fio2: float) -> float:
     return round(spo2 / fio2, 1)
 
 
+def static_compliance(tidal_volume: float, plateau: float, peep: float) -> float:
+    """
+    Static respiratory system compliance = VT / (Pplat − PEEP). VT in mL, pressures in cmH2O; result mL/cmH2O.
+    Normal ~50–100 in ventilated adults; < 40 suggests stiff lungs (e.g. ARDS).
+    """
+    if tidal_volume <= 0 or peep < 0 or plateau <= peep:
+        raise ValueError("VT must be positive, PEEP non-negative and Pplat > PEEP")
+    return round(tidal_volume / (plateau - peep), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

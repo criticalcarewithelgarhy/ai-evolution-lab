@@ -25,6 +25,7 @@ from calculator import (
     driving_pressure,
     oxygenation_index,
     sf_ratio,
+    static_compliance,
     DISCLAIMER,
 )
 
@@ -310,3 +311,20 @@ def test_sf_bad_inputs():
         sf_ratio(92, 0)
     with pytest.raises(ValueError):
         sf_ratio(120, 0.5)
+
+
+def test_cstat_typical():
+    # VT 450 mL, Pplat 25, PEEP 10 → 30
+    assert static_compliance(450, 25, 10) == 30.0
+
+
+def test_cstat_normal():
+    # VT 500, Pplat 15, PEEP 5 → 50
+    assert static_compliance(500, 15, 5) == 50.0
+
+
+def test_cstat_bad_inputs():
+    with pytest.raises(ValueError):
+        static_compliance(450, 10, 10)
+    with pytest.raises(ValueError):
+        static_compliance(0, 25, 10)

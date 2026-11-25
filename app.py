@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -366,10 +366,23 @@ TEMPLATE = """{% macro result(key, unit="") %}
     {{ result("sf") }}
   </div>
 
+  <div class="card">
+    <h2>Static Compliance</h2>
+    <div class="formula">C<sub>stat</sub> = V<sub>T</sub> / (P<sub>plat</sub> − PEEP)</div>
+    <form method="POST" action="/#cst">
+      <input type="hidden" name="calc" value="cst">
+      {{ num("cst_vt", "Tidal Volume (mL)", "450") }}
+      {{ num("cst_pplat", "Plateau Pressure (cmH₂O)", "25", "0.1") }}
+      {{ num("cst_peep", "PEEP (cmH₂O)", "10", "0.1") }}
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {{ result("cst", "mL/cmH₂O") }}
+  </div>
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub></span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -478,6 +491,11 @@ def _sf_interp(v, spo2):
     if v < 315: return "235–315 — ≈ P/F 200–300, mild hypoxaemia" + note, "warn"
     return "≥ 315 — ≈ P/F ≥ 300" + note, "normal"
 
+def _cst_interp(v):
+    if v < 20: return "< 20 — very stiff respiratory system, severe ARDS/restriction", "crit"
+    if v < 40: return "20–40 — reduced compliance (e.g. ARDS, oedema, fibrosis)", "warn"
+    return "≥ 40 — normal or near-normal compliance", "normal"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -531,6 +549,8 @@ CALCS = {
            lambda v, f: _oi_interp(v)),
     "sf": (lambda f: sf_ratio(_n(f, "sf_spo2"), _n(f, "sf_fio2")),
            lambda v, f: _sf_interp(v, _n(f, "sf_spo2"))),
+    "cst": (lambda f: static_compliance(_n(f, "cst_vt"), _n(f, "cst_pplat"), _n(f, "cst_peep")),
+            lambda v, f: _cst_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

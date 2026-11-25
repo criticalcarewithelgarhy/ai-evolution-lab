@@ -35,6 +35,8 @@ def pf_ratio(pao2: float, fio2: float) -> float:
     _require_finite(pao2, fio2)
     if pao2 <= 0:
         raise ValueError("PaO2 must be positive")
+    if pao2 < 20:
+        raise ValueError("PaO2 below 20 mmHg is implausible — was it entered in kPa?")
     if pao2 > 800:
         raise ValueError("PaO2 above 800 mmHg is implausible — check for a typo or kPa/mmHg mix-up")
     if not (0 < fio2 <= 1):

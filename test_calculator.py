@@ -75,6 +75,12 @@ def test_pf_ratio_implausible_pao2():
     assert pf_ratio(800, 1.0) == 800.0
 
 
+def test_pf_ratio_implausible_low_pao2():
+    with pytest.raises(ValueError):
+        pf_ratio(13, 0.21)  # kPa typed as mmHg
+    assert pf_ratio(20, 0.5) == 40.0
+
+
 def test_anion_gap_normal():
     # Na 140, Cl 104, HCO3 24 → 12
     assert anion_gap(140, 104, 24) == 12.0

@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -700,10 +700,36 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>eGFR (CKD-EPI 2021)</h2>
+    <div class="formula">142 × min(Scr/κ,1)^α × max(Scr/κ,1)^−1.2 × 0.9938^Age × 1.012 [F] — race-free</div>
+    <form method="POST" action="/#egfr">
+      <input type="hidden" name="calc" value="egfr">
+      <div class="field"><label>Creatinine (mg/dL)</label>
+        <input type="number" name="egfr_cr" step="0.01" value="{{ form.egfr_cr or '' }}" placeholder="1.0"></div>
+      <div class="field"><label>Age (years)</label>
+        <input type="number" name="egfr_age" step="1" value="{{ form.egfr_age or '' }}" placeholder="50"></div>
+      <div class="field"><label>Sex</label>
+        <select name="egfr_sex">
+          <option value="M" {% if form.egfr_sex != 'F' %}selected{% endif %}>Male</option>
+          <option value="F" {% if form.egfr_sex == 'F' %}selected{% endif %}>Female</option>
+        </select></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.egfr is defined %}
+    <div class="result" id="egfr">
+      <span class="val">{{ results.egfr }}</span><span class="unit">mL/min/1.73 m²</span>
+      <div class="interp {{ results.egfr_cls }}">{{ results.egfr_interp }}</div>
+    </div>
+    {% elif results.egfr_error is defined %}
+    <div class="error">{{ results.egfr_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0020 · 2026-11-25 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA</span>
+  <span>gen-breadth-0021 · 2026-11-25 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -864,6 +890,15 @@ def _bsa_interp(v):
     if v < 1.5: return f"{v} m² — Below typical adult range (1.7–2.0); use BSA for cardiac index (CI = CO / BSA)", "warn"
     if v <= 2.2: return f"{v} m² — Typical adult range; cardiac index = CO / BSA", "normal"
     return f"{v} m² — Large BSA; consider dose caps for BSA-based drugs", "warn"
+
+
+def _egfr_interp(v):
+    if v >= 90: return "G1 — Normal or high (CKD only if other kidney damage markers)", "normal"
+    if v >= 60: return "G2 — Mildly decreased", "normal"
+    if v >= 45: return "G3a — Mildly to moderately decreased", "warn"
+    if v >= 30: return "G3b — Moderately to severely decreased; review renally cleared drug doses", "warn"
+    if v >= 15: return "G4 — Severely decreased", "crit"
+    return "G5 — Kidney failure; not valid in AKI (non-steady-state creatinine)", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1095,6 +1130,14 @@ def index():
             results.update(bsa=v, bsa_interp=interp, bsa_cls=cls)
         except Exception as e:
             results["bsa_error"] = str(e)
+
+    elif calc == "egfr":
+        try:
+            v = egfr_ckd_epi_2021(float(form["egfr_cr"]), float(form["egfr_age"]), form.get("egfr_sex", "M"))
+            interp, cls = _egfr_interp(v)
+            results.update(egfr=v, egfr_interp=interp, egfr_cls=cls)
+        except Exception as e:
+            results["egfr_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

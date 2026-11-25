@@ -31,6 +31,7 @@ from calculator import (
     body_surface_area,
     parkland_formula,
     albumin_corrected_anion_gap,
+    egfr_ckd_epi_2021,
     DISCLAIMER,
 )
 
@@ -447,3 +448,18 @@ def test_bsa_small_adult():
 def test_bsa_bad_weight():
     with pytest.raises(ValueError):
         body_surface_area(170, 0)
+
+
+def test_egfr_male_typical():
+    # 50 y male, Scr 1.0: 142 × (1.0/0.9)^-1.2 × 0.9938^50 = 91.7
+    assert egfr_ckd_epi_2021(1.0, 50, "M") == 91.7
+
+
+def test_egfr_female_low_creatinine():
+    # 40 y female, Scr 0.6: 142 × (0.6/0.7)^-0.241 × 0.9938^40 × 1.012 = 116.3
+    assert egfr_ckd_epi_2021(0.6, 40, "F") == 116.3
+
+
+def test_egfr_bad_creatinine():
+    with pytest.raises(ValueError):
+        egfr_ckd_epi_2021(0, 50, "M")

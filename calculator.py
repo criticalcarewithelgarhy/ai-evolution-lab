@@ -312,3 +312,23 @@ def body_surface_area(height_cm: float, weight: float) -> float:
     if weight <= 0:
         raise ValueError("Weight must be positive")
     return round((height_cm * weight / 3600) ** 0.5, 2)
+
+
+def egfr_ckd_epi_2021(creatinine: float, age: float, sex: str) -> float:
+    """
+    eGFR — CKD-EPI 2021 race-free creatinine equation.
+    eGFR = 142 × min(Scr/κ, 1)^α × max(Scr/κ, 1)^−1.200 × 0.9938^age × 1.012 [female]
+    κ = 0.7 (F) / 0.9 (M); α = −0.241 (F) / −0.302 (M).
+    creatinine in mg/dL, age in years; result in mL/min/1.73 m². Assumes steady-state creatinine.
+    """
+    if creatinine <= 0:
+        raise ValueError("Creatinine must be positive")
+    if age < 18:
+        raise ValueError("CKD-EPI is validated for adults (age ≥ 18)")
+    female = sex.lower() in ("f", "female")
+    kappa, alpha = (0.7, -0.241) if female else (0.9, -0.302)
+    ratio = creatinine / kappa
+    result = 142 * min(ratio, 1) ** alpha * max(ratio, 1) ** -1.2 * 0.9938 ** age
+    if female:
+        result *= 1.012
+    return round(result, 1)

@@ -51,6 +51,15 @@ TEMPLATE = """{% macro result(key, unit="") %}
       <div class="field"><label>{{ label }}</label>
         <input type="number" name="{{ name }}"{% if step %} step="{{ step }}"{% endif %} value="{{ form[name] or '' }}" placeholder="{{ ph }}"></div>
 {% endmacro -%}
+{% macro sel(name, label, opts) %}
+      <div class="field"><label>{{ label }}</label>
+        <select name="{{ name }}">
+{%- for v, t in opts %}
+          <option value="{{ v }}" {% if form[name] == v %}selected{% endif %}>{{ t }}</option>
+{%- endfor %}
+        </select>
+      </div>
+{% endmacro -%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -160,12 +169,7 @@ TEMPLATE = """{% macro result(key, unit="") %}
       {{ num("age", "Age (years)", "50") }}
       {{ num("weight", "Weight (kg)", "70") }}
       {{ num("creatinine", "Serum Creatinine (mg/dL)", "1.0", "0.1") }}
-      <div class="field"><label>Sex</label>
-        <select name="sex">
-          <option value="male" {% if form.sex == 'male' %}selected{% endif %}>Male</option>
-          <option value="female" {% if form.sex == 'female' %}selected{% endif %}>Female</option>
-        </select>
-      </div>
+      {{ sel("sex", "Sex", [("male", "Male"), ("female", "Female")]) }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("crcl", "mL/min") }}
@@ -268,12 +272,7 @@ TEMPLATE = """{% macro result(key, unit="") %}
     <form method="POST" action="/#pbw">
       <input type="hidden" name="calc" value="pbw">
       {{ num("pbw_ht", "Height (cm)", "170", "0.1") }}
-      <div class="field"><label>Sex</label>
-        <select name="pbw_sex">
-          <option value="male" {% if form.pbw_sex == 'male' %}selected{% endif %}>Male</option>
-          <option value="female" {% if form.pbw_sex == 'female' %}selected{% endif %}>Female</option>
-        </select>
-      </div>
+      {{ sel("pbw_sex", "Sex", [("male", "Male"), ("female", "Female")]) }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("pbw", "kg") }}
@@ -298,12 +297,7 @@ TEMPLATE = """{% macro result(key, unit="") %}
       <input type="hidden" name="calc" value="fwd">
       {{ num("fwd_na", "Sodium Na⁺ (mEq/L)", "160") }}
       {{ num("fwd_wt", "Weight (kg)", "70", "0.1") }}
-      <div class="field"><label>Sex</label>
-        <select name="fwd_sex">
-          <option value="male" {% if form.fwd_sex == 'male' %}selected{% endif %}>Male</option>
-          <option value="female" {% if form.fwd_sex == 'female' %}selected{% endif %}>Female</option>
-        </select>
-      </div>
+      {{ sel("fwd_sex", "Sex", [("male", "Male"), ("female", "Female")]) }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("fwd", "L") }}
@@ -329,12 +323,7 @@ TEMPLATE = """{% macro result(key, unit="") %}
       <input type="hidden" name="calc" value="qsofa">
       {{ num("qs_rr", "Respiratory Rate (breaths/min)", "18") }}
       {{ num("qs_sbp", "Systolic BP (mmHg)", "120") }}
-      <div class="field"><label>Altered mentation (GCS &lt; 15)</label>
-        <select name="qs_ams">
-          <option value="no" {% if form.qs_ams == 'no' %}selected{% endif %}>No</option>
-          <option value="yes" {% if form.qs_ams == 'yes' %}selected{% endif %}>Yes</option>
-        </select>
-      </div>
+      {{ sel("qs_ams", "Altered mentation (GCS < 15)", [("no", "No"), ("yes", "Yes")]) }}
       <button class="btn" type="submit">Calculate</button>
     </form>
     {{ result("qsofa", "/ 3") }}

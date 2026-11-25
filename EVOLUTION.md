@@ -133,3 +133,11 @@ idea: driving-pressure
 outcome: accepted
 metrics: lines=202 dead=-1 cap=1500 headroom=1298
 note: Added drivingPressure (Pplat − PEEP, cmH2O, throws if Pplat < PEEP) with two tests; four original formulas untouched, oracle 16/16 passing (lines = non-blank, non-comment in both files; prior-gen count methodology may differ slightly).
+---
+gen: 0016
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: static-compliance
+outcome: accepted
+metrics: lines=212 dead=-1 cap=1500 headroom=1288
+note: Added staticCompliance (Vt / (Pplat − PEEP), mL/cmH2O, throws if Pplat <= PEEP) with two tests; four original formulas untouched, oracle 16/16 passing.

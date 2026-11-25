@@ -204,3 +204,13 @@ outcome: accepted
 metrics: lines=607 dead=0
 note: creatinine_clearance silently accepted creatinine entered in mmol/L as mg/dL (0.088 for 1.0), reporting a tenfold CrCl of ~994 instead of ~87 mL/min and driving overdosing of renally cleared drugs; it now raises ValueError below 0.1 mg/dL with a conversion hint, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0021
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: crcl-reject-paediatric-age
+outcome: accepted
+metrics: lines=612 dead=0
+note: Cockcroft-Gault was derived and validated only in adults, yet ages 1–17 silently returned a confident adult CrCl (e.g. a 10-year-old) that could misdirect paediatric drug dosing; creatinine_clearance now raises ValueError below 18 years and the form sets min=18, leaving all adult outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

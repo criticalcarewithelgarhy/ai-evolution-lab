@@ -183,3 +183,12 @@ outcome: accepted
 metrics: lines=1452 dead=0
 note: Added Figge albumin-corrected anion gap (AG + 2.5 × (4.0 − albumin), normal 8–12) with 3 tests and Flask card that flags high AG acidosis masked by hypoalbuminaemia; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0018 exists locally only.
 ---
+---
+gen: breadth-0019
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: add Parkland burn formula
+outcome: accepted
+metrics: lines=1505 dead=0
+note: Added Parkland burn resuscitation (4 mL × kg × %TBSA over 24 h, half in first 8 h) with 3 tests and Flask card showing hourly rates and burn-size severity; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0019 exists locally only.
+---

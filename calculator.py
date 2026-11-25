@@ -27,6 +27,8 @@ def mean_arterial_pressure(systolic: float, diastolic: float) -> float:
         raise ValueError("Systolic above 300 mmHg is physiologically implausible")
     if systolic < 30:
         raise ValueError("Systolic below 30 mmHg is implausible — check for a typo")
+    if diastolic < 10:
+        raise ValueError("Diastolic below 10 mmHg is implausible — check for a typo")
     return round(diastolic + (systolic - diastolic) / 3, 1)
 
 

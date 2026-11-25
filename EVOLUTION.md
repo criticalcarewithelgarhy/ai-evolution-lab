@@ -172,3 +172,13 @@ outcome: accepted
 metrics: gen=0016 lines=308 dead=0 cap=1500 headroom=1192
 note: Added tidal_volume (mL/kg × PBW, default 6, bounded 4–8) reusing predicted_body_weight, with two tests, turning gen 0016's PBW into a directly usable ventilator setting.
 ---
+
+---
+gen: 0018
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: add ventilator driving pressure
+outcome: accepted
+metrics: gen=0017 lines=321 dead=0 cap=1500 headroom=1179
+note: Added driving_pressure (Pplat − PEEP, validated) with two tests, extending the lung-protective ventilation tools from gens 0016–0017 to a key ARDS mortality-linked target.
+---

@@ -85,6 +85,10 @@ def creatinine_clearance(
     _require_finite(age=age, weight=weight, creatinine=creatinine)
     if creatinine <= 0:
         raise ValueError("Creatinine must be positive")
+    if creatinine < 0.1:
+        # Below any physiological value in mg/dL; almost always mmol/L entered as mg/dL
+        # (0.088 mmol/L read as mg/dL reports CrCl ~994 instead of ~87 mL/min -> overdosing)
+        raise ValueError("Creatinine must be at least 0.1 mg/dL (convert mmol/L × 11.31)")
     if creatinine > 40:
         # Above any recorded value in mg/dL; almost always µmol/L entered as mg/dL
         # (88 µmol/L read as 88 mg/dL reports CrCl ~1 instead of ~87 mL/min)

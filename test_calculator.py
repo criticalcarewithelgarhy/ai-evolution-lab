@@ -280,3 +280,12 @@ def test_crcl_dosing_weight_rejects_impossible_weight(w):
     with pytest.raises(ValueError):
         crcl_dosing_weight(w, 177.8, "male")
     assert crcl_dosing_weight(650, 177.8, "male") == (303.8, "adjusted")
+
+
+def test_crcl_creatinine_lower_bound():
+    # mmol/L entered as mg/dL (0.088 for 1.0) would silently report a ~tenfold CrCl
+    # and drive overdosing of renally cleared drugs
+    for cr in (0.088, 0.05, 0.099):
+        with pytest.raises(ValueError):
+            creatinine_clearance(50, 70, cr, "male")
+    assert creatinine_clearance(50, 72, 0.1, "male") == 900.0

@@ -202,3 +202,12 @@ outcome: accepted
 metrics: lines=894 dead=0
 note: Added sf_ratio() (SpO2 / FiO2, Rice 2007) with 3 tests and a 19th app card mapping S/F 235/315 to P/F 200/300 as a non-invasive oxygenation surrogate, flagging SpO2 > 97% as unreliable; tag gen-0020 was not pushed (git proxy refused tag push).
 ---
+---
+gen: 0021
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: add static compliance
+outcome: accepted
+metrics: lines=930 dead=0
+note: Added static_compliance() (VT / (Pplat − PEEP)) with 3 tests and a 20th app card flagging < 40 mL/cmH2O as reduced and < 20 as severely reduced compliance, complementing the driving-pressure card; tag gen-0021 was not pushed (git proxy refused tag push).
+---

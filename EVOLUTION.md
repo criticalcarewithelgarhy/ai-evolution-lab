@@ -194,3 +194,13 @@ outcome: accepted
 metrics: lines=600 dead=0
 note: crcl_dosing_weight silently returned impossible dosing weights (0 or -60 kg as "actual", 700 kg as a huge "adjusted" weight) to direct callers; it now raises ValueError outside 0 < weight <= 650 kg, matching creatinine_clearance, with no change to any formula output (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0020
+date: 2026-11-25
+model: claude-sonnet-4-6
+idea: validate-creatinine-lower-bound
+outcome: accepted
+metrics: lines=607 dead=0
+note: creatinine_clearance silently accepted creatinine entered in mmol/L as mg/dL (0.088 for 1.0), reporting a tenfold CrCl of ~994 instead of ~87 mL/min and driving overdosing of renally cleared drugs; it now raises ValueError below 0.1 mg/dL with a conversion hint, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

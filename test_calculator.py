@@ -271,3 +271,12 @@ def test_crcl_adjusted_in_app():
     assert "187.5" in html and "adjusted body weight 103.8 kg: CrCl 129.8" in html
     data["height"] = ""
     assert "body weight" not in c.post("/", data=data).get_data(as_text=True)
+
+
+@pytest.mark.parametrize("w", [0, -60, 700, float("inf")])
+def test_crcl_dosing_weight_rejects_impossible_weight(w):
+    # Previously returned (w, "actual") or a huge "adjusted" weight silently
+    from calculator import crcl_dosing_weight
+    with pytest.raises(ValueError):
+        crcl_dosing_weight(w, 177.8, "male")
+    assert crcl_dosing_weight(650, 177.8, "male") == (303.8, "adjusted")

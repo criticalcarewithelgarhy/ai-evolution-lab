@@ -173,3 +173,11 @@ idea: dead-space-fraction
 outcome: accepted
 metrics: lines=254 dead=-1 cap=1500 headroom=1246
 note: Added deadSpaceFraction (Enghoff Vd/Vt = (PaCO2 − PECO2)/PaCO2, rounded to 2 dp, throws if PaCO2 <= 0 or PECO2 outside [0, PaCO2]) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0021
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: arterial-oxygen-content
+outcome: accepted
+metrics: lines=264 dead=-1 cap=1500 headroom=1236
+note: Added arterialOxygenContent (CaO2 = 1.34 × Hb × SaO2/100 + 0.003 × PaO2, mL/dL, rounded to 1 dp, throws if SaO2 outside [0, 100]) with two tests; four original formulas untouched, oracle 16/16 passing.

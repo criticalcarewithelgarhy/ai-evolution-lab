@@ -248,3 +248,12 @@ outcome: accepted
 metrics: lines=886 dead=0
 note: Added fractional_excretion_sodium() ((UNa × PCr)/(PNa × UCr) × 100) with 3 tests and a 23rd app card flagging < 1% as prerenal and > 2% as intrinsic renal AKI, complementing the CrCl card for AKI work-up.
 ---
+---
+gen: 0026
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add fractional excretion urea
+outcome: accepted
+metrics: lines=916 dead=0
+note: Added fractional_excretion_urea() ((UUrea × PCr)/(PUrea × UCr) × 100) with 3 tests and a 24th app card flagging < 35% as prerenal and > 50% as intrinsic renal AKI, complementing FENa in patients on diuretics; tag gen-0026 was not pushed (git proxy refused tag push).
+---

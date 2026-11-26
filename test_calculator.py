@@ -26,6 +26,7 @@ from calculator import (
     driving_pressure,
     static_compliance,
     oxygenation_index,
+    rox_index,
     DISCLAIMER,
 )
 
@@ -246,3 +247,13 @@ def test_oxygenation_index_ards():
 def test_oxygenation_index_bad_fio2():
     with pytest.raises(ValueError):
         oxygenation_index(80, 1.5, 20)
+
+
+def test_rox_index_hfnc():
+    # SpO2 92, FiO2 0.5, RR 25 → 184 / 25 = 7.36
+    assert rox_index(92, 0.5, 25) == 7.36
+
+
+def test_rox_index_bad_spo2():
+    with pytest.raises(ValueError):
+        rox_index(0, 0.5, 25)

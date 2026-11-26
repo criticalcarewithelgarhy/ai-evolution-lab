@@ -187,3 +187,12 @@ def oxygenation_index(pao2: float, fio2: float, mean_airway_pressure: float) -> 
         raise ValueError("Mean airway pressure must be positive")
     pf_ratio(pao2, fio2)  # validates PaO2 and FiO2
     return round(fio2 * 100 * mean_airway_pressure / pao2, 1)
+
+
+def rox_index(spo2: float, fio2: float, respiratory_rate: float) -> float:
+    """ROX = (SpO2 / FiO2) / RR; >= 4.88 at 12 h predicts HFNC success"""
+    if not (0 < spo2 <= 100) or respiratory_rate <= 0:
+        raise ValueError("SpO2 must be 0-100 and respiratory rate positive")
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+    return round(spo2 / fio2 / respiratory_rate, 2)

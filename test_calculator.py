@@ -7,6 +7,7 @@ A generation that breaks any test is rejected entirely.
 import pytest
 from calculator import (
     has_bled,
+    meld_na,
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
@@ -523,3 +524,24 @@ def test_has_bled_max():
 def test_has_bled_bad_age():
     with pytest.raises(ValueError):
         has_bled(0, 0, 0, 0, 0, 0, -1, 0, 0)
+
+
+def test_meld_na_floor():
+    # all values at lower bounds: 6.43 -> 6; MELD <= 11 so no sodium adjustment
+    assert meld_na(0.5, 0.5, 0.9, 140) == 6
+
+
+def test_meld_na_sodium_adjusted():
+    # MELD = 25; Na 130 -> 25 + 1.32*7 - 0.033*25*7 = 28.465 -> 28
+    assert meld_na(2, 3, 2, 130) == 28
+
+
+def test_meld_na_dialysis_and_cap():
+    # dialysis forces Cr to 4.0; very high bilirubin/INR capped at 40
+    assert meld_na(1.0, 1, 1, 137, dialysis=1) == meld_na(4.0, 1, 1, 137)
+    assert meld_na(10, 40, 8, 120) == 40
+
+
+def test_meld_na_bad_input():
+    with pytest.raises(ValueError):
+        meld_na(0, 1, 1, 137)

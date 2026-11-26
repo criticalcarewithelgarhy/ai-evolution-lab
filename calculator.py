@@ -382,3 +382,26 @@ def has_bled(hypertension: int, renal: int, liver: int, stroke: int, bleeding: i
         raise ValueError("Age must be non-negative")
     flags = (hypertension, renal, liver, stroke, bleeding, labile_inr, drugs, alcohol)
     return sum(int(bool(f)) for f in flags) + (1 if age > 65 else 0)
+
+
+def meld_na(creatinine: float, bilirubin: float, inr: float, sodium: float, dialysis: int = 0) -> int:
+    """
+    MELD-Na (UNOS 2016) — end-stage liver disease mortality / transplant priority (6–40).
+    MELD = 9.57 ln(Cr) + 3.78 ln(bilirubin) + 11.2 ln(INR) + 6.43, rounded to integer.
+    If MELD > 11: MELD-Na = MELD + 1.32 × (137 − Na) − 0.033 × MELD × (137 − Na).
+    Bounds: Cr, bilirubin, INR floored at 1.0; Cr capped at 4.0 (set to 4.0 if dialysis ≥ 2×/week
+    or CVVHD in past week); Na bounded 125–137; result capped at 40.
+    creatinine and bilirubin in mg/dL, sodium in mEq/L.
+    """
+    if creatinine <= 0 or bilirubin <= 0 or inr <= 0:
+        raise ValueError("Creatinine, bilirubin and INR must be positive")
+    if sodium <= 0:
+        raise ValueError("Sodium must be positive")
+    import math
+    cr = 4.0 if dialysis else min(max(creatinine, 1.0), 4.0)
+    bili, inr_b = max(bilirubin, 1.0), max(inr, 1.0)
+    na = min(max(sodium, 125.0), 137.0)
+    meld = round(9.57 * math.log(cr) + 3.78 * math.log(bili) + 11.2 * math.log(inr_b) + 6.43)
+    if meld > 11:
+        meld = round(meld + 1.32 * (137 - na) - 0.033 * meld * (137 - na))
+    return min(meld, 40)

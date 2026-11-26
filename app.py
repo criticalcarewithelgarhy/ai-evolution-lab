@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -883,10 +883,40 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>MELD-Na (end-stage liver disease)</h2>
+    <div class="formula">MELD = 9.57 ln Cr + 3.78 ln Bili + 11.2 ln INR + 6.43; if &gt; 11: + 1.32(137 − Na) − 0.033·MELD(137 − Na)</div>
+    <form method="POST" action="/#meld">
+      <input type="hidden" name="calc" value="meld">
+      <div class="field"><label>Creatinine (mg/dL)</label>
+        <input type="number" step="any" name="meld_cr" value="{{ form.meld_cr or '' }}" placeholder="1.2"></div>
+      <div class="field"><label>Total bilirubin (mg/dL)</label>
+        <input type="number" step="any" name="meld_bili" value="{{ form.meld_bili or '' }}" placeholder="2.0"></div>
+      <div class="field"><label>INR</label>
+        <input type="number" step="any" name="meld_inr" value="{{ form.meld_inr or '' }}" placeholder="1.5"></div>
+      <div class="field"><label>Sodium (mEq/L)</label>
+        <input type="number" step="any" name="meld_na" value="{{ form.meld_na or '' }}" placeholder="135"></div>
+      <div class="field"><label>Dialysis ≥ 2×/week or CVVHD in past week</label>
+        <select name="meld_dial">
+          <option value="0" {% if form.meld_dial != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.meld_dial == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.meld is defined %}
+    <div class="result" id="meld">
+      <span class="val">{{ results.meld }}</span><span class="unit">/ 40</span>
+      <div class="interp {{ results.meld_cls }}">{{ results.meld_interp }}</div>
+    </div>
+    {% elif results.meld_error is defined %}
+    <div class="error">{{ results.meld_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0024 · 2026-11-26 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED</span>
+  <span>gen-breadth-0025 · 2026-11-26 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1076,6 +1106,13 @@ def _hasbled_interp(v):
     if v <= 1: return f"Score {v} — Low bleeding risk", "normal"
     if v == 2: return f"Score {v} — Moderate bleeding risk; address modifiable factors", "warn"
     return f"Score {v} — High bleeding risk (≥ 3): correct modifiable factors and review closely; not alone a reason to withhold anticoagulation", "crit"
+
+
+def _meld_interp(v):
+    if v < 10: return f"Score {v} — ~2% 3-month mortality", "normal"
+    if v < 20: return f"Score {v} — ~6% 3-month mortality", "warn"
+    if v < 30: return f"Score {v} — ~20% 3-month mortality; transplant evaluation", "crit"
+    return f"Score {v} — ≥ 50% 3-month mortality; urgent transplant evaluation", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1346,6 +1383,15 @@ def index():
             results.update(hasbled=v, hasbled_interp=interp, hasbled_cls=cls)
         except Exception as e:
             results["hasbled_error"] = str(e)
+
+    elif calc == "meld":
+        try:
+            v = meld_na(float(form["meld_cr"]), float(form["meld_bili"]), float(form["meld_inr"]),
+                        float(form["meld_na"]), int(form.get("meld_dial", 0)))
+            interp, cls = _meld_interp(v)
+            results.update(meld=v, meld_interp=interp, meld_cls=cls)
+        except Exception as e:
+            results["meld_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

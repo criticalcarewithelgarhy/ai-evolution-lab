@@ -63,6 +63,8 @@ def anion_gap(sodium: float, chloride: float, bicarbonate: float) -> float:
         raise ValueError("Bicarbonate above 60 mEq/L is implausible — check for a typo")
     if bicarbonate < 2:
         raise ValueError("Bicarbonate below 2 mEq/L is implausible — check for a typo")
+    if chloride + bicarbonate > sodium + 10:
+        raise ValueError("Cl⁻ + HCO₃⁻ exceeds Na⁺ by more than 10 mEq/L — check for a typo or lab error")
     return round(sodium - (chloride + bicarbonate), 1)
 
 

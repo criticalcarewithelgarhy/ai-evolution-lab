@@ -179,3 +179,11 @@ def static_compliance(tidal_volume_ml: float, plateau: float, peep: float) -> fl
     if dp == 0:
         raise ValueError("Plateau must exceed PEEP")
     return round(tidal_volume_ml / dp, 1)
+
+
+def oxygenation_index(pao2: float, fio2: float, mean_airway_pressure: float) -> float:
+    """OI = FiO2 * 100 * mean airway pressure / PaO2; > 25 suggests severe hypoxaemia"""
+    if mean_airway_pressure <= 0:
+        raise ValueError("Mean airway pressure must be positive")
+    pf_ratio(pao2, fio2)  # validates PaO2 and FiO2
+    return round(fio2 * 100 * mean_airway_pressure / pao2, 1)

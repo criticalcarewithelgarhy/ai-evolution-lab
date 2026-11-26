@@ -25,6 +25,7 @@ from calculator import (
     tidal_volume,
     driving_pressure,
     static_compliance,
+    oxygenation_index,
     DISCLAIMER,
 )
 
@@ -235,3 +236,13 @@ def test_static_compliance_ards():
 def test_static_compliance_zero_driving_pressure():
     with pytest.raises(ValueError):
         static_compliance(420, 10, 10)
+
+
+def test_oxygenation_index_ards():
+    # FiO2 0.8, mPaw 20, PaO2 80 → 0.8 × 100 × 20 / 80 = 20.0
+    assert oxygenation_index(80, 0.8, 20) == 20.0
+
+
+def test_oxygenation_index_bad_fio2():
+    with pytest.raises(ValueError):
+        oxygenation_index(80, 1.5, 20)

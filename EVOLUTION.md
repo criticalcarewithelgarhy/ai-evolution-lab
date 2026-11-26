@@ -202,3 +202,13 @@ outcome: accepted
 metrics: gen=0019 lines=347 dead=0 cap=1500 headroom=1153
 note: Added oxygenation_index (FiO2 × 100 × mean airway pressure / PaO2) reusing pf_ratio for validation, with two tests, capturing ventilator pressure cost of oxygenation alongside the gen 0016–0019 ventilation tools.
 ---
+
+---
+gen: 0021
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add ROX index
+outcome: accepted
+metrics: gen=0020 lines=360 dead=0 cap=1500 headroom=1140
+note: Added rox_index ((SpO2 / FiO2) / RR, validated) with two tests, giving a bedside predictor of high-flow nasal cannula success to complement the oxygenation and ventilation tools.
+---

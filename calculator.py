@@ -364,6 +364,19 @@ def arterial_oxygen_content(hemoglobin: float, sao2: float, pao2: float) -> floa
     return round(1.34 * hemoglobin * sao2 / 100 + 0.003 * pao2, 1)
 
 
+def oxygen_delivery(cardiac_output: float, cao2: float) -> float:
+    """
+    Systemic oxygen delivery (DO2, mL O2/min) = CO × CaO2 × 10.
+    cardiac_output in L/min, cao2 in mL O2/dL (×10 converts dL to L).
+    Normal ≈ 900–1100 mL/min at rest.
+    """
+    if cardiac_output < 0:
+        raise ValueError("Cardiac output must be non-negative")
+    if cao2 < 0:
+        raise ValueError("CaO2 must be non-negative")
+    return round(cardiac_output * cao2 * 10, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

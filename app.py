@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -671,6 +671,32 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Oxygen Delivery (DO₂)</h2>
+    <div class="formula">DO₂ = CO × (1.34 × Hb × SaO₂ + 0.003 × PaO₂) × 10</div>
+    <form method="POST" action="/#do2">
+      <input type="hidden" name="calc" value="do2">
+      <div class="field"><label>Cardiac Output (L/min)</label>
+        <input type="number" name="do2_co" step="0.1" value="{{ form.do2_co or '' }}" placeholder="5"></div>
+      <div class="field"><label>Haemoglobin (g/dL)</label>
+        <input type="number" name="do2_hb" step="0.1" value="{{ form.do2_hb or '' }}" placeholder="12"></div>
+      <div class="field"><label>SaO₂ (%)</label>
+        <input type="number" name="do2_sao2" step="0.1" value="{{ form.do2_sao2 or '' }}" placeholder="97"></div>
+      <div class="field"><label>PaO₂ (mmHg)</label>
+        <input type="number" name="do2_pao2" value="{{ form.do2_pao2 or '' }}" placeholder="90"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.do2 is defined %}
+    <div class="result" id="do2">
+      <span class="val">{{ results.do2 }}</span><span class="unit">mL O₂/min</span>
+      <div class="interp {{ results.do2_cls }}">{{ results.do2_interp }}</div>
+      <div class="interp">CaO₂: {{ results.do2_cao2 }} mL O₂/dL</div>
+    </div>
+    {% elif results.do2_error is defined %}
+    <div class="error">{{ results.do2_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -702,7 +728,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0024 · 2026-11-26 · Added: Arterial O₂ Content</span>
+  <span>gen-wild-0025 · 2026-11-26 · Added: Oxygen Delivery (DO₂)</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -839,6 +865,11 @@ def _cao2_interp(v):
     if v < 12:   return "< 12 mL/dL — markedly reduced O₂ content (anaemia / hypoxaemia)", "crit"
     if v < 16:   return "12–16 mL/dL — reduced O₂ content", "warn"
     return "≥ 16 mL/dL — normal (≈ 16–22 mL/dL)", "normal"
+
+def _do2_interp(v):
+    if v < 600:  return "< 600 mL/min — critically low O₂ delivery (shock / severe anaemia)", "crit"
+    if v < 900:  return "600–900 mL/min — reduced O₂ delivery", "warn"
+    return "≥ 900 mL/min — normal resting O₂ delivery (≈ 900–1100)", "normal"
 
 
 def _crcl_interp(v):
@@ -1082,6 +1113,17 @@ def index():
             results.update(cao2=v, cao2_interp=interp, cao2_cls=cls)
         except Exception as e:
             results["cao2_error"] = str(e)
+
+    elif calc == "do2":
+        try:
+            cao2 = arterial_oxygen_content(
+                float(form["do2_hb"]), float(form["do2_sao2"]), float(form["do2_pao2"]),
+            )
+            v = oxygen_delivery(float(form["do2_co"]), cao2)
+            interp, cls = _do2_interp(v)
+            results.update(do2=v, do2_cao2=cao2, do2_interp=interp, do2_cls=cls)
+        except Exception as e:
+            results["do2_error"] = str(e)
 
     elif calc == "crcl":
         try:

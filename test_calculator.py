@@ -33,6 +33,7 @@ from calculator import (
     ventilatory_ratio,
     dead_space_fraction,
     arterial_oxygen_content,
+    oxygen_delivery,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -457,3 +458,18 @@ def test_crcl_bad_creatinine():
 
 def test_disclaimer_present():
     assert "NOT FOR CLINICAL USE" in DISCLAIMER
+
+
+def test_oxygen_delivery_normal():
+    # CO 5 L/min, CaO2 20 mL/dL → 5 × 20 × 10 = 1000
+    assert oxygen_delivery(5, 20) == 1000.0
+
+
+def test_oxygen_delivery_low():
+    # CO 3.2 L/min, CaO2 11.5 mL/dL → 368.0
+    assert oxygen_delivery(3.2, 11.5) == 368.0
+
+
+def test_oxygen_delivery_bad_co():
+    with pytest.raises(ValueError):
+        oxygen_delivery(-1, 20)

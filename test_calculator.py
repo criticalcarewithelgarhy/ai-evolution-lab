@@ -6,6 +6,7 @@ A generation that breaks any test is rejected entirely.
 
 import pytest
 from calculator import (
+    fractional_excretion_sodium,
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
@@ -364,3 +365,20 @@ def test_qtc_bad_inputs():
         qtc_bazett(400, 0)
     with pytest.raises(ValueError):
         qtc_bazett(0, 60)
+
+
+def test_fena_prerenal():
+    # UNa 10, PNa 140, UCr 100, PCr 2 → 10×2/(140×100)×100 = 0.14
+    assert fractional_excretion_sodium(10, 140, 100, 2) == 0.14
+
+
+def test_fena_atn():
+    # UNa 60, PNa 135, UCr 40, PCr 3 → 60×3/(135×40)×100 = 3.33
+    assert fractional_excretion_sodium(60, 135, 40, 3) == 3.33
+
+
+def test_fena_bad_inputs():
+    with pytest.raises(ValueError):
+        fractional_excretion_sodium(20, 140, 0, 2)
+    with pytest.raises(ValueError):
+        fractional_excretion_sodium(20, 0, 50, 2)

@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -260,10 +260,17 @@ TEMPLATE = """{% macro result(key, unit="") %}
       {{ num("qtc_hr", "Heart Rate (bpm)", "75") }}
   {% endcall %}
 
+  {% call card("fena", "Fractional Excretion of Sodium", "FENa = (U<sub>Na</sub> × P<sub>Cr</sub>) / (P<sub>Na</sub> × U<sub>Cr</sub>) × 100", "%") %}
+      {{ num("fena_una", "Urine Sodium (mEq/L)", "20") }}
+      {{ num("fena_pna", "Plasma Sodium (mEq/L)", "140") }}
+      {{ num("fena_ucr", "Urine Creatinine (mg/dL)", "80", "0.1") }}
+      {{ num("fena_pcr", "Plasma Creatinine (mg/dL)", "2.0", "0.1") }}
+  {% endcall %}
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -386,6 +393,11 @@ def _qtc_interp(v):
     if v <= 500: return "450–500 ms — prolonged, review QT-prolonging drugs and K⁺/Mg²⁺", "warn"
     return "> 500 ms — high torsades risk", "crit"
 
+def _fena_interp(v):
+    if v < 1:   return "< 1% — suggests prerenal AKI (unreliable on diuretics)", "warn"
+    if v <= 2:  return "1–2% — indeterminate", "warn"
+    return "> 2% — suggests intrinsic renal injury (e.g. ATN)", "crit"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -445,6 +457,8 @@ CALCS = {
              lambda v, f: _rsbi_interp(v)),
     "qtc": (lambda f: qtc_bazett(_n(f, "qtc_qt"), _n(f, "qtc_hr")),
             lambda v, f: _qtc_interp(v)),
+    "fena": (lambda f: fractional_excretion_sodium(_n(f, "fena_una"), _n(f, "fena_pna"), _n(f, "fena_ucr"), _n(f, "fena_pcr")),
+             lambda v, f: _fena_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

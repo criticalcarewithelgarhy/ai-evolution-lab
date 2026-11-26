@@ -221,6 +221,16 @@ def qtc_bazett(qt_ms: float, heart_rate: float) -> float:
     return round(qt_ms / (60 / heart_rate) ** 0.5, 1)
 
 
+def fractional_excretion_sodium(urine_na: float, plasma_na: float, urine_cr: float, plasma_cr: float) -> float:
+    """
+    FENa (%) = (UNa × PCr) / (PNa × UCr) × 100. Na in mEq/L, Cr in mg/dL (same units urine/plasma).
+    < 1% suggests prerenal AKI; > 2% suggests intrinsic renal (e.g. ATN). Unreliable on diuretics.
+    """
+    if plasma_na <= 0 or urine_cr <= 0 or urine_na < 0 or plasma_cr < 0:
+        raise ValueError("Plasma Na and urine Cr must be positive; others non-negative")
+    return round(urine_na * plasma_cr / (plasma_na * urine_cr) * 100, 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

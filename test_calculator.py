@@ -24,6 +24,7 @@ from calculator import (
     predicted_body_weight,
     tidal_volume,
     driving_pressure,
+    static_compliance,
     DISCLAIMER,
 )
 
@@ -224,3 +225,13 @@ def test_driving_pressure_typical():
 def test_driving_pressure_bad_input():
     with pytest.raises(ValueError):
         driving_pressure(8, 10)
+
+
+def test_static_compliance_ards():
+    # Vt 420, Pplat 28, PEEP 10 → 420 / 18 = 23.3 mL/cmH2O
+    assert static_compliance(420, 28, 10) == 23.3
+
+
+def test_static_compliance_zero_driving_pressure():
+    with pytest.raises(ValueError):
+        static_compliance(420, 10, 10)

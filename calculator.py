@@ -169,3 +169,13 @@ def driving_pressure(plateau: float, peep: float) -> float:
     if plateau < peep:
         raise ValueError("Plateau must be >= PEEP")
     return round(plateau - peep, 1)
+
+
+def static_compliance(tidal_volume_ml: float, plateau: float, peep: float) -> float:
+    """Static compliance (mL/cmH2O) = Vt / (Pplat - PEEP); normal ~50-100"""
+    if tidal_volume_ml <= 0:
+        raise ValueError("Tidal volume must be positive")
+    dp = driving_pressure(plateau, peep)
+    if dp == 0:
+        raise ValueError("Plateau must exceed PEEP")
+    return round(tidal_volume_ml / dp, 1)

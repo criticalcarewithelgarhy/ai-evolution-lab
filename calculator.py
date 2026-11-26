@@ -35,6 +35,10 @@ def pf_ratio(pao2: float, fio2: float) -> float:
         raise ValueError("FiO2 must be between 0.21 (room air) and 1.0")
     if pao2 <= 0:
         raise ValueError("PaO2 must be positive")
+    if pao2 < 15:
+        # Below the lowest recorded arterial PaO2 in a conscious human (~19 mmHg, Everest);
+        # almost always a dropped-digit typo (8 for 80 reports P/F 38, a false severe ARDS)
+        raise ValueError("PaO2 must be at least 15 mmHg")
     if pao2 > 800:
         # Alveolar gas equation caps PaO2 near 670 mmHg on 100% O2 at sea level;
         # higher values are almost always an extra-digit typo (850 for 85)

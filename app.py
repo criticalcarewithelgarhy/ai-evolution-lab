@@ -108,7 +108,7 @@ TEMPLATE = """<!DOCTYPE html>
     <form method="POST" action="/#pf">
       <input type="hidden" name="calc" value="pf">
       <div class="field"><label>PaO₂ (mmHg)</label>
-        <input type="number" step="any" name="pao2" value="{{ form.pao2 or '' }}" placeholder="100"></div>
+        <input type="number" step="any" name="pao2" value="{{ form.pao2 or '' }}" placeholder="100" min="15" max="800"></div>
       <div class="field"><label>FiO₂ (0.21 – 1.0)</label>
         <input type="number" step="any" name="fio2" value="{{ form.fio2 or '' }}" placeholder="0.21"></div>
       <button class="btn" type="submit">Calculate</button>

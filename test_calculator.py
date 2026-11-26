@@ -326,3 +326,11 @@ def test_corrected_anion_gap_albumin_lower_bound(alb):
     with pytest.raises(ValueError):
         corrected_anion_gap(140, 104, 24, alb)
     assert corrected_anion_gap(140, 104, 24, 0.5) == 20.8
+
+
+@pytest.mark.parametrize("pao2", [1, 8, 14.9])
+def test_pf_ratio_pao2_lower_bound(pao2):
+    # Dropped-digit typo (8 for 80) previously returned P/F 38, a false severe ARDS
+    with pytest.raises(ValueError):
+        pf_ratio(pao2, 0.21)
+    assert pf_ratio(15, 1.0) == 15.0

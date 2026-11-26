@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, fractional_excretion_urea, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -267,10 +267,17 @@ TEMPLATE = """{% macro result(key, unit="") %}
       {{ num("fena_pcr", "Plasma Creatinine (mg/dL)", "2.0", "0.1") }}
   {% endcall %}
 
+  {% call card("feu", "Fractional Excretion of Urea", "FEUrea = (U<sub>Urea</sub> × P<sub>Cr</sub>) / (P<sub>Urea</sub> × U<sub>Cr</sub>) × 100", "%") %}
+      {{ num("feu_uu", "Urine Urea Nitrogen (mg/dL)", "300") }}
+      {{ num("feu_pu", "Blood Urea Nitrogen (mg/dL)", "40") }}
+      {{ num("feu_ucr", "Urine Creatinine (mg/dL)", "80", "0.1") }}
+      {{ num("feu_pcr", "Plasma Creatinine (mg/dL)", "2.0", "0.1") }}
+  {% endcall %}
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa · FEUrea</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -398,6 +405,11 @@ def _fena_interp(v):
     if v <= 2:  return "1–2% — indeterminate", "warn"
     return "> 2% — suggests intrinsic renal injury (e.g. ATN)", "crit"
 
+def _feu_interp(v):
+    if v < 35:  return "< 35% — suggests prerenal AKI (valid on diuretics)", "warn"
+    if v <= 50: return "35–50% — indeterminate", "warn"
+    return "> 50% — suggests intrinsic renal injury (e.g. ATN)", "crit"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -459,6 +471,8 @@ CALCS = {
             lambda v, f: _qtc_interp(v)),
     "fena": (lambda f: fractional_excretion_sodium(_n(f, "fena_una"), _n(f, "fena_pna"), _n(f, "fena_ucr"), _n(f, "fena_pcr")),
              lambda v, f: _fena_interp(v)),
+    "feu": (lambda f: fractional_excretion_urea(_n(f, "feu_uu"), _n(f, "feu_pu"), _n(f, "feu_ucr"), _n(f, "feu_pcr")),
+            lambda v, f: _feu_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

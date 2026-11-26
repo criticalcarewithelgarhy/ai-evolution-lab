@@ -231,6 +231,16 @@ def fractional_excretion_sodium(urine_na: float, plasma_na: float, urine_cr: flo
     return round(urine_na * plasma_cr / (plasma_na * urine_cr) * 100, 2)
 
 
+def fractional_excretion_urea(urine_urea: float, plasma_urea: float, urine_cr: float, plasma_cr: float) -> float:
+    """
+    FEUrea (%) = (UUrea × PCr) / (PUrea × UCr) × 100. Urea/BUN in mg/dL, Cr in mg/dL (same units urine/plasma).
+    < 35% suggests prerenal AKI; > 50% suggests intrinsic renal. Preferred over FENa in patients on diuretics.
+    """
+    if plasma_urea <= 0 or urine_cr <= 0 or urine_urea < 0 or plasma_cr < 0:
+        raise ValueError("Plasma urea and urine Cr must be positive; others non-negative")
+    return round(urine_urea * plasma_cr / (plasma_urea * urine_cr) * 100, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

@@ -7,6 +7,7 @@ A generation that breaks any test is rejected entirely.
 import pytest
 from calculator import (
     fractional_excretion_sodium,
+    fractional_excretion_urea,
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
@@ -382,3 +383,20 @@ def test_fena_bad_inputs():
         fractional_excretion_sodium(20, 140, 0, 2)
     with pytest.raises(ValueError):
         fractional_excretion_sodium(20, 0, 50, 2)
+
+
+def test_feurea_prerenal():
+    # UUrea 500, PUrea 50, UCr 100, PCr 2 → 500×2/(50×100)×100 = 20.0
+    assert fractional_excretion_urea(500, 50, 100, 2) == 20.0
+
+
+def test_feurea_atn():
+    # UUrea 300, PUrea 60, UCr 40, PCr 5 → 300×5/(60×40)×100 = 62.5
+    assert fractional_excretion_urea(300, 60, 40, 5) == 62.5
+
+
+def test_feurea_bad_inputs():
+    with pytest.raises(ValueError):
+        fractional_excretion_urea(300, 40, 0, 2)
+    with pytest.raises(ValueError):
+        fractional_excretion_urea(300, 0, 80, 2)

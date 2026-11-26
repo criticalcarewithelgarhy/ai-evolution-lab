@@ -111,6 +111,10 @@ def creatinine_clearance(
         raise ValueError("Age must be between 18 and 120 years (Cockcroft-Gault is adult-only)")
     if weight <= 0:
         raise ValueError("Weight must be positive")
+    if weight < 20:
+        # Below the lightest recorded surviving adults (~21 kg); almost always a dropped-digit
+        # typo (7 for 70 kg reports CrCl 8.8, a false kidney-failure label -> underdosing)
+        raise ValueError("Weight must be at least 20 kg for an adult")
     if weight > 650:
         # Above the heaviest recorded human; almost always an extra-digit typo (700 for 70)
         raise ValueError("Weight must not exceed 650 kg")

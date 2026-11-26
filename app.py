@@ -159,7 +159,7 @@ TEMPLATE = """<!DOCTYPE html>
       <div class="field"><label>Age (years)</label>
         <input type="number" step="any" name="age" value="{{ form.age or '' }}" placeholder="50" min="18"></div>
       <div class="field"><label>Weight (kg)</label>
-        <input type="number" step="any" name="weight" value="{{ form.weight or '' }}" placeholder="70"></div>
+        <input type="number" step="any" name="weight" value="{{ form.weight or '' }}" placeholder="70" min="20" max="650"></div>
       <div class="field"><label>Serum Creatinine (mg/dL)</label>
         <input type="number" step="any" name="creatinine" value="{{ form.creatinine or '' }}" placeholder="1.0"></div>
       <div class="field"><label>Height (cm, optional — weight-adjusted CrCl)</label>

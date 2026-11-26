@@ -334,3 +334,11 @@ def test_pf_ratio_pao2_lower_bound(pao2):
     with pytest.raises(ValueError):
         pf_ratio(pao2, 0.21)
     assert pf_ratio(15, 1.0) == 15.0
+
+
+@pytest.mark.parametrize("w", [7, 1, 19.9])
+def test_crcl_weight_lower_bound(w):
+    # Dropped-digit typo (7 for 70 kg) previously returned CrCl 8.8, a false kidney failure
+    with pytest.raises(ValueError):
+        creatinine_clearance(50, w, 1.0, "male")
+    assert creatinine_clearance(50, 20, 1.0, "male") == 25.0

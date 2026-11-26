@@ -317,3 +317,12 @@ def test_anion_gap_sodium_lower_bound(na):
     with pytest.raises(ValueError):
         anion_gap(na, 104, 24)
     assert anion_gap(80, 60, 10) == 10.0
+
+
+@pytest.mark.parametrize("alb", [0.04, 0.4, 0.49])
+def test_corrected_anion_gap_albumin_lower_bound(alb):
+    # Decimal-slip albumin (0.4 for 4.0) would add a false +9 mEq/L to a normal AG
+    from calculator import corrected_anion_gap
+    with pytest.raises(ValueError):
+        corrected_anion_gap(140, 104, 24, alb)
+    assert corrected_anion_gap(140, 104, 24, 0.5) == 20.8

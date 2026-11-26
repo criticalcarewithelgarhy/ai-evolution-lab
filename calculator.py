@@ -47,6 +47,10 @@ def anion_gap(sodium: float, chloride: float, bicarbonate: float) -> float:
     _require_finite(sodium=sodium, chloride=chloride, bicarbonate=bicarbonate)
     if sodium <= 0:
         raise ValueError("Sodium must be positive")
+    if sodium < 80:
+        # Below any survivable recorded value (~85); almost always a dropped-digit typo
+        # (14 for 140 reports a false AG of -114, masking a real high-AG acidosis)
+        raise ValueError("Sodium must be at least 80 mEq/L")
     if sodium > 250:
         # Above any survivable recorded value (~255); almost always an extra-digit typo (1400 for 140)
         raise ValueError("Sodium must not exceed 250 mEq/L")

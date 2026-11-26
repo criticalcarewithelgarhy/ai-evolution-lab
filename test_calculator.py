@@ -309,3 +309,11 @@ def test_crcl_interp_bands_not_ckd_stages(v, label, cls):
     from app import _crcl_interp
     text, c = _crcl_interp(v)
     assert text.startswith(label) and c == cls and "CKD" not in text
+
+
+@pytest.mark.parametrize("na", [14, 50, 79.9])
+def test_anion_gap_sodium_lower_bound(na):
+    # Dropped-digit typo (14 for 140) previously returned a large negative AG silently
+    with pytest.raises(ValueError):
+        anion_gap(na, 104, 24)
+    assert anion_gap(80, 60, 10) == 10.0

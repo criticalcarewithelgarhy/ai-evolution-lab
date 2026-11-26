@@ -243,3 +243,13 @@ outcome: accepted
 metrics: lines=636 dead=0
 note: corrected_anion_gap silently accepted a decimal-slip albumin (0.4 for 4.0 g/dL), adding a false +9 mEq/L that turned a normal AG of 12 into 20.5 and invented a high-AG acidosis; it now raises ValueError below 0.5 g/dL (below any survivable recorded value), leaving the raw AG and all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0025
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: validate-pao2-lower-bound
+outcome: accepted
+metrics: lines=643 dead=0
+note: pf_ratio silently turned a dropped-digit PaO2 typo (8 for 80 on room air) into a P/F of 38, a false severe-ARDS label; it now raises ValueError below 15 mmHg (below the lowest recorded conscious arterial PaO2 ~19 mmHg) and the form sets min=15/max=800, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

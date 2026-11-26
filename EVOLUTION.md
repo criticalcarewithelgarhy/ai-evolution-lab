@@ -228,3 +228,12 @@ outcome: accepted
 metrics: lines=1797 dead=0
 note: Added CHA2DS2-VASc AF stroke risk score (CHF 1, HTN 1, age ≥75 2 / 65–74 1, DM 1, stroke/TIA 2, vascular 1, female 1; max 9) with 4 tests and Flask card recommending anticoagulation on non-sex score ≥ 2; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0023 exists locally only.
 ---
+---
+gen: breadth-0024
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add HAS-BLED score
+outcome: accepted
+metrics: lines=1892 dead=0
+note: Added HAS-BLED anticoagulation bleeding risk score (HTN, renal, liver, stroke, bleeding, labile INR, age > 65, drugs, alcohol — 1 each, max 9; ≥ 3 high risk) with 4 tests and Flask card complementing CHA2DS2-VASc; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0024 exists locally only.
+---

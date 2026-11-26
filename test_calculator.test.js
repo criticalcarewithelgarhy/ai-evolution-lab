@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -229,6 +229,15 @@ test("arterial O2 content normal", () => {
 
 test("arterial O2 content bad SaO2", () => {
     expect(() => arterialOxygenContent(15, 120, 100)).toThrow();
+});
+
+test("oxygen delivery normal", () => {
+    // CaO2 19.998 × CO 5 × 10 = 999.9 → 1000
+    expect(oxygenDelivery(15, 98, 100, 5)).toBe(1000);
+});
+
+test("oxygen delivery bad CO", () => {
+    expect(() => oxygenDelivery(15, 98, 100, 0)).toThrow();
 });
 
 test("CrCl male", () => {

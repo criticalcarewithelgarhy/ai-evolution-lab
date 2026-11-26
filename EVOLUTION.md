@@ -221,3 +221,12 @@ outcome: accepted
 metrics: lines=532 dead=0
 note: mean_arterial_pressure now raises ValueError for diastolic below 10 mmHg (e.g. a typo of 120/8 for 120/80, which produced a bogus MAP of 45.3); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), the repo had to be attached to the session for pushes, and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0022
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: reject-implausible-weight-floor
+outcome: accepted
+metrics: lines=538 dead=0
+note: creatinine_clearance now raises ValueError for weight below 20 kg (e.g. a typo of 7 for 70, which produced a bogus CrCl of 8.8 in an adult); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
+---

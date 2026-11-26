@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -697,6 +697,27 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Oxygen Extraction Ratio</h2>
+    <div class="formula">O₂ER ≈ (SaO₂ − SvO₂) / SaO₂ × 100</div>
+    <form method="POST" action="/#o2er">
+      <input type="hidden" name="calc" value="o2er">
+      <div class="field"><label>SaO₂ (%)</label>
+        <input type="number" name="o2er_sao2" step="0.1" value="{{ form.o2er_sao2 or '' }}" placeholder="98"></div>
+      <div class="field"><label>SvO₂ / ScvO₂ (%)</label>
+        <input type="number" name="o2er_svo2" step="0.1" value="{{ form.o2er_svo2 or '' }}" placeholder="73"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.o2er is defined %}
+    <div class="result" id="o2er">
+      <span class="val">{{ results.o2er }}</span><span class="unit">%</span>
+      <div class="interp {{ results.o2er_cls }}">{{ results.o2er_interp }}</div>
+    </div>
+    {% elif results.o2er_error is defined %}
+    <div class="error">{{ results.o2er_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -728,7 +749,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0025 · 2026-11-26 · Added: Oxygen Delivery (DO₂)</span>
+  <span>gen-wild-0026 · 2026-11-26 · Added: Oxygen Extraction Ratio (O₂ER)</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -870,6 +891,13 @@ def _do2_interp(v):
     if v < 600:  return "< 600 mL/min — critically low O₂ delivery (shock / severe anaemia)", "crit"
     if v < 900:  return "600–900 mL/min — reduced O₂ delivery", "warn"
     return "≥ 900 mL/min — normal resting O₂ delivery (≈ 900–1100)", "normal"
+
+
+def _o2er_interp(v):
+    if v < 20:   return "< 20% — low extraction (high flow, shunting, or impaired uptake e.g. sepsis)", "warn"
+    if v <= 30:  return "20–30% — normal O₂ extraction", "normal"
+    if v <= 40:  return "30–40% — increased extraction; DO₂ marginal for demand", "warn"
+    return "> 40% — high extraction; O₂ delivery likely inadequate", "crit"
 
 
 def _crcl_interp(v):
@@ -1124,6 +1152,14 @@ def index():
             results.update(do2=v, do2_cao2=cao2, do2_interp=interp, do2_cls=cls)
         except Exception as e:
             results["do2_error"] = str(e)
+
+    elif calc == "o2er":
+        try:
+            v = oxygen_extraction_ratio(float(form["o2er_sao2"]), float(form["o2er_svo2"]))
+            interp, cls = _o2er_interp(v)
+            results.update(o2er=v, o2er_interp=interp, o2er_cls=cls)
+        except Exception as e:
+            results["o2er_error"] = str(e)
 
     elif calc == "crcl":
         try:

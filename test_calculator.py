@@ -34,6 +34,7 @@ from calculator import (
     dead_space_fraction,
     arterial_oxygen_content,
     oxygen_delivery,
+    oxygen_extraction_ratio,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -473,3 +474,18 @@ def test_oxygen_delivery_low():
 def test_oxygen_delivery_bad_co():
     with pytest.raises(ValueError):
         oxygen_delivery(-1, 20)
+
+
+def test_o2er_normal():
+    # SaO2 98, SvO2 73 → 25 / 98 × 100 = 25.5
+    assert oxygen_extraction_ratio(98, 73) == 25.5
+
+
+def test_o2er_high():
+    # SaO2 95, SvO2 50 → 45 / 95 × 100 = 47.4
+    assert oxygen_extraction_ratio(95, 50) == 47.4
+
+
+def test_o2er_bad_svo2():
+    with pytest.raises(ValueError):
+        oxygen_extraction_ratio(90, 95)

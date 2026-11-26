@@ -377,6 +377,21 @@ def oxygen_delivery(cardiac_output: float, cao2: float) -> float:
     return round(cardiac_output * cao2 * 10, 1)
 
 
+def oxygen_extraction_ratio(sao2: float, svo2: float) -> float:
+    """
+    Oxygen extraction ratio (O2ER, %) ≈ (SaO2 − SvO2) / SaO2 × 100.
+    SaO2 and SvO2 (mixed or central venous) in % (0-100); dissolved O2 neglected.
+    Normal ≈ 20–30%; > 40% suggests O2 delivery inadequate for demand.
+    """
+    if not (0 < sao2 <= 100):
+        raise ValueError("SaO2 must be between 0 and 100")
+    if not (0 <= svo2 <= 100):
+        raise ValueError("SvO2 must be between 0 and 100")
+    if svo2 > sao2:
+        raise ValueError("SvO2 cannot exceed SaO2")
+    return round((sao2 - svo2) / sao2 * 100, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

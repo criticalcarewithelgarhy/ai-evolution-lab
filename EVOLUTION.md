@@ -192,3 +192,13 @@ outcome: accepted
 metrics: gen=0018 lines=335 dead=0 cap=1500 headroom=1165
 note: Added static_compliance (Vt / (Pplat − PEEP)) reusing driving_pressure, with two tests, quantifying lung stiffness to complete the gen 0016–0018 ventilation toolset.
 ---
+
+---
+gen: 0020
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add oxygenation index
+outcome: accepted
+metrics: gen=0019 lines=347 dead=0 cap=1500 headroom=1153
+note: Added oxygenation_index (FiO2 × 100 × mean airway pressure / PaO2) reusing pf_ratio for validation, with two tests, capturing ventilator pressure cost of oxygenation alongside the gen 0016–0019 ventilation tools.
+---

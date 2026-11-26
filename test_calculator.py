@@ -131,6 +131,14 @@ def test_anion_gap_implausible_bicarbonate():
     assert anion_gap(140, 70, 60) == 10.0
 
 
+def test_anion_gap_implausible_bicarbonate_floor():
+    with pytest.raises(ValueError):
+        anion_gap(140, 104, 0.24)  # misplaced decimal for 24
+    with pytest.raises(ValueError):
+        anion_gap(140, 104, 0)
+    assert anion_gap(140, 100, 2) == 38.0
+
+
 def test_crcl_male():
     # 50yo, 70kg, Cr 1.0 → 87.5  (Cockcroft-Gault: (90×70)/72)
     assert creatinine_clearance(50, 70, 1.0, "male") == 87.5

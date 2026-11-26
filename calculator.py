@@ -367,3 +367,18 @@ def cha2ds2_vasc(chf: int, hypertension: int, age: float, diabetes: int, stroke_
     score += 2 if age >= 75 else (1 if age >= 65 else 0)
     score += 1 if sex.lower() in ("f", "female") else 0
     return score
+
+
+def has_bled(hypertension: int, renal: int, liver: int, stroke: int, bleeding: int,
+             labile_inr: int, age: float, drugs: int, alcohol: int) -> int:
+    """
+    HAS-BLED major bleeding risk score on anticoagulation (0–9).
+    Uncontrolled hypertension (SBP > 160) 1; abnormal renal function 1; abnormal liver function 1;
+    prior stroke 1; major bleeding history or predisposition 1; labile INR 1; elderly (age > 65) 1;
+    antiplatelet/NSAID use 1; alcohol ≥ 8 drinks/week 1. Flags: 1 = present, 0 = absent.
+    ≥ 3 = high bleeding risk: address modifiable factors, review closely (not a reason to withhold OAC alone).
+    """
+    if age < 0:
+        raise ValueError("Age must be non-negative")
+    flags = (hypertension, renal, liver, stroke, bleeding, labile_inr, drugs, alcohol)
+    return sum(int(bool(f)) for f in flags) + (1 if age > 65 else 0)

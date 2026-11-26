@@ -6,6 +6,7 @@ A generation that breaks any test is rejected entirely.
 
 import pytest
 from calculator import (
+    has_bled,
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
@@ -503,3 +504,22 @@ def test_cha2ds2_vasc_max():
 def test_cha2ds2_vasc_bad_age():
     with pytest.raises(ValueError):
         cha2ds2_vasc(0, 0, -1, 0, 0, 0, "M")
+
+
+def test_has_bled_zero():
+    assert has_bled(0, 0, 0, 0, 0, 0, 50, 0, 0) == 0
+
+
+def test_has_bled_age_threshold():
+    # elderly point requires age > 65 (65 itself scores 0)
+    assert has_bled(0, 0, 0, 0, 0, 0, 65, 0, 0) == 0
+    assert has_bled(0, 0, 0, 0, 0, 0, 66, 0, 0) == 1
+
+
+def test_has_bled_max():
+    assert has_bled(1, 1, 1, 1, 1, 1, 80, 1, 1) == 9
+
+
+def test_has_bled_bad_age():
+    with pytest.raises(ValueError):
+        has_bled(0, 0, 0, 0, 0, 0, -1, 0, 0)

@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -824,10 +824,69 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>HAS-BLED (bleeding risk on anticoagulation)</h2>
+    <div class="formula">HTN · Renal · Liver · Stroke · Bleeding · Labile INR · Elderly &gt; 65 · Drugs · Alcohol — 1 each</div>
+    <form method="POST" action="/#hasbled">
+      <input type="hidden" name="calc" value="hasbled">
+      <div class="field"><label>Uncontrolled hypertension (SBP > 160)</label>
+        <select name="hb_htn">
+          <option value="0" {% if form.hb_htn != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.hb_htn == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Abnormal renal function (dialysis, transplant, Cr ≥ 2.26 mg/dL)</label>
+        <select name="hb_renal">
+          <option value="0" {% if form.hb_renal != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.hb_renal == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Abnormal liver function (cirrhosis, bilirubin > 2× / AST/ALT > 3× ULN)</label>
+        <select name="hb_liver">
+          <option value="0" {% if form.hb_liver != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.hb_liver == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Prior stroke</label>
+        <select name="hb_stroke">
+          <option value="0" {% if form.hb_stroke != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.hb_stroke == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Major bleeding history or predisposition</label>
+        <select name="hb_bleed">
+          <option value="0" {% if form.hb_bleed != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.hb_bleed == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Labile INR (TTR < 60%)</label>
+        <select name="hb_inr">
+          <option value="0" {% if form.hb_inr != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.hb_inr == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Age (years)</label>
+        <input type="number" name="hb_age" value="{{ form.hb_age or '' }}" placeholder="70"></div>
+      <div class="field"><label>Antiplatelet / NSAID use</label>
+        <select name="hb_drugs">
+          <option value="0" {% if form.hb_drugs != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.hb_drugs == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Alcohol ≥ 8 drinks/week</label>
+        <select name="hb_alcohol">
+          <option value="0" {% if form.hb_alcohol != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.hb_alcohol == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.hasbled is defined %}
+    <div class="result" id="hasbled">
+      <span class="val">{{ results.hasbled }}</span><span class="unit">/ 9</span>
+      <div class="interp {{ results.hasbled_cls }}">{{ results.hasbled_interp }}</div>
+    </div>
+    {% elif results.hasbled_error is defined %}
+    <div class="error">{{ results.hasbled_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0023 · 2026-11-26 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc</span>
+  <span>gen-breadth-0024 · 2026-11-26 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1011,6 +1070,12 @@ def _chads_interp(v, sex):
     if nonsex <= 0: return f"Score {v} — Low risk; anticoagulation not recommended", "normal"
     if nonsex == 1: return f"Score {v} — Intermediate; consider oral anticoagulation (weigh bleeding risk)", "warn"
     return f"Score {v} — High stroke risk; oral anticoagulation recommended unless contraindicated", "crit"
+
+
+def _hasbled_interp(v):
+    if v <= 1: return f"Score {v} — Low bleeding risk", "normal"
+    if v == 2: return f"Score {v} — Moderate bleeding risk; address modifiable factors", "warn"
+    return f"Score {v} — High bleeding risk (≥ 3): correct modifiable factors and review closely; not alone a reason to withhold anticoagulation", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1271,6 +1336,16 @@ def index():
             results.update(chads=v, chads_interp=interp, chads_cls=cls)
         except Exception as e:
             results["chads_error"] = str(e)
+
+    elif calc == "hasbled":
+        try:
+            g = lambda k: int(form.get(k, 0))
+            v = has_bled(g("hb_htn"), g("hb_renal"), g("hb_liver"), g("hb_stroke"), g("hb_bleed"),
+                         g("hb_inr"), float(form["hb_age"]), g("hb_drugs"), g("hb_alcohol"))
+            interp, cls = _hasbled_interp(v)
+            results.update(hasbled=v, hasbled_interp=interp, hasbled_cls=cls)
+        except Exception as e:
+            results["hasbled_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

@@ -233,3 +233,13 @@ outcome: accepted
 metrics: lines=628 dead=0
 note: anion_gap silently turned a dropped-digit sodium typo (14 for 140) into a false AG of -114 that masks a real high-AG acidosis; it now raises ValueError for sodium below 80 mEq/L (below any survivable recorded value), leaving all valid outputs unchanged.
 ---
+
+---
+gen: accuracy-0024
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: validate-albumin-lower-bound
+outcome: accepted
+metrics: lines=636 dead=0
+note: corrected_anion_gap silently accepted a decimal-slip albumin (0.4 for 4.0 g/dL), adding a false +9 mEq/L that turned a normal AG of 12 into 20.5 and invented a high-AG acidosis; it now raises ValueError below 0.5 g/dL (below any survivable recorded value), leaving the raw AG and all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

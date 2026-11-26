@@ -165,3 +165,11 @@ idea: ventilatory-ratio
 outcome: accepted
 metrics: lines=243 dead=-1 cap=1500 headroom=1257
 note: Added ventilatoryRatio (Sinha: VE[mL/min] × PaCO2 / (PBW × 100 × 37.5), rounded to 2 dp, throws if PBW <= 0) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0020
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: dead-space-fraction
+outcome: accepted
+metrics: lines=254 dead=-1 cap=1500 headroom=1246
+note: Added deadSpaceFraction (Enghoff Vd/Vt = (PaCO2 − PECO2)/PaCO2, rounded to 2 dp, throws if PaCO2 <= 0 or PECO2 outside [0, PaCO2]) with two tests; four original formulas untouched, oracle 16/16 passing.

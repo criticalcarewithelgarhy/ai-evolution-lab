@@ -33,6 +33,7 @@ from calculator import (
     albumin_corrected_anion_gap,
     egfr_ckd_epi_2021,
     wells_pe,
+    cha2ds2_vasc,
     DISCLAIMER,
 )
 
@@ -482,3 +483,23 @@ def test_wells_pe_max():
 def test_wells_pe_bad_hr():
     with pytest.raises(ValueError):
         wells_pe(0, 0, -1, 0, 0, 0, 0)
+
+
+def test_cha2ds2_vasc_zero():
+    assert cha2ds2_vasc(0, 0, 50, 0, 0, 0, "M") == 0
+
+
+def test_cha2ds2_vasc_age_bands():
+    # age 65–74 scores 1, age ≥ 75 scores 2
+    assert cha2ds2_vasc(0, 0, 70, 0, 0, 0, "M") == 1
+    assert cha2ds2_vasc(0, 0, 75, 0, 0, 0, "M") == 2
+
+
+def test_cha2ds2_vasc_max():
+    # CHF 1 + HTN 1 + age ≥75 2 + DM 1 + stroke 2 + vascular 1 + female 1 = 9
+    assert cha2ds2_vasc(1, 1, 80, 1, 1, 1, "F") == 9
+
+
+def test_cha2ds2_vasc_bad_age():
+    with pytest.raises(ValueError):
+        cha2ds2_vasc(0, 0, -1, 0, 0, 0, "M")

@@ -350,3 +350,20 @@ def wells_pe(dvt_signs: int, pe_most_likely: int, heart_rate: float, immobilisat
     score += 1.5 * bool(immobilisation) + 1.5 * bool(prior_vte)
     score += 1.0 * bool(haemoptysis) + 1.0 * bool(malignancy)
     return score
+
+
+def cha2ds2_vasc(chf: int, hypertension: int, age: float, diabetes: int, stroke_tia: int,
+                 vascular_disease: int, sex: str) -> int:
+    """
+    CHA2DS2-VASc stroke risk score in atrial fibrillation (0–9).
+    CHF 1; hypertension 1; age ≥ 75 2 (65–74 1); diabetes 1; prior stroke/TIA/thromboembolism 2;
+    vascular disease (MI, PAD, aortic plaque) 1; female sex 1. Flags: 1 = present, 0 = absent.
+    Anticoagulation generally recommended at ≥ 2 (male) / ≥ 3 (female).
+    """
+    if age < 0:
+        raise ValueError("Age must be non-negative")
+    score = int(bool(chf)) + int(bool(hypertension)) + int(bool(diabetes)) + int(bool(vascular_disease))
+    score += 2 * int(bool(stroke_tia))
+    score += 2 if age >= 75 else (1 if age >= 65 else 0)
+    score += 1 if sex.lower() in ("f", "female") else 0
+    return score

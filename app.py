@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -775,10 +775,59 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>CHA₂DS₂-VASc (AF stroke risk)</h2>
+    <div class="formula">CHF 1 · HTN 1 · Age ≥75 2 (65–74 1) · DM 1 · Stroke/TIA 2 · Vascular 1 · Female 1</div>
+    <form method="POST" action="/#chads">
+      <input type="hidden" name="calc" value="chads">
+      <div class="field"><label>Congestive heart failure / LV dysfunction</label>
+        <select name="chads_chf">
+          <option value="0" {% if form.chads_chf != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.chads_chf == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Hypertension</label>
+        <select name="chads_htn">
+          <option value="0" {% if form.chads_htn != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.chads_htn == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Age (years)</label>
+        <input type="number" name="chads_age" value="{{ form.chads_age or '' }}" placeholder="70"></div>
+      <div class="field"><label>Diabetes mellitus</label>
+        <select name="chads_dm">
+          <option value="0" {% if form.chads_dm != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.chads_dm == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Prior stroke / TIA / thromboembolism</label>
+        <select name="chads_stroke">
+          <option value="0" {% if form.chads_stroke != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.chads_stroke == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Vascular disease (MI, PAD, aortic plaque)</label>
+        <select name="chads_vasc">
+          <option value="0" {% if form.chads_vasc != '1' %}selected{% endif %}>No</option>
+          <option value="1" {% if form.chads_vasc == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      <div class="field"><label>Sex</label>
+        <select name="chads_sex">
+          <option value="M" {% if form.chads_sex != 'F' %}selected{% endif %}>Male</option>
+          <option value="F" {% if form.chads_sex == 'F' %}selected{% endif %}>Female</option>
+        </select></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.chads is defined %}
+    <div class="result" id="chads">
+      <span class="val">{{ results.chads }}</span><span class="unit">/ 9</span>
+      <div class="interp {{ results.chads_cls }}">{{ results.chads_interp }}</div>
+    </div>
+    {% elif results.chads_error is defined %}
+    <div class="error">{{ results.chads_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0022 · 2026-11-25 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE</span>
+  <span>gen-breadth-0023 · 2026-11-26 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -954,6 +1003,14 @@ def _wells_interp(v):
     if v <= 4: return f"Score {v} — PE unlikely (≤ 4): D-dimer; if negative, PE excluded", "normal"
     if v <= 6: return f"Score {v} — PE likely (> 4), moderate three-tier risk: CTPA", "warn"
     return f"Score {v} — PE likely, high three-tier risk (> 6): CTPA; consider empirical anticoagulation", "crit"
+
+
+def _chads_interp(v, sex):
+    female = sex.lower() in ("f", "female")
+    nonsex = v - (1 if female else 0)
+    if nonsex <= 0: return f"Score {v} — Low risk; anticoagulation not recommended", "normal"
+    if nonsex == 1: return f"Score {v} — Intermediate; consider oral anticoagulation (weigh bleeding risk)", "warn"
+    return f"Score {v} — High stroke risk; oral anticoagulation recommended unless contraindicated", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1203,6 +1260,17 @@ def index():
             results.update(wells=v, wells_interp=interp, wells_cls=cls)
         except Exception as e:
             results["wells_error"] = str(e)
+
+    elif calc == "chads":
+        try:
+            sex = form.get("chads_sex", "M")
+            v = cha2ds2_vasc(int(form.get("chads_chf", 0)), int(form.get("chads_htn", 0)), float(form["chads_age"]),
+                             int(form.get("chads_dm", 0)), int(form.get("chads_stroke", 0)),
+                             int(form.get("chads_vasc", 0)), sex)
+            interp, cls = _chads_interp(v, sex)
+            results.update(chads=v, chads_interp=interp, chads_cls=cls)
+        except Exception as e:
+            results["chads_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

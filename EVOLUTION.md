@@ -248,3 +248,12 @@ outcome: accepted
 metrics: lines=552 dead=0
 note: anion_gap now raises ValueError for bicarbonate below 2 mEq/L (e.g. 0.24 typed for 24, which produced a bogus gap of 35.8); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0025
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: reject-implausibly-negative-anion-gap
+outcome: accepted
+metrics: lines=558 dead=0
+note: anion_gap now raises ValueError when Cl⁻ + HCO₃⁻ exceeds Na⁺ by more than 10 mEq/L (e.g. a chloride typo of 130 for 103, which produced a bogus gap of -30); gaps ≥ -10 unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
+---

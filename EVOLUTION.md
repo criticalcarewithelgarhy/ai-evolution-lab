@@ -239,3 +239,12 @@ outcome: accepted
 metrics: lines=544 dead=0
 note: mean_arterial_pressure now raises ValueError for diastolic above 200 mmHg (e.g. 290/250, which previously returned a bogus MAP of 263.3); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0024
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: reject-implausible-bicarbonate-floor
+outcome: accepted
+metrics: lines=552 dead=0
+note: anion_gap now raises ValueError for bicarbonate below 2 mEq/L (e.g. 0.24 typed for 24, which produced a bogus gap of 35.8); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
+---

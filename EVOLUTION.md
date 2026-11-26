@@ -237,3 +237,12 @@ outcome: accepted
 metrics: lines=1892 dead=0
 note: Added HAS-BLED anticoagulation bleeding risk score (HTN, renal, liver, stroke, bleeding, labile INR, age > 65, drugs, alcohol — 1 each, max 9; ≥ 3 high risk) with 4 tests and Flask card complementing CHA2DS2-VASc; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0024 exists locally only.
 ---
+---
+gen: breadth-0025
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add MELD-Na score
+outcome: accepted
+metrics: lines=1966 dead=0
+note: Added UNOS 2016 MELD-Na (9.57 ln Cr + 3.78 ln bili + 11.2 ln INR + 6.43, sodium adjustment when MELD > 11, Cr/bili/INR floored at 1, Cr capped at 4 or set to 4 on dialysis, Na bounded 125–137, max 40) with 4 tests and Flask card giving 3-month mortality bands; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0025 exists locally only.
+---

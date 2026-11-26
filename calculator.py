@@ -392,6 +392,21 @@ def oxygen_extraction_ratio(sao2: float, svo2: float) -> float:
     return round((sao2 - svo2) / sao2 * 100, 1)
 
 
+def oxygen_consumption(cardiac_output: float, cao2: float, cvo2: float) -> float:
+    """
+    Oxygen consumption by reverse Fick (VO2, mL O2/min) = CO × (CaO2 − CvO2) × 10.
+    cardiac_output in L/min, cao2/cvo2 in mL O2/dL (×10 converts dL to L).
+    Normal ≈ 200–250 mL/min (≈ 110–160 mL/min/m²) at rest.
+    """
+    if cardiac_output < 0:
+        raise ValueError("Cardiac output must be non-negative")
+    if cao2 < 0 or cvo2 < 0:
+        raise ValueError("O2 content must be non-negative")
+    if cvo2 > cao2:
+        raise ValueError("CvO2 cannot exceed CaO2")
+    return round(cardiac_output * (cao2 - cvo2) * 10, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

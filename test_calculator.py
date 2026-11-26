@@ -35,6 +35,7 @@ from calculator import (
     arterial_oxygen_content,
     oxygen_delivery,
     oxygen_extraction_ratio,
+    oxygen_consumption,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -489,3 +490,18 @@ def test_o2er_high():
 def test_o2er_bad_svo2():
     with pytest.raises(ValueError):
         oxygen_extraction_ratio(90, 95)
+
+
+def test_vo2_normal():
+    # CO 5, CaO2 20, CvO2 15 → 5 × 5 × 10 = 250
+    assert oxygen_consumption(5, 20, 15) == 250.0
+
+
+def test_vo2_low_output():
+    # CO 3.5, CaO2 18.2, CvO2 11.4 → 3.5 × 6.8 × 10 = 238.0
+    assert oxygen_consumption(3.5, 18.2, 11.4) == 238.0
+
+
+def test_vo2_bad_cvo2():
+    with pytest.raises(ValueError):
+        oxygen_consumption(5, 15, 20)

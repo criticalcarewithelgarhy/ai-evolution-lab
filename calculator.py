@@ -350,6 +350,20 @@ def dead_space_fraction(paco2: float, peco2: float) -> float:
     return round((paco2 - peco2) / paco2, 2)
 
 
+def arterial_oxygen_content(hemoglobin: float, sao2: float, pao2: float) -> float:
+    """
+    Arterial oxygen content (CaO2, mL O2/dL) = 1.34 × Hb × SaO2 + 0.003 × PaO2.
+    hemoglobin in g/dL, SaO2 in % (0-100), PaO2 in mmHg. Normal ≈ 16–22 mL/dL.
+    """
+    if hemoglobin < 0:
+        raise ValueError("Haemoglobin must be non-negative")
+    if not (0 <= sao2 <= 100):
+        raise ValueError("SaO2 must be between 0 and 100")
+    if pao2 < 0:
+        raise ValueError("PaO2 must be non-negative")
+    return round(1.34 * hemoglobin * sao2 / 100 + 0.003 * pao2, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

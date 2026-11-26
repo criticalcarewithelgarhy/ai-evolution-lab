@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -648,6 +648,29 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Arterial O₂ Content</h2>
+    <div class="formula">CaO₂ = 1.34 × Hb × SaO₂ + 0.003 × PaO₂</div>
+    <form method="POST" action="/#cao2">
+      <input type="hidden" name="calc" value="cao2">
+      <div class="field"><label>Haemoglobin (g/dL)</label>
+        <input type="number" name="cao2_hb" step="0.1" value="{{ form.cao2_hb or '' }}" placeholder="12"></div>
+      <div class="field"><label>SaO₂ (%)</label>
+        <input type="number" name="cao2_sao2" step="0.1" value="{{ form.cao2_sao2 or '' }}" placeholder="97"></div>
+      <div class="field"><label>PaO₂ (mmHg)</label>
+        <input type="number" name="cao2_pao2" value="{{ form.cao2_pao2 or '' }}" placeholder="90"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.cao2 is defined %}
+    <div class="result" id="cao2">
+      <span class="val">{{ results.cao2 }}</span><span class="unit">mL O₂/dL</span>
+      <div class="interp {{ results.cao2_cls }}">{{ results.cao2_interp }}</div>
+    </div>
+    {% elif results.cao2_error is defined %}
+    <div class="error">{{ results.cao2_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -679,7 +702,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0023 · 2026-11-25 · Added: Dead Space Fraction</span>
+  <span>gen-wild-0024 · 2026-11-26 · Added: Arterial O₂ Content</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -811,6 +834,11 @@ def _vd_interp(v):
     if v <= 0.3: return "≤ 0.3 — normal physiological dead space", "normal"
     if v < 0.6:  return "0.3–0.6 — increased dead space (PE, ARDS, low cardiac output)", "warn"
     return "≥ 0.6 — markedly elevated; associated with higher ARDS mortality", "crit"
+
+def _cao2_interp(v):
+    if v < 12:   return "< 12 mL/dL — markedly reduced O₂ content (anaemia / hypoxaemia)", "crit"
+    if v < 16:   return "12–16 mL/dL — reduced O₂ content", "warn"
+    return "≥ 16 mL/dL — normal (≈ 16–22 mL/dL)", "normal"
 
 
 def _crcl_interp(v):
@@ -1044,6 +1072,16 @@ def index():
             results.update(vd=v, vd_interp=interp, vd_cls=cls)
         except Exception as e:
             results["vd_error"] = str(e)
+
+    elif calc == "cao2":
+        try:
+            v = arterial_oxygen_content(
+                float(form["cao2_hb"]), float(form["cao2_sao2"]), float(form["cao2_pao2"]),
+            )
+            interp, cls = _cao2_interp(v)
+            results.update(cao2=v, cao2_interp=interp, cao2_cls=cls)
+        except Exception as e:
+            results["cao2_error"] = str(e)
 
     elif calc == "crcl":
         try:

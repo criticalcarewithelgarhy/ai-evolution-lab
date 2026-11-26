@@ -32,6 +32,7 @@ from calculator import (
     qtc_fridericia,
     ventilatory_ratio,
     dead_space_fraction,
+    arterial_oxygen_content,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -422,6 +423,21 @@ def test_dead_space_ards():
 def test_dead_space_bad_peco2():
     with pytest.raises(ValueError):
         dead_space_fraction(40, 45)
+
+
+def test_cao2_normal():
+    # Hb 15, SaO2 98, PaO2 100 → 1.34×15×0.98 + 0.3 = 19.698 + 0.3 = 20.0
+    assert arterial_oxygen_content(15, 98, 100) == 20.0
+
+
+def test_cao2_anaemia():
+    # Hb 7, SaO2 90, PaO2 60 → 8.442 + 0.18 = 8.622 → 8.6
+    assert arterial_oxygen_content(7, 90, 60) == 8.6
+
+
+def test_cao2_bad_sao2():
+    with pytest.raises(ValueError):
+        arterial_oxygen_content(15, 101, 100)
 
 
 def test_crcl_male():

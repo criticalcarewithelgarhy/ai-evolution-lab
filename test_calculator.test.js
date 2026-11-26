@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -211,6 +211,15 @@ test("ventilatory ratio elevated dead space", () => {
 
 test("ventilatory ratio bad PBW", () => {
     expect(() => ventilatoryRatio(10000, 60, 0)).toThrow();
+});
+
+test("dead space fraction ARDS", () => {
+    // (50 − 20) / 50 = 0.6
+    expect(deadSpaceFraction(50, 20)).toBe(0.6);
+});
+
+test("dead space fraction PECO2 above PaCO2", () => {
+    expect(() => deadSpaceFraction(40, 45)).toThrow();
 });
 
 test("CrCl male", () => {

@@ -132,6 +132,13 @@ function ventilatoryRatio(ve, paco2, pbw) {
     return Math.round((ve * paco2) / (pbw * 100 * 37.5) * 100) / 100;
 }
 
+function deadSpaceFraction(paco2, peco2) {
+    // Enghoff-modified Bohr dead space: Vd/Vt = (PaCO2 − mixed-expired PECO2) / PaCO2 — normal 0.2–0.35, > 0.6 poor ARDS prognosis
+    if (paco2 <= 0) throw new Error("PaCO2 must be > 0");
+    if (peco2 < 0 || peco2 > paco2) throw new Error("PECO2 must be in [0, PaCO2]");
+    return Math.round(((paco2 - peco2) / paco2) * 100) / 100;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -139,4 +146,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, creatinineClearance };

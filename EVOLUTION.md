@@ -253,3 +253,12 @@ outcome: accepted
 metrics: lines=643 dead=0
 note: pf_ratio silently turned a dropped-digit PaO2 typo (8 for 80 on room air) into a P/F of 38, a false severe-ARDS label; it now raises ValueError below 15 mmHg (below the lowest recorded conscious arterial PaO2 ~19 mmHg) and the form sets min=15/max=800, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+---
+gen: accuracy-0026
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: validate-crcl-weight-lower-bound
+outcome: accepted
+metrics: lines=650 dead=0
+note: creatinine_clearance silently turned a dropped-digit weight typo (7 for 70 kg) into a CrCl of 8.8, a false kidney-failure label that could drive renal underdosing; it now raises ValueError below 20 kg (below the lightest recorded surviving adults) and the form sets min=20/max=650, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

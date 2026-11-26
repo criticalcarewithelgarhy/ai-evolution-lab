@@ -230,3 +230,12 @@ outcome: accepted
 metrics: lines=828 dead=0
 note: Added rsbi() (RR / VT in litres, Yang & Tobin 1991) with 3 tests and a 21st app card flagging ≥ 105 breaths/min/L as high risk of weaning failure, complementing the ventilator mechanics cards; tag gen-0023 was not pushed (git proxy refused tag push).
 ---
+---
+gen: 0024
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add Bazett QTc
+outcome: accepted
+metrics: lines=856 dead=0
+note: Added qtc_bazett() (QT / √(60/HR)) with 3 tests and a 22nd app card flagging > 450 ms as prolonged and > 500 ms as high torsades risk, relevant to QT-prolonging ICU drugs; tag gen-0024 was not pushed (git proxy refused tag push).
+---

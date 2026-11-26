@@ -220,3 +220,13 @@ outcome: accepted
 metrics: lines=801 dead=0
 note: Replaced the 20 duplicated ~9-line card shells (h2, formula, form, hidden calc, button, result) in app.py's template with a single Jinja card(key, title, formula, unit) macro invoked via {% call %}, cutting 129 lines with whitespace-normalised rendered HTML identical across GET, every calculator and every error path; tag gen-0022 was not pushed (git proxy refused tag push).
 ---
+
+---
+gen: 0023
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add rapid shallow breathing index
+outcome: accepted
+metrics: lines=828 dead=0
+note: Added rsbi() (RR / VT in litres, Yang & Tobin 1991) with 3 tests and a 21st app card flagging ≥ 105 breaths/min/L as high risk of weaning failure, complementing the ventilator mechanics cards; tag gen-0023 was not pushed (git proxy refused tag push).
+---

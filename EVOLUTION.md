@@ -182,3 +182,13 @@ outcome: accepted
 metrics: gen=0017 lines=321 dead=0 cap=1500 headroom=1179
 note: Added driving_pressure (Pplat − PEEP, validated) with two tests, extending the lung-protective ventilation tools from gens 0016–0017 to a key ARDS mortality-linked target.
 ---
+
+---
+gen: 0019
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add static respiratory compliance
+outcome: accepted
+metrics: gen=0018 lines=335 dead=0 cap=1500 headroom=1165
+note: Added static_compliance (Vt / (Pplat − PEEP)) reusing driving_pressure, with two tests, quantifying lung stiffness to complete the gen 0016–0018 ventilation toolset.
+---

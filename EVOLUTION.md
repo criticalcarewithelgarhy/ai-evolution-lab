@@ -249,3 +249,12 @@ outcome: accepted
 metrics: lines=1741 dead=0
 note: Added oxygen_extraction_ratio() ((SaO2 − SvO2)/SaO2 × 100) with UI card grading < 20% low, 20–30% normal, > 40% inadequate O2 delivery; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0026 tag push.
 ---
+---
+gen: wild-0027
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add oxygen consumption fick
+outcome: accepted
+metrics: lines=1808 dead=0
+note: Added oxygen_consumption() (reverse Fick VO2 = CO × (CaO2 − CvO2) × 10) with UI card computing CaO2/CvO2 from Hb, saturations and partial pressures; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0027 tag push.
+---

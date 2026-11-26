@@ -219,3 +219,12 @@ outcome: accepted
 metrics: lines=1707 dead=0
 note: Added Wells score for pulmonary embolism (DVT signs 3, PE most likely 3, HR > 100 1.5, immobilisation 1.5, prior VTE 1.5, haemoptysis 1, malignancy 1) with 4 tests and Flask card giving two-tier (≤ 4 unlikely) and three-tier risk; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0022 exists locally only.
 ---
+---
+gen: breadth-0023
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add CHA2DS2-VASc score
+outcome: accepted
+metrics: lines=1797 dead=0
+note: Added CHA2DS2-VASc AF stroke risk score (CHF 1, HTN 1, age ≥75 2 / 65–74 1, DM 1, stroke/TIA 2, vascular 1, female 1; max 9) with 4 tests and Flask card recommending anticoagulation on non-sex score ≥ 2; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0023 exists locally only.
+---

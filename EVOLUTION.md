@@ -221,3 +221,12 @@ outcome: accepted
 metrics: lines=1575 dead=0
 note: Added dead_space_fraction() (Enghoff VD/VT = (PaCO2 − PECO2)/PaCO2) with UI card flagging ≥ 0.6 as associated with ARDS mortality; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0023 tag push.
 ---
+---
+gen: wild-0024
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add arterial oxygen content
+outcome: accepted
+metrics: lines=1630 dead=0
+note: Added arterial_oxygen_content() (CaO2 = 1.34 × Hb × SaO2 + 0.003 × PaO2) with UI card flagging < 16 mL/dL as reduced O2 content; metrics.py still crashes on wild- gen labels (measured via its functions).
+---

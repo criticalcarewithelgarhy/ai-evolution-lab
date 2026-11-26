@@ -181,3 +181,11 @@ idea: arterial-oxygen-content
 outcome: accepted
 metrics: lines=264 dead=-1 cap=1500 headroom=1236
 note: Added arterialOxygenContent (CaO2 = 1.34 × Hb × SaO2/100 + 0.003 × PaO2, mL/dL, rounded to 1 dp, throws if SaO2 outside [0, 100]) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0022
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: oxygen-delivery
+outcome: accepted
+metrics: lines=275 dead=-1 cap=1500 headroom=1225
+note: Added oxygenDelivery (DO2 = CaO2 × CO × 10, mL/min, rounded to integer, throws if CO <= 0 or SaO2 outside [0, 100]) with two tests; four original formulas untouched, oracle 16/16 passing.

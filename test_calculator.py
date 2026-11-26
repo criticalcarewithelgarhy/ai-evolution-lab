@@ -26,6 +26,7 @@ from calculator import (
     oxygenation_index,
     sf_ratio,
     static_compliance,
+    rsbi,
     DISCLAIMER,
 )
 
@@ -328,3 +329,20 @@ def test_cstat_bad_inputs():
         static_compliance(450, 10, 10)
     with pytest.raises(ValueError):
         static_compliance(0, 25, 10)
+
+
+def test_rsbi_typical():
+    # RR 20, VT 400 mL → 20 / 0.4 = 50
+    assert rsbi(20, 400) == 50.0
+
+
+def test_rsbi_failure_range():
+    # RR 35, VT 250 mL → 35 / 0.25 = 140
+    assert rsbi(35, 250) == 140.0
+
+
+def test_rsbi_bad_inputs():
+    with pytest.raises(ValueError):
+        rsbi(20, 0)
+    with pytest.raises(ValueError):
+        rsbi(-1, 400)

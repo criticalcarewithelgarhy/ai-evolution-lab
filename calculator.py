@@ -201,6 +201,16 @@ def static_compliance(tidal_volume: float, plateau: float, peep: float) -> float
     return round(tidal_volume / (plateau - peep), 1)
 
 
+def rsbi(resp_rate: float, tidal_volume: float) -> float:
+    """
+    Rapid shallow breathing index (Yang & Tobin, 1991) = RR / VT(L). RR in breaths/min, VT in mL.
+    < 105 breaths/min/L during a spontaneous breathing trial predicts weaning success.
+    """
+    if resp_rate < 0 or tidal_volume <= 0:
+        raise ValueError("RR must be non-negative and VT positive")
+    return round(resp_rate / (tidal_volume / 1000), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

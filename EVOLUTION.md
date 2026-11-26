@@ -240,3 +240,12 @@ outcome: accepted
 metrics: lines=1688 dead=0
 note: Added oxygen_delivery() (DO2 = CO × CaO2 × 10) with UI card computing CaO2 from Hb/SaO2/PaO2 and flagging < 600 mL/min critical, < 900 reduced; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0025 tag push.
 ---
+---
+gen: wild-0026
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add oxygen extraction ratio
+outcome: accepted
+metrics: lines=1741 dead=0
+note: Added oxygen_extraction_ratio() ((SaO2 − SvO2)/SaO2 × 100) with UI card grading < 20% low, 20–30% normal, > 40% inadequate O2 delivery; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0026 tag push.
+---

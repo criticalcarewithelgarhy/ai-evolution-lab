@@ -239,3 +239,12 @@ outcome: accepted
 metrics: lines=856 dead=0
 note: Added qtc_bazett() (QT / √(60/HR)) with 3 tests and a 22nd app card flagging > 450 ms as prolonged and > 500 ms as high torsades risk, relevant to QT-prolonging ICU drugs; tag gen-0024 was not pushed (git proxy refused tag push).
 ---
+---
+gen: 0025
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: add fractional excretion sodium
+outcome: accepted
+metrics: lines=886 dead=0
+note: Added fractional_excretion_sodium() ((UNa × PCr)/(PNa × UCr) × 100) with 3 tests and a 23rd app card flagging < 1% as prerenal and > 2% as intrinsic renal AKI, complementing the CrCl card for AKI work-up.
+---

@@ -223,3 +223,13 @@ outcome: accepted
 metrics: lines=621 dead=0
 note: The CrCl interpretation labelled a single Cockcroft-Gault value as "Stage N CKD", which is clinically invalid (CKD staging needs eGFR persisting >3 months and an ICU creatinine in AKI is not at steady state); it now reports FDA renal-dosing bands (kidney failure/severely/moderately/mildly reduced) with boundary tests, leaving all CrCl numerical output unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0023
+date: 2026-11-26
+model: claude-sonnet-4-6
+idea: validate-sodium-lower-bound
+outcome: accepted
+metrics: lines=628 dead=0
+note: anion_gap silently turned a dropped-digit sodium typo (14 for 140) into a false AG of -114 that masks a real high-AG acidosis; it now raises ValueError for sodium below 80 mEq/L (below any survivable recorded value), leaving all valid outputs unchanged.
+---

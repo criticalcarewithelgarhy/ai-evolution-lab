@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -255,10 +255,15 @@ TEMPLATE = """{% macro result(key, unit="") %}
       {{ num("rsbi_vt", "Spontaneous Tidal Volume (mL)", "400") }}
   {% endcall %}
 
+  {% call card("qtc", "Corrected QT (Bazett)", "QTc = QT / √(60 / HR)", "ms") %}
+      {{ num("qtc_qt", "QT Interval (ms)", "400") }}
+      {{ num("qtc_hr", "Heart Rate (bpm)", "75") }}
+  {% endcall %}
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -376,6 +381,11 @@ def _rsbi_interp(v):
     if v < 105: return "< 105 — weaning/extubation success likely", "normal"
     return "≥ 105 — high risk of weaning failure", "crit"
 
+def _qtc_interp(v):
+    if v <= 450: return "≤ 450 ms — normal", "normal"
+    if v <= 500: return "450–500 ms — prolonged, review QT-prolonging drugs and K⁺/Mg²⁺", "warn"
+    return "> 500 ms — high torsades risk", "crit"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -433,6 +443,8 @@ CALCS = {
             lambda v, f: _cst_interp(v)),
     "rsbi": (lambda f: rsbi(_n(f, "rsbi_rr"), _n(f, "rsbi_vt")),
              lambda v, f: _rsbi_interp(v)),
+    "qtc": (lambda f: qtc_bazett(_n(f, "qtc_qt"), _n(f, "qtc_hr")),
+            lambda v, f: _qtc_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

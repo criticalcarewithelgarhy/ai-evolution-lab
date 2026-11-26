@@ -27,6 +27,7 @@ from calculator import (
     sf_ratio,
     static_compliance,
     rsbi,
+    qtc_bazett,
     DISCLAIMER,
 )
 
@@ -346,3 +347,20 @@ def test_rsbi_bad_inputs():
         rsbi(20, 0)
     with pytest.raises(ValueError):
         rsbi(-1, 400)
+
+
+def test_qtc_hr60_unchanged():
+    # HR 60 → RR 1 s → QTc = QT
+    assert qtc_bazett(400, 60) == 400.0
+
+
+def test_qtc_tachycardia():
+    # QT 360, HR 100 → RR 0.6 → 360 / sqrt(0.6) = 464.8
+    assert qtc_bazett(360, 100) == 464.8
+
+
+def test_qtc_bad_inputs():
+    with pytest.raises(ValueError):
+        qtc_bazett(400, 0)
+    with pytest.raises(ValueError):
+        qtc_bazett(0, 60)

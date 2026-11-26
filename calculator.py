@@ -211,6 +211,16 @@ def rsbi(resp_rate: float, tidal_volume: float) -> float:
     return round(resp_rate / (tidal_volume / 1000), 1)
 
 
+def qtc_bazett(qt_ms: float, heart_rate: float) -> float:
+    """
+    Bazett corrected QT = QT / sqrt(RR), RR = 60 / HR in seconds. QT in ms, HR in bpm; result in ms.
+    > 500 ms markedly raises torsades risk (relevant to QT-prolonging ICU drugs).
+    """
+    if qt_ms <= 0 or heart_rate <= 0:
+        raise ValueError("QT and HR must be positive")
+    return round(qt_ms / (60 / heart_rate) ** 0.5, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

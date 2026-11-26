@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -913,10 +913,45 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Child-Pugh (cirrhosis severity)</h2>
+    <div class="formula">Bilirubin + Albumin + INR + Ascites + Encephalopathy (1–3 each); A 5–6 · B 7–9 · C 10–15</div>
+    <form method="POST" action="/#cp">
+      <input type="hidden" name="calc" value="cp">
+      <div class="field"><label>Total bilirubin (mg/dL)</label>
+        <input type="number" step="any" name="cp_bili" value="{{ form.cp_bili or '' }}" placeholder="1.5"></div>
+      <div class="field"><label>Albumin (g/dL)</label>
+        <input type="number" step="any" name="cp_alb" value="{{ form.cp_alb or '' }}" placeholder="3.2"></div>
+      <div class="field"><label>INR</label>
+        <input type="number" step="any" name="cp_inr" value="{{ form.cp_inr or '' }}" placeholder="1.4"></div>
+      <div class="field"><label>Ascites</label>
+        <select name="cp_asc">
+          <option value="1" {% if form.cp_asc not in ('2','3') %}selected{% endif %}>None</option>
+          <option value="2" {% if form.cp_asc == '2' %}selected{% endif %}>Mild</option>
+          <option value="3" {% if form.cp_asc == '3' %}selected{% endif %}>Moderate–severe</option>
+        </select></div>
+      <div class="field"><label>Hepatic encephalopathy</label>
+        <select name="cp_enc">
+          <option value="1" {% if form.cp_enc not in ('2','3') %}selected{% endif %}>None</option>
+          <option value="2" {% if form.cp_enc == '2' %}selected{% endif %}>Grade 1–2</option>
+          <option value="3" {% if form.cp_enc == '3' %}selected{% endif %}>Grade 3–4</option>
+        </select></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.cp is defined %}
+    <div class="result" id="cp">
+      <span class="val">{{ results.cp }}</span><span class="unit">/ 15</span>
+      <div class="interp {{ results.cp_cls }}">{{ results.cp_interp }}</div>
+    </div>
+    {% elif results.cp_error is defined %}
+    <div class="error">{{ results.cp_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0025 · 2026-11-26 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na</span>
+  <span>gen-breadth-0026 · 2026-11-26 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1113,6 +1148,12 @@ def _meld_interp(v):
     if v < 20: return f"Score {v} — ~6% 3-month mortality", "warn"
     if v < 30: return f"Score {v} — ~20% 3-month mortality; transplant evaluation", "crit"
     return f"Score {v} — ≥ 50% 3-month mortality; urgent transplant evaluation", "crit"
+
+
+def _cp_interp(v):
+    if v <= 6: return f"Class A ({v}) — well-compensated; ~100% 1-year survival", "normal"
+    if v <= 9: return f"Class B ({v}) — significant functional compromise; ~80% 1-year survival", "warn"
+    return f"Class C ({v}) — decompensated; ~45% 1-year survival; consider transplant referral", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1392,6 +1433,15 @@ def index():
             results.update(meld=v, meld_interp=interp, meld_cls=cls)
         except Exception as e:
             results["meld_error"] = str(e)
+
+    elif calc == "cp":
+        try:
+            v = child_pugh(float(form["cp_bili"]), float(form["cp_alb"]), float(form["cp_inr"]),
+                           int(form.get("cp_asc", 1)), int(form.get("cp_enc", 1)))
+            interp, cls = _cp_interp(v)
+            results.update(cp=v, cp_interp=interp, cp_cls=cls)
+        except Exception as e:
+            results["cp_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

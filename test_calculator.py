@@ -8,6 +8,7 @@ import pytest
 from calculator import (
     has_bled,
     meld_na,
+    child_pugh,
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
@@ -545,3 +546,22 @@ def test_meld_na_dialysis_and_cap():
 def test_meld_na_bad_input():
     with pytest.raises(ValueError):
         meld_na(0, 1, 1, 137)
+
+
+def test_child_pugh_class_a_minimum():
+    assert child_pugh(1.0, 4.0, 1.1, 1, 1) == 5
+
+
+def test_child_pugh_boundaries():
+    # bilirubin 2 and 3 -> 2 points; albumin 3.5 and 2.8 -> 2; INR 1.7 and 2.3 -> 2
+    assert child_pugh(2.0, 3.5, 1.7, 1, 1) == 8
+    assert child_pugh(3.0, 2.8, 2.3, 1, 1) == 8
+
+
+def test_child_pugh_class_c_maximum():
+    assert child_pugh(5.0, 2.0, 3.0, 3, 3) == 15
+
+
+def test_child_pugh_bad_grade():
+    with pytest.raises(ValueError):
+        child_pugh(1.0, 4.0, 1.1, 0, 1)

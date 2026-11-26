@@ -405,3 +405,21 @@ def meld_na(creatinine: float, bilirubin: float, inr: float, sodium: float, dial
     if meld > 11:
         meld = round(meld + 1.32 * (137 - na) - 0.033 * meld * (137 - na))
     return min(meld, 40)
+
+
+def child_pugh(bilirubin: float, albumin: float, inr: float, ascites: int, encephalopathy: int) -> int:
+    """
+    Child-Pugh score for cirrhosis severity (5–15).
+    Bilirubin (mg/dL) < 2 → 1, 2–3 → 2, > 3 → 3; albumin (g/dL) > 3.5 → 1, 2.8–3.5 → 2, < 2.8 → 3;
+    INR < 1.7 → 1, 1.7–2.3 → 2, > 2.3 → 3; ascites and encephalopathy graded 1 (none),
+    2 (mild / grade 1–2), 3 (moderate–severe / grade 3–4).
+    Class A 5–6, B 7–9, C 10–15.
+    """
+    if bilirubin < 0 or albumin < 0 or inr <= 0:
+        raise ValueError("Bilirubin and albumin must be non-negative and INR positive")
+    if ascites not in (1, 2, 3) or encephalopathy not in (1, 2, 3):
+        raise ValueError("Ascites and encephalopathy must be graded 1, 2 or 3")
+    score = 1 if bilirubin < 2 else (2 if bilirubin <= 3 else 3)
+    score += 1 if albumin > 3.5 else (2 if albumin >= 2.8 else 3)
+    score += 1 if inr < 1.7 else (2 if inr <= 2.3 else 3)
+    return score + ascites + encephalopathy

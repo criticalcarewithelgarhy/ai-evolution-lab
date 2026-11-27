@@ -272,3 +272,13 @@ outcome: accepted
 metrics: lines=651 dead=0
 note: crcl_dosing_weight silently returned a dropped-digit weight (7 for 70 kg) as a plausible "actual" dosing weight to direct callers, despite claiming to match creatinine_clearance; it now raises ValueError below 20 kg like creatinine_clearance, with boundary tests, leaving all formula outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0028
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: validate-chloride-lower-bound
+outcome: accepted
+metrics: lines=658 dead=0
+note: anion_gap silently turned a dropped-digit chloride typo (10 for 104) into a false AG of 106, inventing a high-AG acidosis; it now raises ValueError below 20 mEq/L (far below any survivable recorded value) and the form sets min=20/max=200, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

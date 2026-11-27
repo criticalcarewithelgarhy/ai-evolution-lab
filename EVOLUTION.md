@@ -262,3 +262,13 @@ outcome: accepted
 metrics: lines=650 dead=0
 note: creatinine_clearance silently turned a dropped-digit weight typo (7 for 70 kg) into a CrCl of 8.8, a false kidney-failure label that could drive renal underdosing; it now raises ValueError below 20 kg (below the lightest recorded surviving adults) and the form sets min=20/max=650, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0027
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: validate-dosing-weight-lower-bound
+outcome: accepted
+metrics: lines=651 dead=0
+note: crcl_dosing_weight silently returned a dropped-digit weight (7 for 70 kg) as a plausible "actual" dosing weight to direct callers, despite claiming to match creatinine_clearance; it now raises ValueError below 20 kg like creatinine_clearance, with boundary tests, leaving all formula outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

@@ -14,6 +14,12 @@ def _is_female(sex: str) -> bool:
     return sex_lower in ("f", "female")
 
 
+def _check_fio2(fio2: float) -> None:
+    """Validate FiO2 as a fraction in (0, 1]."""
+    if not (0 < fio2 <= 1):
+        raise ValueError("FiO2 must be between 0 and 1")
+
+
 def mean_arterial_pressure(systolic: float, diastolic: float) -> float:
     """MAP = DBP + 1/3 (SBP - DBP)"""
     if systolic <= 0 or diastolic <= 0:
@@ -27,8 +33,7 @@ def pf_ratio(pao2: float, fio2: float) -> float:
     """P/F ratio = PaO2 / FiO2 (FiO2 as fraction 0-1)"""
     if pao2 <= 0:
         raise ValueError("PaO2 must be positive")
-    if not (0 < fio2 <= 1):
-        raise ValueError("FiO2 must be between 0 and 1")
+    _check_fio2(fio2)
     return round(pao2 / fio2, 1)
 
 
@@ -128,8 +133,7 @@ def aa_gradient(pao2: float, paco2: float, fio2: float) -> float:
     """A-a gradient = FiO2 * (760 - 47) - PaCO2 / 0.8 - PaO2, mmHg at sea level"""
     if pao2 <= 0 or paco2 <= 0:
         raise ValueError("PaO2 and PaCO2 must be positive")
-    if not (0 < fio2 <= 1):
-        raise ValueError("FiO2 must be between 0 and 1")
+    _check_fio2(fio2)
     return round(fio2 * (760 - 47) - paco2 / 0.8 - pao2, 1)
 
 
@@ -193,6 +197,5 @@ def rox_index(spo2: float, fio2: float, respiratory_rate: float) -> float:
     """ROX = (SpO2 / FiO2) / RR; >= 4.88 at 12 h predicts HFNC success"""
     if not (0 < spo2 <= 100) or respiratory_rate <= 0:
         raise ValueError("SpO2 must be 0-100 and respiratory rate positive")
-    if not (0 < fio2 <= 1):
-        raise ValueError("FiO2 must be between 0 and 1")
+    _check_fio2(fio2)
     return round(spo2 / fio2 / respiratory_rate, 2)

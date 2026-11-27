@@ -265,3 +265,13 @@ outcome: accepted
 metrics: lines=945 dead=0
 note: Added ventilatory_ratio() ((VE × 1000 × PaCO2) / (PBW × 100 × 37.5), Sinha 2009) with 3 tests and a 25th app card flagging > 2 as high dead space associated with ARDS mortality, complementing the PBW and ventilator mechanics cards; tag gen-0027 was not pushed (git proxy refused tag push).
 ---
+
+---
+gen: 0028
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: add Parkland burn formula
+outcome: accepted
+metrics: lines=971 dead=0
+note: Added parkland_formula() (4 mL × weight × %TBSA, Baxter 1968) with 3 tests and a 26th app card splitting the 24-h crystalloid volume into first-8-h and next-16-h rates titrated to urine output, adding burn resuscitation to the ICU set; tag gen-0028 was not pushed (git proxy refused tag push).
+---

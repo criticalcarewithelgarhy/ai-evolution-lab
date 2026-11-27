@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, fena, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -948,10 +948,35 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>FENa (fractional excretion of sodium)</h2>
+    <div class="formula">FENa = (U_Na × P_Cr) / (P_Na × U_Cr) × 100</div>
+    <form method="POST" action="/#fena">
+      <input type="hidden" name="calc" value="fena">
+      <div class="field"><label>Urine Na⁺ (mEq/L)</label>
+        <input type="number" step="any" name="fena_una" value="{{ form.fena_una or '' }}" placeholder="20"></div>
+      <div class="field"><label>Plasma Na⁺ (mEq/L)</label>
+        <input type="number" step="any" name="fena_pna" value="{{ form.fena_pna or '' }}" placeholder="140"></div>
+      <div class="field"><label>Urine creatinine (mg/dL)</label>
+        <input type="number" step="any" name="fena_ucr" value="{{ form.fena_ucr or '' }}" placeholder="100"></div>
+      <div class="field"><label>Plasma creatinine (mg/dL)</label>
+        <input type="number" step="any" name="fena_pcr" value="{{ form.fena_pcr or '' }}" placeholder="2.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.fena is defined %}
+    <div class="result" id="fena">
+      <span class="val">{{ results.fena }}</span><span class="unit">%</span>
+      <div class="interp {{ results.fena_cls }}">{{ results.fena_interp }}</div>
+    </div>
+    {% elif results.fena_error is defined %}
+    <div class="error">{{ results.fena_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0026 · 2026-11-26 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh</span>
+  <span>gen-breadth-0027 · 2026-11-27 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh · FENa</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1154,6 +1179,12 @@ def _cp_interp(v):
     if v <= 6: return f"Class A ({v}) — well-compensated; ~100% 1-year survival", "normal"
     if v <= 9: return f"Class B ({v}) — significant functional compromise; ~80% 1-year survival", "warn"
     return f"Class C ({v}) — decompensated; ~45% 1-year survival; consider transplant referral", "crit"
+
+
+def _fena_interp(v):
+    if v < 1: return f"{v} % — < 1 % — Suggests prerenal AKI (also contrast, early obstruction, hepatorenal)", "warn"
+    if v <= 2: return f"{v} % — 1–2 % — Indeterminate", "warn"
+    return f"{v} % — > 2 % — Suggests intrinsic renal injury (ATN); unreliable on diuretics — use FEUrea", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1442,6 +1473,14 @@ def index():
             results.update(cp=v, cp_interp=interp, cp_cls=cls)
         except Exception as e:
             results["cp_error"] = str(e)
+
+    elif calc == "fena":
+        try:
+            v = fena(float(form["fena_una"]), float(form["fena_pna"]), float(form["fena_ucr"]), float(form["fena_pcr"]))
+            interp, cls = _fena_interp(v)
+            results.update(fena=v, fena_interp=interp, fena_cls=cls)
+        except Exception as e:
+            results["fena_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

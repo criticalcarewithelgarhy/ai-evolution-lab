@@ -9,6 +9,7 @@ from calculator import (
     has_bled,
     meld_na,
     child_pugh,
+    fena,
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
@@ -565,3 +566,18 @@ def test_child_pugh_class_c_maximum():
 def test_child_pugh_bad_grade():
     with pytest.raises(ValueError):
         child_pugh(1.0, 4.0, 1.1, 0, 1)
+
+
+def test_fena_prerenal():
+    # (10 × 2) / (140 × 100) × 100 = 0.14 %
+    assert fena(10, 140, 100, 2) == 0.14
+
+
+def test_fena_intrinsic():
+    # (60 × 3) / (135 × 40) × 100 = 3.33 %
+    assert fena(60, 135, 40, 3) == 3.33
+
+
+def test_fena_bad_input():
+    with pytest.raises(ValueError):
+        fena(20, 140, 0, 1)

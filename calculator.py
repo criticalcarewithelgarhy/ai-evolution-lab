@@ -423,3 +423,16 @@ def child_pugh(bilirubin: float, albumin: float, inr: float, ascites: int, encep
     score += 1 if albumin > 3.5 else (2 if albumin >= 2.8 else 3)
     score += 1 if inr < 1.7 else (2 if inr <= 2.3 else 3)
     return score + ascites + encephalopathy
+
+
+def fena(urine_na: float, plasma_na: float, urine_cr: float, plasma_cr: float) -> float:
+    """
+    Fractional excretion of sodium (FENa) = (U_Na × P_Cr) / (P_Na × U_Cr) × 100.
+    Sodium in mEq/L, creatinine in mg/dL (urine and plasma in the same units); result in %.
+    In oliguric AKI: < 1 % suggests prerenal; > 2 % suggests intrinsic (ATN). Unreliable on diuretics.
+    """
+    if urine_na < 0:
+        raise ValueError("Urine sodium must be non-negative")
+    if plasma_na <= 0 or urine_cr <= 0 or plasma_cr <= 0:
+        raise ValueError("Plasma sodium, urine creatinine and plasma creatinine must be positive")
+    return round(urine_na * plasma_cr / (plasma_na * urine_cr) * 100, 2)

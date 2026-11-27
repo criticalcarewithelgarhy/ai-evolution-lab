@@ -449,3 +449,15 @@ def feurea(urine_urea: float, plasma_urea: float, urine_cr: float, plasma_cr: fl
     if plasma_urea <= 0 or urine_cr <= 0 or plasma_cr <= 0:
         raise ValueError("Plasma urea, urine creatinine and plasma creatinine must be positive")
     return round(urine_urea * plasma_cr / (plasma_urea * urine_cr) * 100, 2)
+
+
+def urine_anion_gap(urine_na: float, urine_k: float, urine_cl: float) -> float:
+    """
+    Urine anion gap (UAG) = U_Na + U_K − U_Cl, all in mEq/L.
+    Evaluates normal anion gap (hyperchloraemic) metabolic acidosis:
+    negative (≈ −20 to −50) suggests appropriate NH4+ excretion (GI bicarbonate loss, e.g. diarrhoea);
+    positive suggests impaired renal acidification (distal RTA, type 4 RTA).
+    """
+    if urine_na < 0 or urine_k < 0 or urine_cl < 0:
+        raise ValueError("Urine sodium, potassium and chloride must be non-negative")
+    return round(urine_na + urine_k - urine_cl, 1)

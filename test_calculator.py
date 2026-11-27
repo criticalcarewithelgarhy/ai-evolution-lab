@@ -11,6 +11,7 @@ from calculator import (
     child_pugh,
     fena,
     feurea,
+    urine_anion_gap,
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
@@ -597,3 +598,18 @@ def test_feurea_intrinsic():
 def test_feurea_bad_input():
     with pytest.raises(ValueError):
         feurea(200, 0, 100, 2)
+
+
+def test_urine_anion_gap_negative():
+    # 40 + 20 − 100 = −40 (GI bicarbonate loss)
+    assert urine_anion_gap(40, 20, 100) == -40.0
+
+
+def test_urine_anion_gap_positive():
+    # 60 + 30 − 70 = 20 (renal tubular acidosis)
+    assert urine_anion_gap(60, 30, 70) == 20.0
+
+
+def test_urine_anion_gap_bad_input():
+    with pytest.raises(ValueError):
+        urine_anion_gap(40, -1, 100)

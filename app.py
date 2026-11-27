@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, fena, feurea, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, fena, feurea, urine_anion_gap, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -998,10 +998,33 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Urine anion gap</h2>
+    <div class="formula">UAG = U_Na + U_K − U_Cl</div>
+    <form method="POST" action="/#uag">
+      <input type="hidden" name="calc" value="uag">
+      <div class="field"><label>Urine Na⁺ (mEq/L)</label>
+        <input type="number" step="any" name="uag_na" value="{{ form.uag_na or '' }}" placeholder="40"></div>
+      <div class="field"><label>Urine K⁺ (mEq/L)</label>
+        <input type="number" step="any" name="uag_k" value="{{ form.uag_k or '' }}" placeholder="20"></div>
+      <div class="field"><label>Urine Cl⁻ (mEq/L)</label>
+        <input type="number" step="any" name="uag_cl" value="{{ form.uag_cl or '' }}" placeholder="100"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.uag is defined %}
+    <div class="result" id="uag">
+      <span class="val">{{ results.uag }}</span><span class="unit">mEq/L</span>
+      <div class="interp {{ results.uag_cls }}">{{ results.uag_interp }}</div>
+    </div>
+    {% elif results.uag_error is defined %}
+    <div class="error">{{ results.uag_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0028 · 2026-11-27 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh · FENa · FEUrea</span>
+  <span>gen-breadth-0029 · 2026-11-27 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh · FENa · FEUrea · Urine AG</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1216,6 +1239,11 @@ def _feu_interp(v):
     if v <= 35: return f"{v} % — ≤ 35 % — Suggests prerenal AKI (valid on diuretics)", "warn"
     if v <= 50: return f"{v} % — 35–50 % — Indeterminate", "warn"
     return f"{v} % — > 50 % — Suggests intrinsic renal injury (ATN)", "crit"
+
+
+def _uag_interp(v):
+    if v < 0: return f"{v} mEq/L — negative — appropriate NH₄⁺ excretion; suggests GI bicarbonate loss (diarrhoea) in NAGMA", "normal"
+    return f"{v} mEq/L — positive — impaired renal acid excretion; suggests distal or type 4 RTA in NAGMA (unreliable if ketones/drug anions or U_Na < 20)", "warn"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1520,6 +1548,14 @@ def index():
             results.update(feu=v, feu_interp=interp, feu_cls=cls)
         except Exception as e:
             results["feu_error"] = str(e)
+
+    elif calc == "uag":
+        try:
+            v = urine_anion_gap(float(form["uag_na"]), float(form["uag_k"]), float(form["uag_cl"]))
+            interp, cls = _uag_interp(v)
+            results.update(uag=v, uag_interp=interp, uag_cls=cls)
+        except Exception as e:
+            results["uag_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

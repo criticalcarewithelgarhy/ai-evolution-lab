@@ -268,9 +268,10 @@ def index():
             interp, cls = _crcl_interp(v)
             results.update(crcl=v, crcl_interp=interp, crcl_cls=cls)
             if form.get("height", "").strip():
-                wt, basis = crcl_dosing_weight(float(form["weight"]), float(form["height"]),
-                                               form.get("sex", "male"))
-                a = creatinine_clearance(float(form["age"]), wt,
+                exact, basis = crcl_dosing_weight(float(form["weight"]), float(form["height"]),
+                                                  form.get("sex", "male"), ndigits=None)
+                wt = round(exact, 1)  # display only; CrCl uses the unrounded weight
+                a = creatinine_clearance(float(form["age"]), exact,
                                          float(form["creatinine"]), form.get("sex", "male"))
                 ai, ac = _crcl_interp(a)
                 results.update(crcl_adj=a, crcl_adj_interp=ai, crcl_adj_cls=ac,

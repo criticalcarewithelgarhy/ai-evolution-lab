@@ -359,3 +359,16 @@ def test_map_dbp_lower_bound(dbp):
     with pytest.raises(ValueError):
         mean_arterial_pressure(120, dbp)
     assert mean_arterial_pressure(40, 10) == 20.0
+
+
+def test_crcl_adjusted_not_double_rounded():
+    # Adjusted CrCl was computed from the dosing weight already rounded to 0.1 kg
+    # (156 kg, 172 cm male: AdjBW 103.0488 -> 103.0), shifting CrCl 873.1 to 872.6
+    from calculator import crcl_dosing_weight
+    from app import app
+    exact, basis = crcl_dosing_weight(156, 172, "male", ndigits=None)
+    assert basis == "adjusted" and abs(exact - 103.0488) < 1e-3
+    assert crcl_dosing_weight(156, 172, "male") == (103.0, "adjusted")
+    html = app.test_client().post("/", data={"calc": "crcl", "age": "18", "weight": "156",
+        "creatinine": "0.2", "sex": "male", "height": "172"}).get_data(as_text=True)
+    assert "adjusted body weight 103.0 kg: CrCl 873.1" in html

@@ -135,13 +135,14 @@ def creatinine_clearance(
     return round(result, 1)
 
 
-def crcl_dosing_weight(weight: float, height_cm: float, sex: str) -> tuple:
+def crcl_dosing_weight(weight: float, height_cm: float, sex: str, ndigits=1) -> tuple:
     """
     Weight for Cockcroft-Gault (actual-weight CG overestimates CrCl in obesity).
     IBW (Devine): 50 kg male / 45.5 kg female + 2.3 kg per inch over 60 in
     (no subtraction below 5 ft). Use actual weight if below IBW, adjusted weight
     IBW + 0.4 * (actual - IBW) if above 120% of IBW, otherwise IBW.
-    Returns (kg, basis).
+    Returns (kg, basis); ndigits=None returns the unrounded weight so a CrCl
+    computed from it is not double-rounded (up to ~0.5 mL/min error at extremes).
     """
     _require_finite(weight=weight, height_cm=height_cm)
     if not (20 <= weight <= 650):
@@ -157,6 +158,7 @@ def crcl_dosing_weight(weight: float, height_cm: float, sex: str) -> tuple:
     ibw = base + 2.3 * max(0.0, height_cm / 2.54 - 60)
     if weight < ibw:
         return weight, "actual"
+    rnd = (lambda x: x) if ndigits is None else (lambda x: round(x, ndigits))
     if weight > 1.2 * ibw:
-        return round(ibw + 0.4 * (weight - ibw), 1), "adjusted"
-    return round(ibw, 1), "ideal"
+        return rnd(ibw + 0.4 * (weight - ibw)), "adjusted"
+    return rnd(ibw), "ideal"

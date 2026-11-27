@@ -131,7 +131,7 @@ TEMPLATE = """<!DOCTYPE html>
       <div class="field"><label>Sodium Na⁺ (mEq/L)</label>
         <input type="number" step="any" name="na" value="{{ form.na or '' }}" placeholder="140"></div>
       <div class="field"><label>Chloride Cl⁻ (mEq/L)</label>
-        <input type="number" step="any" name="cl" value="{{ form.cl or '' }}" placeholder="104"></div>
+        <input type="number" step="any" name="cl" value="{{ form.cl or '' }}" placeholder="104" min="20" max="200"></div>
       <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L)</label>
         <input type="number" step="any" name="hco3" value="{{ form.hco3 or '' }}" placeholder="24"></div>
       <div class="field"><label>Albumin (g/dL, optional — corrects AG)</label>

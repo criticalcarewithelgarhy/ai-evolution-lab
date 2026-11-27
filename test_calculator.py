@@ -343,3 +343,11 @@ def test_crcl_weight_lower_bound(w):
     with pytest.raises(ValueError):
         creatinine_clearance(50, w, 1.0, "male")
     assert creatinine_clearance(50, 20, 1.0, "male") == 25.0
+
+
+@pytest.mark.parametrize("cl", [0, 10, 14, 19.9])
+def test_anion_gap_chloride_lower_bound(cl):
+    # Dropped-digit typo (10 for 104) previously returned AG 106, a false high-AG acidosis
+    with pytest.raises(ValueError):
+        anion_gap(140, cl, 24)
+    assert anion_gap(140, 20, 24) == 96.0

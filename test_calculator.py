@@ -33,6 +33,7 @@ from calculator import (
     ventilatory_ratio,
     parkland_formula,
     bicarbonate_deficit,
+    cerebral_perfusion_pressure,
     DISCLAIMER,
 )
 
@@ -456,3 +457,20 @@ def test_bcd_bad_inputs():
         bicarbonate_deficit(10, 0)
     with pytest.raises(ValueError):
         bicarbonate_deficit(-1, 70)
+
+
+def test_cpp_typical():
+    # MAP 85, ICP 15 → 70 mmHg
+    assert cerebral_perfusion_pressure(85, 15) == 70.0
+
+
+def test_cpp_low():
+    # MAP 70.5, ICP 25 → 45.5 mmHg
+    assert cerebral_perfusion_pressure(70.5, 25) == 45.5
+
+
+def test_cpp_bad_inputs():
+    with pytest.raises(ValueError):
+        cerebral_perfusion_pressure(80, -1)
+    with pytest.raises(ValueError):
+        cerebral_perfusion_pressure(-5, 10)

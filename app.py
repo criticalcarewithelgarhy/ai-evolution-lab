@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, fractional_excretion_urea, ventilatory_ratio, parkland_formula, bicarbonate_deficit, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, fractional_excretion_urea, ventilatory_ratio, parkland_formula, bicarbonate_deficit, cerebral_perfusion_pressure, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -290,10 +290,15 @@ TEMPLATE = """{% macro result(key, unit="") %}
       {{ num("bcd_wt", "Weight (kg)", "70", "0.1") }}
   {% endcall %}
 
+  {% call card("cpp", "Cerebral Perfusion Pressure", "CPP = MAP − ICP", "mmHg") %}
+      {{ num("cpp_map", "Mean Arterial Pressure (mmHg)", "85") }}
+      {{ num("cpp_icp", "Intracranial Pressure (mmHg)", "15") }}
+  {% endcall %}
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa · FEUrea · VR · Parkland · HCO₃⁻ deficit</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa · FEUrea · VR · Parkland · HCO₃⁻ deficit · CPP</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -438,6 +443,12 @@ def _bcd_interp(v):
     if v <= 0: return "No bicarbonate deficit (HCO₃⁻ ≥ 24)", "normal"
     return f"Replace ~half ({v / 2:.0f} mEq) over first hours, recheck ABG — benefit mainly if pH < 7.1 or AKI", "warn"
 
+def _cpp_interp(v):
+    if v < 50:  return "< 50 mmHg — cerebral ischaemia risk", "crit"
+    if v < 60:  return "50–60 mmHg — below TBI target", "warn"
+    if v <= 70: return "60–70 mmHg — within TBI target", "normal"
+    return "> 70 mmHg — above target; avoid aggressive augmentation (ARDS risk)", "warn"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -507,6 +518,8 @@ CALCS = {
             lambda v, f: _pkl_interp(v)),
     "bcd": (lambda f: bicarbonate_deficit(_n(f, "bcd_hco3"), _n(f, "bcd_wt")),
             lambda v, f: _bcd_interp(v)),
+    "cpp": (lambda f: cerebral_perfusion_pressure(_n(f, "cpp_map"), _n(f, "cpp_icp")),
+            lambda v, f: _cpp_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

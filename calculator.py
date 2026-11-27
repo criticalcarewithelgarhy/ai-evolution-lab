@@ -271,6 +271,15 @@ def bicarbonate_deficit(bicarbonate: float, weight: float, target: float = 24) -
     return round(0.5 * weight * (target - bicarbonate), 1)
 
 
+def cerebral_perfusion_pressure(map_mmhg: float, icp: float) -> float:
+    """
+    Cerebral perfusion pressure = MAP − ICP. Both in mmHg.
+    Brain Trauma Foundation target 60–70 mmHg in severe TBI.
+    """
+    if map_mmhg < 0 or icp < 0:
+        raise ValueError("MAP and ICP must be non-negative")
+    return round(map_mmhg - icp, 1)
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

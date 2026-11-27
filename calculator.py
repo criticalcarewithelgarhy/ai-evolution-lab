@@ -261,6 +261,16 @@ def parkland_formula(weight: float, tbsa: float) -> float:
     return round(4 * weight * tbsa, 1)
 
 
+def bicarbonate_deficit(bicarbonate: float, weight: float, target: float = 24) -> float:
+    """
+    Bicarbonate deficit = 0.5 × weight × (target HCO3 − measured HCO3). HCO3 in mEq/L, weight in kg; result in mEq.
+    Negative means no deficit. Typically replace half over the first few hours, guided by repeat gases.
+    """
+    if bicarbonate < 0 or weight <= 0:
+        raise ValueError("Bicarbonate must be non-negative and weight positive")
+    return round(0.5 * weight * (target - bicarbonate), 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

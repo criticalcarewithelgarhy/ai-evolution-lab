@@ -32,6 +32,7 @@ from calculator import (
     qtc_bazett,
     ventilatory_ratio,
     parkland_formula,
+    bicarbonate_deficit,
     DISCLAIMER,
 )
 
@@ -437,3 +438,21 @@ def test_parkland_bad_inputs():
         parkland_formula(0, 20)
     with pytest.raises(ValueError):
         parkland_formula(70, 120)
+
+
+
+def test_bcd_typical():
+    # HCO3 10, 70 kg → 0.5 × 70 × 14 = 490 mEq
+    assert bicarbonate_deficit(10, 70) == 490.0
+
+
+def test_bcd_no_deficit():
+    # HCO3 28, 60 kg → 0.5 × 60 × −4 = −120
+    assert bicarbonate_deficit(28, 60) == -120.0
+
+
+def test_bcd_bad_inputs():
+    with pytest.raises(ValueError):
+        bicarbonate_deficit(10, 0)
+    with pytest.raises(ValueError):
+        bicarbonate_deficit(-1, 70)

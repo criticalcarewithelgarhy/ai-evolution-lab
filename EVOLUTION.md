@@ -257,3 +257,12 @@ outcome: accepted
 metrics: lines=558 dead=0
 note: anion_gap now raises ValueError when Cl⁻ + HCO₃⁻ exceeds Na⁺ by more than 10 mEq/L (e.g. a chloride typo of 130 for 103, which produced a bogus gap of -30); gaps ≥ -10 unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0026
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: reject-implausible-age-ceiling-crcl
+outcome: accepted
+metrics: lines=564 dead=0
+note: creatinine_clearance now raises ValueError for age above 120 years (e.g. a typo of 130 for 30, which previously returned a bogus CrCl of 9.7); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
+---

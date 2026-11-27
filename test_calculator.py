@@ -31,6 +31,7 @@ from calculator import (
     rsbi,
     qtc_bazett,
     ventilatory_ratio,
+    parkland_formula,
     DISCLAIMER,
 )
 
@@ -419,3 +420,20 @@ def test_vr_bad_inputs():
         ventilatory_ratio(0, 40, 70)
     with pytest.raises(ValueError):
         ventilatory_ratio(8, 40, 0)
+
+
+def test_parkland_typical():
+    # 70 kg, 30% TBSA → 4 × 70 × 30 = 8400 mL / 24 h
+    assert parkland_formula(70, 30) == 8400.0
+
+
+def test_parkland_small_burn():
+    # 80 kg, 10% TBSA → 3200 mL
+    assert parkland_formula(80, 10) == 3200.0
+
+
+def test_parkland_bad_inputs():
+    with pytest.raises(ValueError):
+        parkland_formula(0, 20)
+    with pytest.raises(ValueError):
+        parkland_formula(70, 120)

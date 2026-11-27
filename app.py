@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, fractional_excretion_urea, ventilatory_ratio, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, fractional_excretion_urea, ventilatory_ratio, parkland_formula, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -280,10 +280,15 @@ TEMPLATE = """{% macro result(key, unit="") %}
       {{ num("vr_pbw", "Predicted Body Weight (kg)", "70", "0.1") }}
   {% endcall %}
 
+  {% call card("pkl", "Parkland Burn Resuscitation", "24-h volume = 4 mL × Weight × %TBSA; ½ in first 8 h", "mL / 24 h") %}
+      {{ num("pkl_wt", "Weight (kg)", "70", "0.1") }}
+      {{ num("pkl_tbsa", "Burned TBSA (%, 2nd/3rd degree)", "30", "0.1") }}
+  {% endcall %}
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa · FEUrea · VR</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa · FEUrea · VR · Parkland</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -421,6 +426,9 @@ def _vr_interp(v):
     if v <= 2:   return "1.5–2 — increased dead space", "warn"
     return "> 2 — high dead space, associated with higher ARDS mortality", "crit"
 
+def _pkl_interp(v):
+    return f"First 8 h: {v / 2:.0f} mL ({v / 16:.0f} mL/h); next 16 h: {v / 2:.0f} mL ({v / 32:.0f} mL/h) — titrate to urine output 0.5 mL/kg/h", "normal"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -486,6 +494,8 @@ CALCS = {
             lambda v, f: _feu_interp(v)),
     "vr": (lambda f: ventilatory_ratio(_n(f, "vr_ve"), _n(f, "vr_paco2"), _n(f, "vr_pbw")),
            lambda v, f: _vr_interp(v)),
+    "pkl": (lambda f: parkland_formula(_n(f, "pkl_wt"), _n(f, "pkl_tbsa")),
+            lambda v, f: _pkl_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

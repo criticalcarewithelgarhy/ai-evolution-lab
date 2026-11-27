@@ -251,6 +251,16 @@ def ventilatory_ratio(minute_ventilation: float, paco2: float, pbw: float) -> fl
     return round(minute_ventilation * 1000 * paco2 / (pbw * 100 * 37.5), 2)
 
 
+def parkland_formula(weight: float, tbsa: float) -> float:
+    """
+    Parkland formula (Baxter, 1968): 24-h crystalloid volume = 4 mL × weight × %TBSA burned.
+    weight in kg, tbsa in % (0-100); result in mL. Give half in the first 8 h from time of burn.
+    """
+    if weight <= 0 or not (0 <= tbsa <= 100):
+        raise ValueError("Weight must be positive and TBSA between 0 and 100")
+    return round(4 * weight * tbsa, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

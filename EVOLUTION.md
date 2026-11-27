@@ -213,3 +213,11 @@ idea: body-surface-area
 outcome: accepted
 metrics: lines=308 dead=-1 cap=1500 headroom=1192
 note: Added bodySurfaceArea (Mosteller √(height[cm] × weight[kg] / 3600), m², rounded to 2 dp, throws if height or weight <= 0) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0026
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: cardiac-index
+outcome: accepted
+metrics: lines=318 dead=-1 cap=1500 headroom=1182
+note: Added cardiacIndex (CO / Mosteller BSA, L/min/m², rounded to 2 dp, reusing bodySurfaceArea, throws if CO <= 0) with two tests; four original formulas untouched, oracle 16/16 passing.

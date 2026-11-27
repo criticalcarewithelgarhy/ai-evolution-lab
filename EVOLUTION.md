@@ -285,3 +285,13 @@ outcome: accepted
 metrics: lines=998 dead=0
 note: Added bicarbonate_deficit() (0.5 × weight × (24 − HCO3)) with 3 tests and a 27th app card suggesting replacement of about half the deficit with repeat ABG checks, complementing the acid-base cards; tag gen-0029 was not pushed (git proxy refused tag push).
 ---
+
+---
+gen: 0030
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: add cerebral perfusion pressure
+outcome: accepted
+metrics: lines=1027 dead=0
+note: Added cerebral_perfusion_pressure() (MAP − ICP) with 3 tests and a 28th app card flagging < 50 mmHg as ischaemia risk and 60–70 mmHg as the Brain Trauma Foundation TBI target, adding neurocritical care to the ICU set; tag gen-0030 was not pushed (git proxy refused tag push).
+---

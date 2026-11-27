@@ -212,3 +212,13 @@ outcome: accepted
 metrics: gen=0020 lines=360 dead=0 cap=1500 headroom=1140
 note: Added rox_index ((SpO2 / FiO2) / RR, validated) with two tests, giving a bedside predictor of high-flow nasal cannula success to complement the oxygenation and ventilation tools.
 ---
+
+---
+gen: 0022
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: extract FiO2 validation helper
+outcome: accepted
+metrics: gen=0021 lines=361 dead=0 cap=1500 headroom=1139
+note: Factored the FiO2 range check duplicated in pf_ratio, aa_gradient and rox_index into a shared _check_fio2 helper, with no change to numerical output.
+---

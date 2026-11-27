@@ -292,3 +292,13 @@ outcome: accepted
 metrics: lines=665 dead=0
 note: mean_arterial_pressure silently turned a dropped-digit diastolic typo (8 for 80 with SBP 120) into a MAP of 45.3, a false vasopressor-threshold label; it now raises ValueError for DBP below 10 mmHg and the form sets min=10, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0030
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: crcl-adjusted-no-double-rounding
+outcome: accepted
+metrics: lines=677 dead=0
+note: The weight-adjusted CrCl was computed from a dosing weight already rounded to 0.1 kg (156 kg, 172 cm male: AdjBW 103.0488 -> 103.0, CrCl 872.6 instead of 873.1), so crcl_dosing_weight gains ndigits=None and the app now computes CrCl from the unrounded weight while displaying it rounded, leaving raw CrCl and all default outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

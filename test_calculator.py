@@ -56,6 +56,12 @@ def test_map_implausible_diastolic_ceiling():
     assert mean_arterial_pressure(250, 200) == 216.7
 
 
+def test_map_implausibly_narrow_pulse_pressure():
+    with pytest.raises(ValueError):
+        mean_arterial_pressure(120, 118)  # e.g. typo for 120/18 or 128/118
+    assert mean_arterial_pressure(85, 80) == 81.7
+
+
 def test_pf_ratio_normal():
     assert pf_ratio(100, 1.0) == 100.0
 

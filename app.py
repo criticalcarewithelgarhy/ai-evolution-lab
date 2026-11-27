@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, fractional_excretion_urea, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, fractional_excretion_urea, ventilatory_ratio, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -274,10 +274,16 @@ TEMPLATE = """{% macro result(key, unit="") %}
       {{ num("feu_pcr", "Plasma Creatinine (mg/dL)", "2.0", "0.1") }}
   {% endcall %}
 
+  {% call card("vr", "Ventilatory Ratio", "VR = (V<sub>E</sub> × 1000 × PaCO₂) / (PBW × 100 × 37.5)") %}
+      {{ num("vr_ve", "Minute Ventilation (L/min)", "9", "0.1") }}
+      {{ num("vr_paco2", "PaCO₂ (mmHg)", "45") }}
+      {{ num("vr_pbw", "Predicted Body Weight (kg)", "70", "0.1") }}
+  {% endcall %}
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa · FEUrea</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa · FEUrea · VR</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -410,6 +416,11 @@ def _feu_interp(v):
     if v <= 50: return "35–50% — indeterminate", "warn"
     return "> 50% — suggests intrinsic renal injury (e.g. ATN)", "crit"
 
+def _vr_interp(v):
+    if v <= 1.5: return "≤ 1.5 — near-normal ventilatory efficiency", "normal"
+    if v <= 2:   return "1.5–2 — increased dead space", "warn"
+    return "> 2 — high dead space, associated with higher ARDS mortality", "crit"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -473,6 +484,8 @@ CALCS = {
              lambda v, f: _fena_interp(v)),
     "feu": (lambda f: fractional_excretion_urea(_n(f, "feu_uu"), _n(f, "feu_pu"), _n(f, "feu_ucr"), _n(f, "feu_pcr")),
             lambda v, f: _feu_interp(v)),
+    "vr": (lambda f: ventilatory_ratio(_n(f, "vr_ve"), _n(f, "vr_paco2"), _n(f, "vr_pbw")),
+           lambda v, f: _vr_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

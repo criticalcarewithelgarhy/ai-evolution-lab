@@ -241,6 +241,16 @@ def fractional_excretion_urea(urine_urea: float, plasma_urea: float, urine_cr: f
     return round(urine_urea * plasma_cr / (plasma_urea * urine_cr) * 100, 1)
 
 
+def ventilatory_ratio(minute_ventilation: float, paco2: float, pbw: float) -> float:
+    """
+    Ventilatory ratio (Sinha, 2009) = (VE × 1000 × PaCO2) / (PBW × 100 × 37.5). VE in L/min, PaCO2 in mmHg, PBW in kg.
+    Dead-space surrogate: ~1 normal; > 2 associated with higher ARDS mortality.
+    """
+    if minute_ventilation <= 0 or paco2 <= 0 or pbw <= 0:
+        raise ValueError("VE, PaCO2 and PBW must be positive")
+    return round(minute_ventilation * 1000 * paco2 / (pbw * 100 * 37.5), 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

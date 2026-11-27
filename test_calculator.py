@@ -30,6 +30,7 @@ from calculator import (
     static_compliance,
     rsbi,
     qtc_bazett,
+    ventilatory_ratio,
     DISCLAIMER,
 )
 
@@ -400,3 +401,21 @@ def test_feurea_bad_inputs():
         fractional_excretion_urea(300, 40, 0, 2)
     with pytest.raises(ValueError):
         fractional_excretion_urea(300, 0, 80, 2)
+
+
+
+def test_vr_normal():
+    # VE 7.5 L/min, PaCO2 37.5, PBW 75 → 281250 / 281250 = 1.0
+    assert ventilatory_ratio(7.5, 37.5, 75) == 1.0
+
+
+def test_vr_high_dead_space():
+    # VE 12, PaCO2 50, PBW 60 → 600000 / 225000 = 2.67
+    assert ventilatory_ratio(12, 50, 60) == 2.67
+
+
+def test_vr_bad_inputs():
+    with pytest.raises(ValueError):
+        ventilatory_ratio(0, 40, 70)
+    with pytest.raises(ValueError):
+        ventilatory_ratio(8, 40, 0)

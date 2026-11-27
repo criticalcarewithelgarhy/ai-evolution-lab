@@ -282,3 +282,13 @@ outcome: accepted
 metrics: lines=658 dead=0
 note: anion_gap silently turned a dropped-digit chloride typo (10 for 104) into a false AG of 106, inventing a high-AG acidosis; it now raises ValueError below 20 mEq/L (far below any survivable recorded value) and the form sets min=20/max=200, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0029
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: validate-dbp-lower-bound
+outcome: accepted
+metrics: lines=665 dead=0
+note: mean_arterial_pressure silently turned a dropped-digit diastolic typo (8 for 80 with SBP 120) into a MAP of 45.3, a false vasopressor-threshold label; it now raises ValueError for DBP below 10 mmHg and the form sets min=10, leaving all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

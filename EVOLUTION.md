@@ -255,3 +255,12 @@ outcome: accepted
 metrics: lines=2039 dead=0
 note: Added Child-Pugh cirrhosis score (bilirubin, albumin, INR, ascites, encephalopathy, 1–3 points each; class A 5–6 / B 7–9 / C 10–15) with 4 tests and Flask card giving 1-year survival bands alongside MELD-Na; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0026 exists locally only.
 ---
+---
+gen: breadth-0027
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: add fractional excretion of sodium
+outcome: accepted
+metrics: lines=2093 dead=0
+note: Added FENa ((U_Na × P_Cr) / (P_Na × U_Cr) × 100; < 1 % prerenal, 1–2 % indeterminate, > 2 % intrinsic/ATN, unreliable on diuretics) with 3 tests and Flask card; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0027 exists locally only. 
+---

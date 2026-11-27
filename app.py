@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, pulmonary_vascular_resistance, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, pulmonary_vascular_resistance, cardiac_power_output, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -817,6 +817,27 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Cardiac Power Output</h2>
+    <div class="formula">CPO = MAP × CO / 451</div>
+    <form method="POST" action="/#cpo">
+      <input type="hidden" name="calc" value="cpo">
+      <div class="field"><label>Mean Arterial Pressure (mmHg)</label>
+        <input type="number" name="cpo_map" step="0.1" value="{{ form.cpo_map or '' }}" placeholder="75"></div>
+      <div class="field"><label>Cardiac Output (L/min)</label>
+        <input type="number" name="cpo_co" step="0.1" value="{{ form.cpo_co or '' }}" placeholder="5.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.cpo is defined %}
+    <div class="result" id="cpo">
+      <span class="val">{{ results.cpo }}</span><span class="unit">W</span>
+      <div class="interp {{ results.cpo_cls }}">{{ results.cpo_interp }}</div>
+    </div>
+    {% elif results.cpo_error is defined %}
+    <div class="error">{{ results.cpo_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -848,7 +869,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0029 · 2026-11-27 · Added: Systemic Vascular Resistance</span>
+  <span>gen-wild-0031 · 2026-11-27 · Added: Cardiac Power Output</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1022,6 +1043,12 @@ def _pvr_interp(v):
     if v <= 2:  return "≤ 2 WU — normal", "normal"
     if v <= 3:  return "2–3 WU — mildly elevated; pre-capillary PH if mPAP > 20 mmHg", "warn"
     return "> 3 WU — elevated; significant pre-capillary pulmonary vascular disease", "crit"
+
+
+def _cpo_interp(v):
+    if v < 0.6:  return "< 0.6 W — critically low; strongest predictor of mortality in cardiogenic shock", "crit"
+    if v < 0.8:  return "0.6–0.8 W — reduced cardiac power", "warn"
+    return "≥ 0.8 W — adequate cardiac power (normal ≈ 1 W at rest)", "normal"
 
 
 def _crcl_interp(v):
@@ -1326,6 +1353,14 @@ def index():
             results.update(pvr=v, pvr_dyn=round(v * 80), pvr_interp=interp, pvr_cls=cls)
         except Exception as e:
             results["pvr_error"] = str(e)
+
+    elif calc == "cpo":
+        try:
+            v = cardiac_power_output(float(form["cpo_map"]), float(form["cpo_co"]))
+            interp, cls = _cpo_interp(v)
+            results.update(cpo=v, cpo_interp=interp, cpo_cls=cls)
+        except Exception as e:
+            results["cpo_error"] = str(e)
 
     elif calc == "crcl":
         try:

@@ -449,6 +449,20 @@ def pulmonary_vascular_resistance(mpap: float, pawp: float, cardiac_output: floa
     return round((mpap - pawp) / cardiac_output, 2)
 
 
+def cardiac_power_output(map_mmhg: float, cardiac_output: float) -> float:
+    """
+    Cardiac power output (CPO, W) = MAP × CO / 451.
+    map_mmhg in mmHg, cardiac_output in L/min (451 converts mmHg·L/min to watts).
+    Normal ≈ 1 W at rest; < 0.6 W is the strongest haemodynamic predictor of
+    in-hospital mortality in cardiogenic shock (Fincke 2004, SHOCK trial).
+    """
+    if map_mmhg < 0:
+        raise ValueError("MAP must be non-negative")
+    if cardiac_output < 0:
+        raise ValueError("Cardiac output must be non-negative")
+    return round(map_mmhg * cardiac_output / 451, 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

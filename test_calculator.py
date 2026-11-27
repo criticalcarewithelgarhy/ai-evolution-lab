@@ -39,6 +39,7 @@ from calculator import (
     cardiac_index,
     systemic_vascular_resistance,
     pulmonary_vascular_resistance,
+    cardiac_power_output,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -553,3 +554,18 @@ def test_pvr_pulmonary_hypertension():
 def test_pvr_bad_pawp():
     with pytest.raises(ValueError):
         pulmonary_vascular_resistance(10, 15, 5)
+
+
+def test_cpo_normal():
+    # MAP 90, CO 5 → 450 / 451 = 0.998 → 1.0
+    assert cardiac_power_output(90, 5) == 1.0
+
+
+def test_cpo_cardiogenic_shock():
+    # MAP 60, CO 3 → 180 / 451 = 0.399 → 0.4
+    assert cardiac_power_output(60, 3) == 0.4
+
+
+def test_cpo_bad_co():
+    with pytest.raises(ValueError):
+        cardiac_power_output(80, -1)

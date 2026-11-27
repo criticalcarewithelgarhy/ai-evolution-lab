@@ -159,6 +159,14 @@ function oxygenExtractionRatio(sao2, svo2) {
     return Math.round(((sao2 - svo2) / sao2) * 100) / 100;
 }
 
+function oxygenConsumption(hb, sao2, svo2, co) {
+    // Fick VO2 (mL O2/min), dissolved O2 ignored: CO[L/min] × 1.34 × Hb[g/dL] × (SaO2 − SvO2)[%]/100 × 10 — normal ~200–250
+    if (co <= 0) throw new Error("CO must be > 0");
+    if (sao2 < 0 || sao2 > 100) throw new Error("SaO2 must be in [0, 100]");
+    if (svo2 < 0 || svo2 > sao2) throw new Error("SvO2 must be in [0, SaO2]");
+    return Math.round(co * 1.34 * hb * (sao2 - svo2) / 100 * 10);
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -166,4 +174,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, oxygenExtractionRatio, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, oxygenExtractionRatio, oxygenConsumption, creatinineClearance };

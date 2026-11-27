@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, oxygenExtractionRatio, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, oxygenExtractionRatio, oxygenConsumption, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -247,6 +247,15 @@ test("O2 extraction ratio septic shock", () => {
 
 test("O2 extraction ratio SvO2 above SaO2", () => {
     expect(() => oxygenExtractionRatio(90, 95)).toThrow();
+});
+
+test("O2 consumption normal", () => {
+    // 5 × 1.34 × 15 × (98 − 73)/100 × 10 = 251.25 → 251
+    expect(oxygenConsumption(15, 98, 73, 5)).toBe(251);
+});
+
+test("O2 consumption SvO2 above SaO2", () => {
+    expect(() => oxygenConsumption(15, 90, 95, 5)).toThrow();
 });
 
 test("CrCl male", () => {

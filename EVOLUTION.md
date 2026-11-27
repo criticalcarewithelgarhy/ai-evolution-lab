@@ -189,3 +189,11 @@ idea: oxygen-delivery
 outcome: accepted
 metrics: lines=275 dead=-1 cap=1500 headroom=1225
 note: Added oxygenDelivery (DO2 = CaO2 × CO × 10, mL/min, rounded to integer, throws if CO <= 0 or SaO2 outside [0, 100]) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0023
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: oxygen-extraction-ratio
+outcome: accepted
+metrics: lines=286 dead=-1 cap=1500 headroom=1214
+note: Added oxygenExtractionRatio (O2ER = (SaO2 − SvO2)/SaO2, simplified ignoring dissolved O2, rounded to 2 dp, throws if SaO2 outside (0, 100] or SvO2 outside [0, SaO2]) with two tests; four original formulas untouched, oracle 16/16 passing.

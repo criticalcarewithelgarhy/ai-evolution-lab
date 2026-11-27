@@ -273,3 +273,12 @@ outcome: accepted
 metrics: lines=2147 dead=0
 note: Added FEUrea ((U_urea × P_Cr) / (P_urea × U_Cr) × 100; ≤ 35 % prerenal, 35–50 % indeterminate, > 50 % intrinsic/ATN, valid on diuretics) with 3 tests and Flask card complementing FENa; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0028 exists locally only.
 ---
+---
+gen: breadth-0029
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: add urine anion gap
+outcome: accepted
+metrics: lines=2197 dead=0
+note: Added urine anion gap (U_Na + U_K − U_Cl; negative → GI bicarbonate loss, positive → distal/type 4 RTA in NAGMA) with 3 tests and Flask card; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0029 exists locally only.
+---

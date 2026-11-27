@@ -197,3 +197,11 @@ idea: oxygen-extraction-ratio
 outcome: accepted
 metrics: lines=286 dead=-1 cap=1500 headroom=1214
 note: Added oxygenExtractionRatio (O2ER = (SaO2 − SvO2)/SaO2, simplified ignoring dissolved O2, rounded to 2 dp, throws if SaO2 outside (0, 100] or SvO2 outside [0, SaO2]) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0024
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: oxygen-consumption
+outcome: accepted
+metrics: lines=298 dead=-1 cap=1500 headroom=1202
+note: Added oxygenConsumption (Fick VO2 = CO × 1.34 × Hb × (SaO2 − SvO2)/100 × 10, mL/min, dissolved O2 ignored, rounded to integer, throws if CO <= 0, SaO2 outside [0, 100] or SvO2 outside [0, SaO2]) with two tests; four original formulas untouched, oracle 16/16 passing.

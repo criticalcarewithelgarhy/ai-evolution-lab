@@ -38,6 +38,7 @@ from calculator import (
     oxygen_consumption,
     cardiac_index,
     systemic_vascular_resistance,
+    pulmonary_vascular_resistance,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -537,3 +538,18 @@ def test_svr_septic():
 def test_svr_bad_co():
     with pytest.raises(ValueError):
         systemic_vascular_resistance(90, 10, 0)
+
+
+def test_pvr_normal():
+    # mPAP 18, PAWP 10, CO 5 → 8 / 5 = 1.6 WU
+    assert pulmonary_vascular_resistance(18, 10, 5) == 1.6
+
+
+def test_pvr_pulmonary_hypertension():
+    # mPAP 40, PAWP 12, CO 4 → 28 / 4 = 7.0 WU
+    assert pulmonary_vascular_resistance(40, 12, 4) == 7.0
+
+
+def test_pvr_bad_pawp():
+    with pytest.raises(ValueError):
+        pulmonary_vascular_resistance(10, 15, 5)

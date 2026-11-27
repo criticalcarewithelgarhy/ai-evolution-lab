@@ -434,6 +434,21 @@ def systemic_vascular_resistance(map_mmhg: float, cvp: float, cardiac_output: fl
     return round(80 * (map_mmhg - cvp) / cardiac_output)
 
 
+def pulmonary_vascular_resistance(mpap: float, pawp: float, cardiac_output: float) -> float:
+    """
+    Pulmonary vascular resistance (PVR, Wood units) = (mPAP − PAWP) / CO.
+    Pressures in mmHg, cardiac_output in L/min; × 80 converts to dyn·s/cm⁵.
+    Normal < 2 WU; > 2 WU with mPAP > 20 mmHg defines pre-capillary pulmonary hypertension (ESC/ERS 2022).
+    """
+    if cardiac_output <= 0:
+        raise ValueError("Cardiac output must be positive")
+    if pawp < 0:
+        raise ValueError("PAWP must be non-negative")
+    if mpap < pawp:
+        raise ValueError("Mean PA pressure must be at least PAWP")
+    return round((mpap - pawp) / cardiac_output, 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

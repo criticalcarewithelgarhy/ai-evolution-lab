@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, pulmonary_vascular_resistance, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -794,6 +794,29 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Pulmonary Vascular Resistance</h2>
+    <div class="formula">PVR = (mPAP − PAWP) / CO</div>
+    <form method="POST" action="/#pvr">
+      <input type="hidden" name="calc" value="pvr">
+      <div class="field"><label>Mean PA Pressure (mmHg)</label>
+        <input type="number" name="pvr_mpap" step="0.1" value="{{ form.pvr_mpap or '' }}" placeholder="18"></div>
+      <div class="field"><label>PA Wedge Pressure (mmHg)</label>
+        <input type="number" name="pvr_pawp" step="0.1" value="{{ form.pvr_pawp or '' }}" placeholder="10"></div>
+      <div class="field"><label>Cardiac Output (L/min)</label>
+        <input type="number" name="pvr_co" step="0.1" value="{{ form.pvr_co or '' }}" placeholder="5.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.pvr is defined %}
+    <div class="result" id="pvr">
+      <span class="val">{{ results.pvr }}</span><span class="unit">WU ({{ results.pvr_dyn }} dyn·s/cm⁵)</span>
+      <div class="interp {{ results.pvr_cls }}">{{ results.pvr_interp }}</div>
+    </div>
+    {% elif results.pvr_error is defined %}
+    <div class="error">{{ results.pvr_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -993,6 +1016,12 @@ def _svr_interp(v):
     if v < 800:   return "< 800 dyn·s/cm⁵ — low; vasodilatory state (sepsis, anaphylaxis)", "warn"
     if v <= 1200: return "800–1200 dyn·s/cm⁵ — normal", "normal"
     return "> 1200 dyn·s/cm⁵ — high; vasoconstriction (cardiogenic / hypovolaemic shock)", "warn"
+
+
+def _pvr_interp(v):
+    if v <= 2:  return "≤ 2 WU — normal", "normal"
+    if v <= 3:  return "2–3 WU — mildly elevated; pre-capillary PH if mPAP > 20 mmHg", "warn"
+    return "> 3 WU — elevated; significant pre-capillary pulmonary vascular disease", "crit"
 
 
 def _crcl_interp(v):
@@ -1287,6 +1316,16 @@ def index():
             results.update(svr=v, svr_interp=interp, svr_cls=cls)
         except Exception as e:
             results["svr_error"] = str(e)
+
+    elif calc == "pvr":
+        try:
+            v = pulmonary_vascular_resistance(
+                float(form["pvr_mpap"]), float(form["pvr_pawp"]), float(form["pvr_co"]),
+            )
+            interp, cls = _pvr_interp(v)
+            results.update(pvr=v, pvr_dyn=round(v * 80), pvr_interp=interp, pvr_cls=cls)
+        except Exception as e:
+            results["pvr_error"] = str(e)
 
     elif calc == "crcl":
         try:

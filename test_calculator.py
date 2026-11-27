@@ -273,13 +273,14 @@ def test_crcl_adjusted_in_app():
     assert "body weight" not in c.post("/", data=data).get_data(as_text=True)
 
 
-@pytest.mark.parametrize("w", [0, -60, 700, float("inf")])
+@pytest.mark.parametrize("w", [0, -60, 7, 19.9, 700, float("inf")])
 def test_crcl_dosing_weight_rejects_impossible_weight(w):
     # Previously returned (w, "actual") or a huge "adjusted" weight silently
     from calculator import crcl_dosing_weight
     with pytest.raises(ValueError):
         crcl_dosing_weight(w, 177.8, "male")
     assert crcl_dosing_weight(650, 177.8, "male") == (303.8, "adjusted")
+    assert crcl_dosing_weight(20, 177.8, "male") == (20, "actual")
 
 
 def test_crcl_creatinine_lower_bound():

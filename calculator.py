@@ -136,10 +136,10 @@ def crcl_dosing_weight(weight: float, height_cm: float, sex: str) -> tuple:
     Returns (kg, basis).
     """
     _require_finite(weight=weight, height_cm=height_cm)
-    if not (0 < weight <= 650):
-        # Same bounds as creatinine_clearance; a negative/zero or extra-digit weight
-        # was otherwise returned as a plausible "actual"/"adjusted" dosing weight
-        raise ValueError("Weight must be positive and not exceed 650 kg")
+    if not (20 <= weight <= 650):
+        # Same bounds as creatinine_clearance; a dropped-digit (7 for 70), negative/zero or
+        # extra-digit weight was otherwise returned as a plausible "actual"/"adjusted" weight
+        raise ValueError("Weight must be between 20 and 650 kg")
     if not (100 <= height_cm <= 250):
         raise ValueError("Height must be between 100 and 250 cm")
     sex_key = str(sex).strip().lower()

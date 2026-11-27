@@ -199,3 +199,10 @@ def rox_index(spo2: float, fio2: float, respiratory_rate: float) -> float:
         raise ValueError("SpO2 must be 0-100 and respiratory rate positive")
     _check_fio2(fio2)
     return round(spo2 / fio2 / respiratory_rate, 2)
+
+
+def qsofa_score(respiratory_rate: float, systolic: float, altered_mentation: bool) -> int:
+    """qSOFA: 1 point each for RR >= 22, SBP <= 100, altered mentation; >= 2 flags sepsis risk"""
+    if respiratory_rate <= 0 or systolic <= 0:
+        raise ValueError("Respiratory rate and systolic pressure must be positive")
+    return int(respiratory_rate >= 22) + int(systolic <= 100) + int(bool(altered_mentation))

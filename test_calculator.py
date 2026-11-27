@@ -27,6 +27,7 @@ from calculator import (
     static_compliance,
     oxygenation_index,
     rox_index,
+    qsofa_score,
     DISCLAIMER,
 )
 
@@ -257,3 +258,14 @@ def test_rox_index_hfnc():
 def test_rox_index_bad_spo2():
     with pytest.raises(ValueError):
         rox_index(0, 0.5, 25)
+
+
+def test_qsofa_score_high_risk():
+    # RR 24, SBP 95, alert → 2
+    assert qsofa_score(24, 95, False) == 2
+    assert qsofa_score(16, 120, True) == 1
+
+
+def test_qsofa_score_bad_input():
+    with pytest.raises(ValueError):
+        qsofa_score(0, 120, False)

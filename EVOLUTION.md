@@ -222,3 +222,13 @@ outcome: accepted
 metrics: gen=0021 lines=361 dead=0 cap=1500 headroom=1139
 note: Factored the FiO2 range check duplicated in pf_ratio, aa_gradient and rox_index into a shared _check_fio2 helper, with no change to numerical output.
 ---
+
+---
+gen: 0023
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: add qSOFA score
+outcome: accepted
+metrics: gen=0022 lines=373 dead=0 cap=1500 headroom=1127
+note: Added qsofa_score (1 point each for RR >= 22, SBP <= 100, altered mentation) with validation and two tests, giving a bedside sepsis risk screen alongside the shock index and MAP.
+---

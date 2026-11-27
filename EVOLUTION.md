@@ -275,3 +275,13 @@ outcome: accepted
 metrics: lines=971 dead=0
 note: Added parkland_formula() (4 mL × weight × %TBSA, Baxter 1968) with 3 tests and a 26th app card splitting the 24-h crystalloid volume into first-8-h and next-16-h rates titrated to urine output, adding burn resuscitation to the ICU set; tag gen-0028 was not pushed (git proxy refused tag push).
 ---
+
+---
+gen: 0029
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: add bicarbonate deficit
+outcome: accepted
+metrics: lines=998 dead=0
+note: Added bicarbonate_deficit() (0.5 × weight × (24 − HCO3)) with 3 tests and a 27th app card suggesting replacement of about half the deficit with repeat ABG checks, complementing the acid-base cards; tag gen-0029 was not pushed (git proxy refused tag push).
+---

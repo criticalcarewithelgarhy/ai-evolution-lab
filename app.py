@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, fena, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, fena, feurea, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -973,10 +973,35 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>FEUrea (fractional excretion of urea)</h2>
+    <div class="formula">FEUrea = (U_urea × P_Cr) / (P_urea × U_Cr) × 100</div>
+    <form method="POST" action="/#feu">
+      <input type="hidden" name="calc" value="feurea">
+      <div class="field"><label>Urine urea nitrogen (mg/dL)</label>
+        <input type="number" step="any" name="feu_uu" value="{{ form.feu_uu or '' }}" placeholder="300"></div>
+      <div class="field"><label>Plasma BUN (mg/dL)</label>
+        <input type="number" step="any" name="feu_pu" value="{{ form.feu_pu or '' }}" placeholder="40"></div>
+      <div class="field"><label>Urine creatinine (mg/dL)</label>
+        <input type="number" step="any" name="feu_ucr" value="{{ form.feu_ucr or '' }}" placeholder="100"></div>
+      <div class="field"><label>Plasma creatinine (mg/dL)</label>
+        <input type="number" step="any" name="feu_pcr" value="{{ form.feu_pcr or '' }}" placeholder="2.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.feu is defined %}
+    <div class="result" id="feu">
+      <span class="val">{{ results.feu }}</span><span class="unit">%</span>
+      <div class="interp {{ results.feu_cls }}">{{ results.feu_interp }}</div>
+    </div>
+    {% elif results.feu_error is defined %}
+    <div class="error">{{ results.feu_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0027 · 2026-11-27 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh · FENa</span>
+  <span>gen-breadth-0028 · 2026-11-27 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh · FENa · FEUrea</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1185,6 +1210,12 @@ def _fena_interp(v):
     if v < 1: return f"{v} % — < 1 % — Suggests prerenal AKI (also contrast, early obstruction, hepatorenal)", "warn"
     if v <= 2: return f"{v} % — 1–2 % — Indeterminate", "warn"
     return f"{v} % — > 2 % — Suggests intrinsic renal injury (ATN); unreliable on diuretics — use FEUrea", "crit"
+
+
+def _feu_interp(v):
+    if v <= 35: return f"{v} % — ≤ 35 % — Suggests prerenal AKI (valid on diuretics)", "warn"
+    if v <= 50: return f"{v} % — 35–50 % — Indeterminate", "warn"
+    return f"{v} % — > 50 % — Suggests intrinsic renal injury (ATN)", "crit"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1481,6 +1512,14 @@ def index():
             results.update(fena=v, fena_interp=interp, fena_cls=cls)
         except Exception as e:
             results["fena_error"] = str(e)
+
+    elif calc == "feurea":
+        try:
+            v = feurea(float(form["feu_uu"]), float(form["feu_pu"]), float(form["feu_ucr"]), float(form["feu_pcr"]))
+            interp, cls = _feu_interp(v)
+            results.update(feu=v, feu_interp=interp, feu_cls=cls)
+        except Exception as e:
+            results["feu_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

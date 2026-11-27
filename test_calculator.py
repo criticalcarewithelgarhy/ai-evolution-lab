@@ -10,6 +10,7 @@ from calculator import (
     meld_na,
     child_pugh,
     fena,
+    feurea,
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
@@ -581,3 +582,18 @@ def test_fena_intrinsic():
 def test_fena_bad_input():
     with pytest.raises(ValueError):
         fena(20, 140, 0, 1)
+
+
+def test_feurea_prerenal():
+    # (200 × 2) / (40 × 100) × 100 = 10.0
+    assert feurea(200, 40, 100, 2) == 10.0
+
+
+def test_feurea_intrinsic():
+    # (300 × 3) / (30 × 50) × 100 = 60.0
+    assert feurea(300, 30, 50, 3) == 60.0
+
+
+def test_feurea_bad_input():
+    with pytest.raises(ValueError):
+        feurea(200, 0, 100, 2)

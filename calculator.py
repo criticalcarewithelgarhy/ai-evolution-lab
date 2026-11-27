@@ -436,3 +436,16 @@ def fena(urine_na: float, plasma_na: float, urine_cr: float, plasma_cr: float) -
     if plasma_na <= 0 or urine_cr <= 0 or plasma_cr <= 0:
         raise ValueError("Plasma sodium, urine creatinine and plasma creatinine must be positive")
     return round(urine_na * plasma_cr / (plasma_na * urine_cr) * 100, 2)
+
+
+def feurea(urine_urea: float, plasma_urea: float, urine_cr: float, plasma_cr: float) -> float:
+    """
+    Fractional excretion of urea (FEUrea) = (U_urea × P_Cr) / (P_urea × U_Cr) × 100.
+    Urea/BUN and creatinine in consistent units (urine and plasma alike); result in %.
+    Useful when on diuretics: ≤ 35 % suggests prerenal AKI; > 50 % suggests intrinsic (ATN).
+    """
+    if urine_urea < 0:
+        raise ValueError("Urine urea must be non-negative")
+    if plasma_urea <= 0 or urine_cr <= 0 or plasma_cr <= 0:
+        raise ValueError("Plasma urea, urine creatinine and plasma creatinine must be positive")
+    return round(urine_urea * plasma_cr / (plasma_urea * urine_cr) * 100, 2)

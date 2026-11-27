@@ -89,7 +89,7 @@ TEMPLATE = """<!DOCTYPE html>
       <div class="field"><label>Systolic BP (mmHg)</label>
         <input type="number" step="any" name="sbp" value="{{ form.sbp or '' }}" placeholder="120"></div>
       <div class="field"><label>Diastolic BP (mmHg)</label>
-        <input type="number" step="any" name="dbp" value="{{ form.dbp or '' }}" placeholder="80"></div>
+        <input type="number" step="any" name="dbp" value="{{ form.dbp or '' }}" placeholder="80" min="10"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
     {% if results.map is defined %}

@@ -351,3 +351,11 @@ def test_anion_gap_chloride_lower_bound(cl):
     with pytest.raises(ValueError):
         anion_gap(140, cl, 24)
     assert anion_gap(140, 20, 24) == 96.0
+
+
+@pytest.mark.parametrize("dbp", [0, 8, 9.9])
+def test_map_dbp_lower_bound(dbp):
+    # Dropped-digit typo (8 for 80) previously returned MAP 45.3, a false vasopressor threshold
+    with pytest.raises(ValueError):
+        mean_arterial_pressure(120, dbp)
+    assert mean_arterial_pressure(40, 10) == 20.0

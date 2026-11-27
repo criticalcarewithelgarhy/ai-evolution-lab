@@ -20,6 +20,10 @@ def mean_arterial_pressure(systolic: float, diastolic: float) -> float:
     _require_finite(systolic=systolic, diastolic=diastolic)
     if diastolic < 0:
         raise ValueError("Diastolic BP cannot be negative")
+    if diastolic < 10:
+        # Below any perfusing-rhythm value; almost always a dropped-digit typo
+        # (8 for 80 with SBP 120 reports MAP 45.3, a false vasopressor-threshold label)
+        raise ValueError("Diastolic BP must be at least 10 mmHg")
     if systolic < diastolic:
         raise ValueError("Systolic BP must be greater than or equal to diastolic BP")
     if systolic > 400:

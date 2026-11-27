@@ -205,3 +205,11 @@ idea: oxygen-consumption
 outcome: accepted
 metrics: lines=298 dead=-1 cap=1500 headroom=1202
 note: Added oxygenConsumption (Fick VO2 = CO × 1.34 × Hb × (SaO2 − SvO2)/100 × 10, mL/min, dissolved O2 ignored, rounded to integer, throws if CO <= 0, SaO2 outside [0, 100] or SvO2 outside [0, SaO2]) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0025
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: body-surface-area
+outcome: accepted
+metrics: lines=308 dead=-1 cap=1500 headroom=1192
+note: Added bodySurfaceArea (Mosteller √(height[cm] × weight[kg] / 3600), m², rounded to 2 dp, throws if height or weight <= 0) with two tests; four original formulas untouched, oracle 16/16 passing.

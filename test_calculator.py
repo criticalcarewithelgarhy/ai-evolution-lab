@@ -266,3 +266,11 @@ def test_app_unknown_calc_reports_error():
         html = client.post("/", data=data).get_data(as_text=True)
         assert "Unknown or missing calculator selection" in html
     assert "Unknown or missing" not in client.get("/").get_data(as_text=True)
+
+
+def test_app_rejects_oversized_post():
+    from app import app
+    client = app.test_client()
+    resp = client.post("/", data={"calc": "map", "sbp": "1" * 20000, "dbp": "80"})
+    assert resp.status_code == 413 and "too large" in resp.get_data(as_text=True)
+    assert client.post("/", data={"calc": "map", "sbp": "120", "dbp": "80"}).status_code == 200

@@ -13,6 +13,8 @@ from calculator import (
 )
 
 app = Flask(__name__)
+# Form posts are tiny; reject oversized bodies instead of parsing them.
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024
 
 TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -221,6 +223,11 @@ def _num(form, key):
         return float(raw)
     except ValueError:
         raise ValueError(f"Value for {key} must be a number") from None
+
+
+@app.errorhandler(413)
+def too_large(_e):
+    return "Request too large — form submissions are limited to 16 KB", 413
 
 
 @app.route("/", methods=["GET", "POST"])

@@ -266,3 +266,12 @@ outcome: accepted
 metrics: lines=564 dead=0
 note: creatinine_clearance now raises ValueError for age above 120 years (e.g. a typo of 130 for 30, which previously returned a bogus CrCl of 9.7); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0027
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: reject-implausibly-narrow-pulse-pressure
+outcome: accepted
+metrics: lines=570 dead=0
+note: mean_arterial_pressure now raises ValueError when systolic − diastolic is below 5 mmHg (e.g. 120/118, a likely typo for 120/18 or 128/118, which previously returned a bogus MAP of 118.7); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
+---

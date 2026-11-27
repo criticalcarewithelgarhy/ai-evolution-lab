@@ -275,3 +275,11 @@ outcome: accepted
 metrics: lines=570 dead=0
 note: mean_arterial_pressure now raises ValueError when systolic − diastolic is below 5 mmHg (e.g. 120/118, a likely typo for 120/18 or 128/118, which previously returned a bogus MAP of 118.7); valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
 ---
+gen: robust-0028
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: report-unknown-calc-selection
+outcome: accepted
+metrics: lines=580 dead=0
+note: app.py now shows "Unknown or missing calculator selection" when a POST has a missing or unrecognised calc field (previously it silently rendered an empty page with no result or error), with a Flask test-client test added; formula outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed python -m pip --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
+---

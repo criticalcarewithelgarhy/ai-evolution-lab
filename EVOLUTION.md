@@ -284,3 +284,12 @@ outcome: accepted
 metrics: lines=1972 dead=0
 note: Added pulmonary_vascular_resistance() ((mPAP − PAWP) / CO in Wood units, also shown ×80 in dyn·s/cm⁵) with UI card grading ≤ 2 normal, 2–3 mild, > 3 WU elevated (ESC/ERS 2022); metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0030 tag push.
 ---
+---
+gen: wild-0031
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: add cardiac power output
+outcome: accepted
+metrics: lines=2023 dead=0
+note: Added cardiac_power_output() (CPO = MAP × CO / 451, W) with UI card flagging < 0.6 W as the strongest mortality predictor in cardiogenic shock; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0031 tag push.
+---

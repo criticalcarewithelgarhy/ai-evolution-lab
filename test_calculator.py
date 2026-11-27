@@ -200,6 +200,12 @@ def test_crcl_pediatric_age_rejected():
     assert creatinine_clearance(18, 72, 1.0, "male") == 122.0
 
 
+def test_crcl_implausible_age_ceiling():
+    with pytest.raises(ValueError):
+        creatinine_clearance(130, 70, 1.0, "male")  # e.g. typo for 30
+    assert creatinine_clearance(120, 72, 1.0, "male") == 20.0
+
+
 @pytest.mark.parametrize("sex", ["", "xyz", None, 1])
 def test_crcl_invalid_sex_rejected(sex):
     with pytest.raises(ValueError):

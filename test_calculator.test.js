@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, oxygenExtractionRatio, oxygenConsumption, bodySurfaceArea, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, oxygenExtractionRatio, oxygenConsumption, bodySurfaceArea, cardiacIndex, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -265,6 +265,15 @@ test("BSA Mosteller 180 cm 80 kg", () => {
 
 test("BSA Mosteller bad weight", () => {
     expect(() => bodySurfaceArea(170, 0)).toThrow();
+});
+
+test("cardiac index normal", () => {
+    // BSA √(180 × 80 / 3600) = 2.0; CI = 5 / 2.0 = 2.5
+    expect(cardiacIndex(5, 180, 80)).toBe(2.5);
+});
+
+test("cardiac index bad CO", () => {
+    expect(() => cardiacIndex(0, 180, 80)).toThrow();
 });
 
 test("CrCl male", () => {

@@ -173,6 +173,12 @@ function bodySurfaceArea(heightCm, weightKg) {
     return Math.round(Math.sqrt(heightCm * weightKg / 3600) * 100) / 100;
 }
 
+function cardiacIndex(co, heightCm, weightKg) {
+    // Cardiac index (L/min/m²): CO[L/min] / Mosteller BSA — normal 2.5–4.0, < 2.2 suggests cardiogenic shock
+    if (co <= 0) throw new Error("CO must be > 0");
+    return Math.round((co / bodySurfaceArea(heightCm, weightKg)) * 100) / 100;
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -180,4 +186,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, oxygenExtractionRatio, oxygenConsumption, bodySurfaceArea, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, oxygenExtractionRatio, oxygenConsumption, bodySurfaceArea, cardiacIndex, creatinineClearance };

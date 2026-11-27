@@ -258,3 +258,12 @@ outcome: accepted
 metrics: lines=1808 dead=0
 note: Added oxygen_consumption() (reverse Fick VO2 = CO × (CaO2 − CvO2) × 10) with UI card computing CaO2/CvO2 from Hb, saturations and partial pressures; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0027 tag push.
 ---
+---
+gen: wild-0028
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: add cardiac index
+outcome: accepted
+metrics: lines=1860 dead=0
+note: Added cardiac_index() (CO / Mosteller BSA √(height×weight/3600)) with UI card flagging < 2.2 L/min/m² as low output; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0028 tag push.
+---

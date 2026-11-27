@@ -36,6 +36,7 @@ from calculator import (
     oxygen_delivery,
     oxygen_extraction_ratio,
     oxygen_consumption,
+    cardiac_index,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -505,3 +506,18 @@ def test_vo2_low_output():
 def test_vo2_bad_cvo2():
     with pytest.raises(ValueError):
         oxygen_consumption(5, 15, 20)
+
+
+def test_cardiac_index_normal():
+    # CO 5, 180 cm, 80 kg → BSA √(14400/3600) = 2.0 → 2.5
+    assert cardiac_index(5, 180, 80) == 2.5
+
+
+def test_cardiac_index_low():
+    # CO 3, 160 cm, 60 kg → BSA 1.633 → 1.84
+    assert cardiac_index(3, 160, 60) == 1.84
+
+
+def test_cardiac_index_bad_height():
+    with pytest.raises(ValueError):
+        cardiac_index(5, 0, 80)

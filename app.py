@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -748,6 +748,29 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Cardiac Index</h2>
+    <div class="formula">CI = CO / BSA, BSA = √(height × weight / 3600)</div>
+    <form method="POST" action="/#ci">
+      <input type="hidden" name="calc" value="ci">
+      <div class="field"><label>Cardiac Output (L/min)</label>
+        <input type="number" name="ci_co" step="0.1" value="{{ form.ci_co or '' }}" placeholder="5.0"></div>
+      <div class="field"><label>Height (cm)</label>
+        <input type="number" name="ci_height" step="0.1" value="{{ form.ci_height or '' }}" placeholder="175"></div>
+      <div class="field"><label>Weight (kg)</label>
+        <input type="number" name="ci_weight" step="0.1" value="{{ form.ci_weight or '' }}" placeholder="75"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.ci is defined %}
+    <div class="result" id="ci">
+      <span class="val">{{ results.ci }}</span><span class="unit">L/min/m²</span>
+      <div class="interp {{ results.ci_cls }}">{{ results.ci_interp }}</div>
+    </div>
+    {% elif results.ci_error is defined %}
+    <div class="error">{{ results.ci_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -779,7 +802,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0027 · 2026-11-26 · Added: Oxygen Consumption (VO₂, Fick)</span>
+  <span>gen-wild-0028 · 2026-11-27 · Added: Cardiac Index (Mosteller BSA)</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -934,6 +957,13 @@ def _vo2_interp(v):
     if v < 150:  return "< 150 mL/min — low O₂ consumption (sedation, hypothermia, or impaired uptake)", "warn"
     if v <= 300: return "150–300 mL/min — typical resting O₂ consumption (≈ 200–250)", "normal"
     return "> 300 mL/min — high O₂ consumption (fever, sepsis, agitation, work of breathing)", "warn"
+
+
+def _ci_interp(v):
+    if v < 2.2:  return "< 2.2 L/min/m² — low; with hypoperfusion suggests cardiogenic shock", "crit"
+    if v < 2.5:  return "2.2–2.5 L/min/m² — borderline low", "warn"
+    if v <= 4.0: return "2.5–4.0 L/min/m² — normal", "normal"
+    return "> 4.0 L/min/m² — high output (sepsis, anaemia, thyrotoxicosis)", "warn"
 
 
 def _crcl_interp(v):
@@ -1210,6 +1240,14 @@ def index():
             results.update(vo2=v, vo2_cao2=cao2, vo2_cvo2=cvo2, vo2_interp=interp, vo2_cls=cls)
         except Exception as e:
             results["vo2_error"] = str(e)
+
+    elif calc == "ci":
+        try:
+            v = cardiac_index(float(form["ci_co"]), float(form["ci_height"]), float(form["ci_weight"]))
+            interp, cls = _ci_interp(v)
+            results.update(ci=v, ci_interp=interp, ci_cls=cls)
+        except Exception as e:
+            results["ci_error"] = str(e)
 
     elif calc == "crcl":
         try:

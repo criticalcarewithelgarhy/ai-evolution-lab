@@ -407,6 +407,18 @@ def oxygen_consumption(cardiac_output: float, cao2: float, cvo2: float) -> float
     return round(cardiac_output * (cao2 - cvo2) * 10, 1)
 
 
+def cardiac_index(cardiac_output: float, height_cm: float, weight_kg: float) -> float:
+    """
+    Cardiac index (L/min/m²) = CO / BSA, BSA by Mosteller = √(height_cm × weight_kg / 3600).
+    Normal ≈ 2.5–4.0 L/min/m²; < 2.2 with hypoperfusion suggests cardiogenic shock.
+    """
+    if cardiac_output < 0:
+        raise ValueError("Cardiac output must be non-negative")
+    if height_cm <= 0 or weight_kg <= 0:
+        raise ValueError("Height and weight must be positive")
+    return round(cardiac_output / (height_cm * weight_kg / 3600) ** 0.5, 2)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

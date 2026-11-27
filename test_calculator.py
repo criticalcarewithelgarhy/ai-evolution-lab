@@ -28,6 +28,7 @@ from calculator import (
     oxygenation_index,
     rox_index,
     qsofa_score,
+    rsbi,
     DISCLAIMER,
 )
 
@@ -269,3 +270,13 @@ def test_qsofa_score_high_risk():
 def test_qsofa_score_bad_input():
     with pytest.raises(ValueError):
         qsofa_score(0, 120, False)
+
+
+def test_rsbi_weaning():
+    # RR 30, Vt 300 mL → 30 / 0.3 = 100.0
+    assert rsbi(30, 300) == 100.0
+
+
+def test_rsbi_bad_input():
+    with pytest.raises(ValueError):
+        rsbi(20, 0)

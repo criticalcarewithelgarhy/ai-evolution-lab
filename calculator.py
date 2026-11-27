@@ -206,3 +206,10 @@ def qsofa_score(respiratory_rate: float, systolic: float, altered_mentation: boo
     if respiratory_rate <= 0 or systolic <= 0:
         raise ValueError("Respiratory rate and systolic pressure must be positive")
     return int(respiratory_rate >= 22) + int(systolic <= 100) + int(bool(altered_mentation))
+
+
+def rsbi(respiratory_rate: float, tidal_volume_ml: float) -> float:
+    """Rapid shallow breathing index = RR / Vt (L); < 105 predicts weaning success"""
+    if respiratory_rate <= 0 or tidal_volume_ml <= 0:
+        raise ValueError("Respiratory rate and tidal volume must be positive")
+    return round(respiratory_rate / (tidal_volume_ml / 1000), 1)

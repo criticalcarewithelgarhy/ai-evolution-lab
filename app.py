@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -771,6 +771,29 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Systemic Vascular Resistance</h2>
+    <div class="formula">SVR = 80 × (MAP − CVP) / CO</div>
+    <form method="POST" action="/#svr">
+      <input type="hidden" name="calc" value="svr">
+      <div class="field"><label>Mean Arterial Pressure (mmHg)</label>
+        <input type="number" name="svr_map" step="0.1" value="{{ form.svr_map or '' }}" placeholder="85"></div>
+      <div class="field"><label>Central Venous Pressure (mmHg)</label>
+        <input type="number" name="svr_cvp" step="0.1" value="{{ form.svr_cvp or '' }}" placeholder="8"></div>
+      <div class="field"><label>Cardiac Output (L/min)</label>
+        <input type="number" name="svr_co" step="0.1" value="{{ form.svr_co or '' }}" placeholder="5.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.svr is defined %}
+    <div class="result" id="svr">
+      <span class="val">{{ results.svr }}</span><span class="unit">dyn·s/cm⁵</span>
+      <div class="interp {{ results.svr_cls }}">{{ results.svr_interp }}</div>
+    </div>
+    {% elif results.svr_error is defined %}
+    <div class="error">{{ results.svr_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -802,7 +825,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0028 · 2026-11-27 · Added: Cardiac Index (Mosteller BSA)</span>
+  <span>gen-wild-0029 · 2026-11-27 · Added: Systemic Vascular Resistance</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -964,6 +987,12 @@ def _ci_interp(v):
     if v < 2.5:  return "2.2–2.5 L/min/m² — borderline low", "warn"
     if v <= 4.0: return "2.5–4.0 L/min/m² — normal", "normal"
     return "> 4.0 L/min/m² — high output (sepsis, anaemia, thyrotoxicosis)", "warn"
+
+
+def _svr_interp(v):
+    if v < 800:   return "< 800 dyn·s/cm⁵ — low; vasodilatory state (sepsis, anaphylaxis)", "warn"
+    if v <= 1200: return "800–1200 dyn·s/cm⁵ — normal", "normal"
+    return "> 1200 dyn·s/cm⁵ — high; vasoconstriction (cardiogenic / hypovolaemic shock)", "warn"
 
 
 def _crcl_interp(v):
@@ -1248,6 +1277,16 @@ def index():
             results.update(ci=v, ci_interp=interp, ci_cls=cls)
         except Exception as e:
             results["ci_error"] = str(e)
+
+    elif calc == "svr":
+        try:
+            v = systemic_vascular_resistance(
+                float(form["svr_map"]), float(form["svr_cvp"]), float(form["svr_co"]),
+            )
+            interp, cls = _svr_interp(v)
+            results.update(svr=v, svr_interp=interp, svr_cls=cls)
+        except Exception as e:
+            results["svr_error"] = str(e)
 
     elif calc == "crcl":
         try:

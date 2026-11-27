@@ -37,6 +37,7 @@ from calculator import (
     oxygen_extraction_ratio,
     oxygen_consumption,
     cardiac_index,
+    systemic_vascular_resistance,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -521,3 +522,18 @@ def test_cardiac_index_low():
 def test_cardiac_index_bad_height():
     with pytest.raises(ValueError):
         cardiac_index(5, 0, 80)
+
+
+def test_svr_normal():
+    # MAP 90, CVP 10, CO 5 → 80 × 80 / 5 = 1280
+    assert systemic_vascular_resistance(90, 10, 5) == 1280
+
+
+def test_svr_septic():
+    # MAP 60, CVP 8, CO 8 → 80 × 52 / 8 = 520
+    assert systemic_vascular_resistance(60, 8, 8) == 520
+
+
+def test_svr_bad_co():
+    with pytest.raises(ValueError):
+        systemic_vascular_resistance(90, 10, 0)

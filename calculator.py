@@ -419,6 +419,21 @@ def cardiac_index(cardiac_output: float, height_cm: float, weight_kg: float) -> 
     return round(cardiac_output / (height_cm * weight_kg / 3600) ** 0.5, 2)
 
 
+def systemic_vascular_resistance(map_mmhg: float, cvp: float, cardiac_output: float) -> float:
+    """
+    Systemic vascular resistance (SVR, dyn·s/cm⁵) = 80 × (MAP − CVP) / CO.
+    Pressures in mmHg, cardiac_output in L/min. Normal ≈ 800–1200 dyn·s/cm⁵;
+    low in vasodilatory (septic) shock, high in cardiogenic / hypovolaemic shock.
+    """
+    if cardiac_output <= 0:
+        raise ValueError("Cardiac output must be positive")
+    if cvp < 0:
+        raise ValueError("CVP must be non-negative")
+    if map_mmhg < cvp:
+        raise ValueError("MAP must be at least CVP")
+    return round(80 * (map_mmhg - cvp) / cardiac_output)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

@@ -267,3 +267,12 @@ outcome: accepted
 metrics: lines=1860 dead=0
 note: Added cardiac_index() (CO / Mosteller BSA √(height×weight/3600)) with UI card flagging < 2.2 L/min/m² as low output; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0028 tag push.
 ---
+---
+gen: wild-0029
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: add systemic vascular resistance
+outcome: accepted
+metrics: lines=1916 dead=0
+note: Added systemic_vascular_resistance() (80 × (MAP − CVP) / CO) with UI card grading < 800 low (vasodilatory), 800–1200 normal, > 1200 high; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0029 tag push.
+---

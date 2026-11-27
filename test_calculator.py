@@ -257,3 +257,12 @@ def test_app_crcl_missing_sex_not_defaulted_to_male():
     assert "Sex must be" in html and "87.5" not in html
     html = client.post("/", data={**data, "sex": "female"}).get_data(as_text=True)
     assert "74.4" in html
+
+
+def test_app_unknown_calc_reports_error():
+    from app import app
+    client = app.test_client()
+    for data in ({"calc": "bogus", "sbp": "120"}, {}):
+        html = client.post("/", data=data).get_data(as_text=True)
+        assert "Unknown or missing calculator selection" in html
+    assert "Unknown or missing" not in client.get("/").get_data(as_text=True)

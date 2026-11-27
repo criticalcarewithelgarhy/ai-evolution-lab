@@ -78,6 +78,7 @@ TEMPLATE = """<!DOCTYPE html>
   <a href="https://github.com/criticalcarewithelgarhy/ai-evolution-lab" style="color:#ff7b72;text-decoration:underline;">See the experiment →</a>
 </div>
 <div class="disclaimer">⚠ {{ disclaimer }}</div>
+{% if results.calc_error is defined %}<div class="error">{{ results.calc_error }}</div>{% endif %}
 
 <div class="grid">
 
@@ -262,6 +263,9 @@ def index():
             results.update(crcl=v, crcl_interp=interp, crcl_cls=cls)
         except Exception as e:
             results["crcl_error"] = str(e)
+
+    elif request.method == "POST":
+        results["calc_error"] = "Unknown or missing calculator selection"
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

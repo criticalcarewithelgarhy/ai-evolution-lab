@@ -275,3 +275,12 @@ outcome: accepted
 metrics: lines=1916 dead=0
 note: Added systemic_vascular_resistance() (80 × (MAP − CVP) / CO) with UI card grading < 800 low (vasodilatory), 800–1200 normal, > 1200 high; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0029 tag push.
 ---
+---
+gen: wild-0030
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: add pulmonary vascular resistance
+outcome: accepted
+metrics: lines=1972 dead=0
+note: Added pulmonary_vascular_resistance() ((mPAP − PAWP) / CO in Wood units, also shown ×80 in dyn·s/cm⁵) with UI card grading ≤ 2 normal, 2–3 mild, > 3 WU elevated (ESC/ERS 2022); metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0030 tag push.
+---

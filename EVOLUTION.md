@@ -282,3 +282,12 @@ outcome: accepted
 metrics: lines=2197 dead=0
 note: Added urine anion gap (U_Na + U_K − U_Cl; negative → GI bicarbonate loss, positive → distal/type 4 RTA in NAGMA) with 3 tests and Flask card; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0029 exists locally only.
 ---
+---
+gen: breadth-0030
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: add Light's criteria
+outcome: accepted
+metrics: lines=2259 dead=0
+note: Added Light's criteria for pleural effusion (exudate if pleural/serum protein > 0.5, pleural/serum LDH > 0.6, or pleural LDH > ⅔ × serum LDH ULN, default 222 U/L) with 4 tests and Flask card suggesting the albumin gradient for diuresed cardiac transudates; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0030 exists locally only.
+---

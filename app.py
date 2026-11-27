@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, fena, feurea, urine_anion_gap, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, fena, feurea, urine_anion_gap, lights_criteria, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -1021,10 +1021,37 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Light's criteria (pleural effusion)</h2>
+    <div class="formula">Exudate if P/S protein &gt; 0.5 or P/S LDH &gt; 0.6 or pleural LDH &gt; ⅔ × ULN</div>
+    <form method="POST" action="/#lc">
+      <input type="hidden" name="calc" value="lights">
+      <div class="field"><label>Pleural protein (g/dL)</label>
+        <input type="number" step="any" name="lc_pp" value="{{ form.lc_pp or '' }}" placeholder="4.0"></div>
+      <div class="field"><label>Serum protein (g/dL)</label>
+        <input type="number" step="any" name="lc_sp" value="{{ form.lc_sp or '' }}" placeholder="7.0"></div>
+      <div class="field"><label>Pleural LDH (U/L)</label>
+        <input type="number" step="any" name="lc_pl" value="{{ form.lc_pl or '' }}" placeholder="100"></div>
+      <div class="field"><label>Serum LDH (U/L)</label>
+        <input type="number" step="any" name="lc_sl" value="{{ form.lc_sl or '' }}" placeholder="200"></div>
+      <div class="field"><label>Serum LDH upper limit of normal (U/L)</label>
+        <input type="number" step="any" name="lc_uln" value="{{ form.lc_uln or '' }}" placeholder="222"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.lc is defined %}
+    <div class="result" id="lc">
+      <span class="val">{{ results.lc }}</span>
+      <div class="interp {{ results.lc_cls }}">{{ results.lc_interp }}</div>
+    </div>
+    {% elif results.lc_error is defined %}
+    <div class="error">{{ results.lc_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0029 · 2026-11-27 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh · FENa · FEUrea · Urine AG</span>
+  <span>gen-breadth-0030 · 2026-11-27 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh · FENa · FEUrea · Urine AG · Light's</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1244,6 +1271,11 @@ def _feu_interp(v):
 def _uag_interp(v):
     if v < 0: return f"{v} mEq/L — negative — appropriate NH₄⁺ excretion; suggests GI bicarbonate loss (diarrhoea) in NAGMA", "normal"
     return f"{v} mEq/L — positive — impaired renal acid excretion; suggests distal or type 4 RTA in NAGMA (unreliable if ketones/drug anions or U_Na < 20)", "warn"
+
+
+def _lc_interp(v):
+    if v: return "Meets ≥ 1 criterion — infection, malignancy, PE, inflammatory; if suspected cardiac transudate after diuresis, check serum–pleural albumin gradient (> 1.2 g/dL → transudate)", "warn"
+    return "Meets no criteria — transudate: heart failure, cirrhosis, nephrotic syndrome, hypoalbuminaemia", "normal"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1556,6 +1588,15 @@ def index():
             results.update(uag=v, uag_interp=interp, uag_cls=cls)
         except Exception as e:
             results["uag_error"] = str(e)
+
+    elif calc == "lights":
+        try:
+            v = lights_criteria(float(form["lc_pp"]), float(form["lc_sp"]), float(form["lc_pl"]),
+                                float(form["lc_sl"]), float(form.get("lc_uln") or 222))
+            interp, cls = _lc_interp(v)
+            results.update(lc="Exudate" if v else "Transudate", lc_interp=interp, lc_cls=cls)
+        except Exception as e:
+            results["lc_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

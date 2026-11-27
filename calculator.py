@@ -461,3 +461,20 @@ def urine_anion_gap(urine_na: float, urine_k: float, urine_cl: float) -> float:
     if urine_na < 0 or urine_k < 0 or urine_cl < 0:
         raise ValueError("Urine sodium, potassium and chloride must be non-negative")
     return round(urine_na + urine_k - urine_cl, 1)
+
+
+def lights_criteria(pleural_protein: float, serum_protein: float, pleural_ldh: float,
+                    serum_ldh: float, serum_ldh_uln: float = 222.0) -> bool:
+    """
+    Light's criteria — pleural effusion is an exudate if ANY of:
+    pleural/serum protein > 0.5; pleural/serum LDH > 0.6; pleural LDH > 2/3 × serum LDH upper limit of normal.
+    Protein in g/dL, LDH in U/L. Returns True for exudate, False for transudate.
+    May misclassify ~25 % of transudates (e.g. diuresed heart failure) as exudates.
+    """
+    if pleural_protein < 0 or pleural_ldh < 0:
+        raise ValueError("Pleural protein and LDH must be non-negative")
+    if serum_protein <= 0 or serum_ldh <= 0 or serum_ldh_uln <= 0:
+        raise ValueError("Serum protein, serum LDH and LDH upper limit must be positive")
+    return (pleural_protein / serum_protein > 0.5
+            or pleural_ldh / serum_ldh > 0.6
+            or pleural_ldh > 2 / 3 * serum_ldh_uln)

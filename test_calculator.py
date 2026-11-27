@@ -12,6 +12,7 @@ from calculator import (
     fena,
     feurea,
     urine_anion_gap,
+    lights_criteria,
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
@@ -613,3 +614,23 @@ def test_urine_anion_gap_positive():
 def test_urine_anion_gap_bad_input():
     with pytest.raises(ValueError):
         urine_anion_gap(40, -1, 100)
+
+
+def test_lights_criteria_exudate():
+    # protein ratio 4.0/7.0 = 0.57 > 0.5 -> exudate
+    assert lights_criteria(4.0, 7.0, 100, 200) is True
+
+
+def test_lights_criteria_transudate():
+    # 2.0/7.0 = 0.29; 80/200 = 0.4; 80 < 148 -> transudate
+    assert lights_criteria(2.0, 7.0, 80, 200) is False
+
+
+def test_lights_criteria_ldh_uln_only():
+    # ratios normal but pleural LDH 160 > 2/3 × 222 = 148 -> exudate
+    assert lights_criteria(2.0, 7.0, 160, 300) is True
+
+
+def test_lights_criteria_bad_input():
+    with pytest.raises(ValueError):
+        lights_criteria(2.0, 0, 80, 200)

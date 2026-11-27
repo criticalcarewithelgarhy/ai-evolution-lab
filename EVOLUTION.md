@@ -232,3 +232,13 @@ outcome: accepted
 metrics: gen=0022 lines=373 dead=0 cap=1500 headroom=1127
 note: Added qsofa_score (1 point each for RR >= 22, SBP <= 100, altered mentation) with validation and two tests, giving a bedside sepsis risk screen alongside the shock index and MAP.
 ---
+
+---
+gen: 0024
+date: 2026-11-27
+model: claude-sonnet-4-6
+idea: add rapid shallow breathing index
+outcome: accepted
+metrics: gen=0023 lines=384 dead=0 cap=1500 headroom=1116
+note: Added rsbi (RR / Vt in litres, validated) with two tests, giving a ventilator weaning predictor (< 105) to complete the gen 0016–0021 ventilation toolset.
+---

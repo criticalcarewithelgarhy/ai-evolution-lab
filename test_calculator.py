@@ -6,6 +6,7 @@ A generation that breaks any test is rejected entirely.
 
 import pytest
 from calculator import (
+    oxygen_delivery,
     fractional_excretion_sodium,
     fractional_excretion_urea,
     mean_arterial_pressure,
@@ -491,3 +492,20 @@ def test_gcs_bad_inputs():
         glasgow_coma_scale(0, 5, 6)
     with pytest.raises(ValueError):
         glasgow_coma_scale(4, 5, 7)
+
+
+def test_do2_typical():
+    # CO 5, Hb 15, SaO2 98, PaO2 100 → 5 × (19.698 + 0.3) × 10 = 999.9
+    assert oxygen_delivery(5, 15, 98, 100) == 999.9
+
+
+def test_do2_anaemia():
+    # CO 4, Hb 7, SaO2 90, PaO2 60 → 4 × (8.442 + 0.18) × 10 = 344.9
+    assert oxygen_delivery(4, 7, 90, 60) == 344.9
+
+
+def test_do2_bad_inputs():
+    with pytest.raises(ValueError):
+        oxygen_delivery(0, 15, 98, 100)
+    with pytest.raises(ValueError):
+        oxygen_delivery(5, 15, 101, 100)

@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, fractional_excretion_urea, ventilatory_ratio, parkland_formula, bicarbonate_deficit, cerebral_perfusion_pressure, glasgow_coma_scale, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, fractional_excretion_urea, ventilatory_ratio, parkland_formula, bicarbonate_deficit, cerebral_perfusion_pressure, glasgow_coma_scale, oxygen_delivery, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -301,10 +301,17 @@ TEMPLATE = """{% macro result(key, unit="") %}
       {{ sel("gcs_m", "Motor response", [("6", "6 · Obeys commands"), ("5", "5 · Localising"), ("4", "4 · Normal flexion"), ("3", "3 · Abnormal flexion"), ("2", "2 · Extension"), ("1", "1 · None")]) }}
   {% endcall %}
 
+  {% call card("do2", "Oxygen Delivery", "DO₂ = CO × (1.34 × Hb × SaO₂ + 0.003 × PaO₂) × 10", "mL O₂/min") %}
+      {{ num("do2_co", "Cardiac Output (L/min)", "5", "0.1") }}
+      {{ num("do2_hb", "Haemoglobin (g/dL)", "15", "0.1") }}
+      {{ num("do2_sao2", "SaO₂ (%)", "98", "0.1") }}
+      {{ num("do2_pao2", "PaO₂ (mmHg)", "100") }}
+  {% endcall %}
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa · FEUrea · VR · Parkland · HCO₃⁻ deficit · CPP · GCS</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa · FEUrea · VR · Parkland · HCO₃⁻ deficit · CPP · GCS · DO₂</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -460,6 +467,11 @@ def _gcs_interp(v):
     if v <= 12: return "9–12 — moderate impairment", "warn"
     return "13–15 — mild or normal", "normal"
 
+def _do2_interp(v):
+    if v < 500: return "< 500 mL/min — critically low; risk of anaerobic metabolism", "crit"
+    if v < 900: return "500–900 mL/min — reduced; optimise CO, Hb and oxygenation", "warn"
+    return "≥ 900 mL/min — normal range", "normal"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -533,6 +545,8 @@ CALCS = {
             lambda v, f: _cpp_interp(v)),
     "gcs": (lambda f: glasgow_coma_scale(int(f.get("gcs_e", 4)), int(f.get("gcs_v", 5)), int(f.get("gcs_m", 6))),
             lambda v, f: _gcs_interp(v)),
+    "do2": (lambda f: oxygen_delivery(_n(f, "do2_co"), _n(f, "do2_hb"), _n(f, "do2_sao2"), _n(f, "do2_pao2")),
+            lambda v, f: _do2_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

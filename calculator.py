@@ -290,6 +290,16 @@ def glasgow_coma_scale(eye: int, verbal: int, motor: int) -> int:
     return int(eye + verbal + motor)
 
 
+def oxygen_delivery(cardiac_output: float, hb: float, sao2: float, pao2: float) -> float:
+    """
+    DO2 (mL O2/min) = CO × CaO2 × 10, with CaO2 = 1.34 × Hb × SaO2/100 + 0.003 × PaO2.
+    CO in L/min, Hb in g/dL, SaO2 in %, PaO2 in mmHg. Normal ~ 900-1100 mL/min.
+    """
+    if cardiac_output <= 0 or hb <= 0 or not (0 < sao2 <= 100) or pao2 < 0:
+        raise ValueError("CO and Hb must be positive, SaO2 0-100%, PaO2 non-negative")
+    return round(cardiac_output * (1.34 * hb * sao2 / 100 + 0.003 * pao2) * 10, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

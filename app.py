@@ -202,10 +202,12 @@ def _map_interp(v):
     return "Elevated", "warn"
 
 def _pf_interp(v):
-    # Berlin definition: upper bounds are inclusive (≤100 severe, ≤200 moderate, ≤300 mild)
-    if v <= 100: return "Severe ARDS (≤ 100)", "crit"
-    if v <= 200: return "Moderate ARDS (100–200)", "warn"
-    if v <= 300: return "Mild ARDS (200–300)", "warn"
+    # Berlin bands, upper bounds inclusive (≤100 severe, ≤200 moderate, ≤300 mild). Not an
+    # ARDS diagnosis: Berlin also needs PEEP ≥ 5, bilateral opacities and onset ≤ 1 week
+    c = " — Berlin ARDS range if PEEP ≥ 5 cmH₂O + bilateral opacities"
+    if v <= 100: return "Severe hypoxaemia (≤ 100)" + c, "crit"
+    if v <= 200: return "Moderate hypoxaemia (100–200)" + c, "warn"
+    if v <= 300: return "Mild hypoxaemia (200–300)" + c, "warn"
     return "Normal (> 300)", "normal"
 
 def _ag_interp(v):

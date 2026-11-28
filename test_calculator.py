@@ -382,3 +382,12 @@ def test_corrected_anion_gap_albumin_upper_bound(alb):
     with pytest.raises(ValueError):
         corrected_anion_gap(140, 96, 24, alb)
     assert corrected_anion_gap(140, 104, 24, 6.0) == 7.0
+
+
+@pytest.mark.parametrize("pf", [75.0, 150.0, 250.0, 400.0])
+def test_pf_interp_not_ards_diagnosis(pf):
+    # P/F alone cannot diagnose ARDS (Berlin also needs PEEP >= 5, bilateral opacities, onset <= 1 wk)
+    from app import _pf_interp
+    text = _pf_interp(pf)[0]
+    assert "ARDS" not in text.split(" — ")[0]
+    assert ("PEEP" in text) == (pf <= 300)

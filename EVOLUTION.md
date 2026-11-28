@@ -311,3 +311,12 @@ outcome: accepted
 metrics: lines=2126 dead=0
 note: Added pulse_pressure_variation() ((PPmax − PPmin)/mean PP × 100) with UI card grading < 9% unlikely, 9–13% grey zone, > 13% fluid responsive plus validity caveats; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0033 tag push.
 ---
+---
+gen: wild-0034
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: add lactate clearance
+outcome: accepted
+metrics: lines=2177 dead=0
+note: Added lactate_clearance() ((initial − repeat)/initial × 100) with UI card flagging < 0% rising, 0–10% inadequate, ≥ 10% adequate (Nguyen 2004, Jones 2010); metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0034 tag push.
+---

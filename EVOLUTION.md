@@ -229,3 +229,11 @@ idea: systemic-vascular-resistance
 outcome: accepted
 metrics: lines=329 dead=-1 cap=1500 headroom=1171
 note: Added systemicVascularResistance (SVR = 80 × (MAP − CVP) / CO, dyn·s/cm⁵, rounded to integer, throws if CO <= 0 or CVP > MAP) with two tests; four original formulas untouched, oracle 16/16 passing.
+---
+gen: 0028
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: pulmonary-vascular-resistance
+outcome: accepted
+metrics: lines=340 dead=-1 cap=1500 headroom=1160
+note: Added pulmonaryVascularResistance (PVR = 80 × (mPAP − PAWP) / CO, dyn·s/cm⁵, rounded to integer, throws if CO <= 0 or PAWP > mPAP) with two tests; four original formulas untouched, oracle 16/16 passing.

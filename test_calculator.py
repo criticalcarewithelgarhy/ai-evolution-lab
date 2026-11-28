@@ -82,6 +82,14 @@ def test_pf_ratio_subatmospheric_fio2():
     assert pf_ratio(84, 0.21) == 400.0
 
 
+def test_pf_ratio_fio2_percentage_explained():
+    with pytest.raises(ValueError, match="percentage"):
+        pf_ratio(100, 50)  # 50% typed instead of 0.5
+    with pytest.raises(ValueError, match="between 0 and 1"):
+        pf_ratio(100, 5)
+    assert pf_ratio(100, 0.5) == 200.0
+
+
 def test_pf_ratio_nonpositive_pao2():
     with pytest.raises(ValueError):
         pf_ratio(0, 0.5)

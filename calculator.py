@@ -45,6 +45,8 @@ def pf_ratio(pao2: float, fio2: float) -> float:
         raise ValueError("PaO2 below 20 mmHg is implausible — was it entered in kPa?")
     if pao2 > 800:
         raise ValueError("PaO2 above 800 mmHg is implausible — check for a typo or kPa/mmHg mix-up")
+    if 21 <= fio2 <= 100:
+        raise ValueError("FiO2 looks like a percentage — enter it as a fraction (e.g. 0.5 for 50%)")
     if not (0 < fio2 <= 1):
         raise ValueError("FiO2 must be between 0 and 1")
     if fio2 < 0.21:

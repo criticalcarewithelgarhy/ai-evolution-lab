@@ -133,6 +133,26 @@ def free_water_deficit(sodium: float, weight: float, sex: str, target: float = 1
     return round(tbw * (sodium / target - 1), 1)
 
 
+def adrogue_madias(
+    serum_sodium: float, infusate_sodium: float, weight: float, sex: str,
+    infusate_potassium: float = 0,
+) -> float:
+    """
+    Adrogué–Madias: expected change in serum Na (mEq/L) after 1 L of infusate =
+    (infusate Na + infusate K − serum Na) / (TBW + 1).
+    TBW = weight × 0.6 (male) or 0.5 (female). weight in kg, electrolytes in mEq/L.
+    Limit correction to ≤ 8–10 mEq/L per 24 h in chronic dysnatraemia (osmotic demyelination risk).
+    """
+    if weight <= 0:
+        raise ValueError("Weight must be positive")
+    if serum_sodium <= 0:
+        raise ValueError("Serum sodium must be positive")
+    if infusate_sodium < 0 or infusate_potassium < 0:
+        raise ValueError("Infusate electrolytes must be non-negative")
+    tbw = weight * (0.5 if sex.lower() in ("f", "female") else 0.6)
+    return round((infusate_sodium + infusate_potassium - serum_sodium) / (tbw + 1), 1)
+
+
 def ideal_body_weight(height_cm: float, sex: str) -> float:
     """
     Ideal body weight (Devine): 50 kg (male) or 45.5 kg (female)

@@ -17,6 +17,7 @@ from calculator import (
     aa_gradient,
     corrected_sodium,
     free_water_deficit,
+    adrogue_madias,
     ideal_body_weight,
     shock_index,
     rox_index,
@@ -203,6 +204,26 @@ def test_free_water_deficit_female():
 def test_free_water_deficit_bad_weight():
     with pytest.raises(ValueError):
         free_water_deficit(160, 0, "male")
+
+
+def test_adrogue_madias_d5w_hypernatraemia():
+    # 70 kg male, Na 160, D5W (Na 0) → TBW 42; (0 − 160) / 43 = −3.72 → −3.7
+    assert adrogue_madias(160, 0, 70, "male") == -3.7
+
+
+def test_adrogue_madias_hypertonic_saline_female():
+    # 60 kg female, Na 120, 3% saline (Na 513) → TBW 30; 393 / 31 = 12.68 → 12.7
+    assert adrogue_madias(120, 513, 60, "female") == 12.7
+
+
+def test_adrogue_madias_with_potassium():
+    # 70 kg male, Na 125, 0.9% saline (154) + 20 KCl → 49 / 43 = 1.14 → 1.1
+    assert adrogue_madias(125, 154, 70, "male", 20) == 1.1
+
+
+def test_adrogue_madias_bad_weight():
+    with pytest.raises(ValueError):
+        adrogue_madias(140, 154, 0, "male")
 
 
 def test_ibw_male():

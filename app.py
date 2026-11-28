@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, pulmonary_vascular_resistance, cardiac_power_output, stroke_volume, pulse_pressure_variation, lactate_clearance, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, adrogue_madias, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, pulmonary_vascular_resistance, cardiac_power_output, stroke_volume, pulse_pressure_variation, lactate_clearance, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -317,6 +317,37 @@ TEMPLATE = """<!DOCTYPE html>
     </div>
     {% elif results.fwd_error is defined %}
     <div class="error">{{ results.fwd_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Sodium Change per Litre (Adrogué–Madias)</h2>
+    <div class="formula">ΔNa = (Na_inf + K_inf − Na_serum) / (TBW + 1)</div>
+    <form method="POST" action="/#am">
+      <input type="hidden" name="calc" value="am">
+      <div class="field"><label>Serum Sodium Na⁺ (mEq/L)</label>
+        <input type="number" name="am_na" value="{{ form.am_na or '' }}" placeholder="120"></div>
+      <div class="field"><label>Infusate Na⁺ (mEq/L — D5W 0, 0.45% 77, 0.9% 154, 3% 513)</label>
+        <input type="number" name="am_inf_na" value="{{ form.am_inf_na or '' }}" placeholder="154"></div>
+      <div class="field"><label>Infusate K⁺ (mEq/L, optional)</label>
+        <input type="number" name="am_inf_k" value="{{ form.am_inf_k or '' }}" placeholder="0"></div>
+      <div class="field"><label>Weight (kg)</label>
+        <input type="number" name="am_weight" value="{{ form.am_weight or '' }}" placeholder="70"></div>
+      <div class="field"><label>Sex</label>
+        <select name="am_sex">
+          <option value="male" {% if form.am_sex == 'male' %}selected{% endif %}>Male</option>
+          <option value="female" {% if form.am_sex == 'female' %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.am is defined %}
+    <div class="result" id="am">
+      <span class="val">{{ results.am }}</span><span class="unit">mEq/L per 1 L infused</span>
+      <div class="interp {{ results.am_cls }}">{{ results.am_interp }}</div>
+    </div>
+    {% elif results.am_error is defined %}
+    <div class="error">{{ results.am_error }}</div>
     {% endif %}
   </div>
 
@@ -933,7 +964,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0034 · 2026-11-28 · Added: Lactate Clearance</span>
+  <span>gen-wild-0035 · 2026-11-28 · Added: Adrogué–Madias Sodium Change</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -994,6 +1025,12 @@ def _fwd_interp(v):
     if v <= 0:   return "No free water deficit (Na ≤ 140)", "normal"
     if v < 4:    return "Mild deficit — correct Na ≤ 10 mEq/L per 24 h", "warn"
     return "Significant deficit — correct Na ≤ 10 mEq/L per 24 h", "crit"
+
+def _am_interp(v):
+    if v == 0:   return "No expected change in serum Na", "normal"
+    litres = round(8 / abs(v), 1)
+    msg = f"≈ {litres} L to change Na by 8 mEq/L — limit to ≤ 8–10 mEq/L per 24 h; recheck Na often"
+    return msg, "crit" if abs(v) > 8 else "warn" if abs(v) > 4 else "normal"
 
 def _ibw_interp(v):
     if v <= 0: return "Height too low for Devine formula", "warn"
@@ -1242,6 +1279,18 @@ def index():
             results.update(fwd=v, fwd_interp=interp, fwd_cls=cls)
         except Exception as e:
             results["fwd_error"] = str(e)
+
+    elif calc == "am":
+        try:
+            k_str = form.get("am_inf_k", "").strip()
+            v = adrogue_madias(
+                float(form["am_na"]), float(form["am_inf_na"]), float(form["am_weight"]),
+                form.get("am_sex", "male"), float(k_str) if k_str else 0,
+            )
+            interp, cls = _am_interp(v)
+            results.update(am=v, am_interp=interp, am_cls=cls)
+        except Exception as e:
+            results["am_error"] = str(e)
 
     elif calc == "ibw":
         try:

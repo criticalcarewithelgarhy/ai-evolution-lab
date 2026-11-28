@@ -302,3 +302,13 @@ outcome: accepted
 metrics: lines=677 dead=0
 note: The weight-adjusted CrCl was computed from a dosing weight already rounded to 0.1 kg (156 kg, 172 cm male: AdjBW 103.0488 -> 103.0, CrCl 872.6 instead of 873.1), so crcl_dosing_weight gains ndigits=None and the app now computes CrCl from the unrounded weight while displaying it rounded, leaving raw CrCl and all default outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0031
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: validate-albumin-upper-bound-total-protein
+outcome: accepted
+metrics: lines=685 dead=0
+note: corrected_anion_gap accepted albumin up to 10 g/dL, so total protein (~7 g/dL) entered as albumin subtracted a false 7.5 mEq/L and turned a high AG of 20 into a "normal" 12.5; it now raises ValueError above 6.0 g/dL (beyond any recorded value) and the form sets min=0.5/max=6, leaving the raw AG and all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

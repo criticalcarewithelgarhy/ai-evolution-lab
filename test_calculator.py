@@ -14,6 +14,7 @@ from calculator import (
     urine_anion_gap,
     lights_criteria,
     saag,
+    ttkg,
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
@@ -650,3 +651,18 @@ def test_saag_non_portal():
 def test_saag_bad_input():
     with pytest.raises(ValueError):
         saag(0, 1.0)
+
+
+def test_ttkg_renal_wasting():
+    # (40 × 290) / (3.0 × 580) = 6.67 -> 6.7
+    assert ttkg(40, 3.0, 580, 290) == 6.7
+
+
+def test_ttkg_hypoaldosteronism():
+    # (20 × 300) / (6.0 × 500) = 2.0
+    assert ttkg(20, 6.0, 500, 300) == 2.0
+
+
+def test_ttkg_invalid_when_urine_dilute():
+    with pytest.raises(ValueError):
+        ttkg(20, 4.0, 250, 290)

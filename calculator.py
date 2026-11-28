@@ -492,3 +492,19 @@ def saag(serum_albumin: float, ascites_albumin: float) -> float:
     if ascites_albumin < 0:
         raise ValueError("Ascitic albumin must be non-negative")
     return round(serum_albumin - ascites_albumin, 2)
+
+
+def ttkg(urine_k: float, plasma_k: float, urine_osm: float, plasma_osm: float) -> float:
+    """
+    Transtubular potassium gradient (TTKG) = (U_K × P_osm) / (P_K × U_osm).
+    Potassium in mEq/L, osmolality in mOsm/kg. Valid only if U_osm > P_osm and urine Na > 25 mEq/L.
+    Hypokalaemia: < 3 suggests extrarenal loss, > 7 renal wasting.
+    Hyperkalaemia: < 7 (esp. < 5) suggests hypoaldosteronism / aldosterone resistance.
+    """
+    if urine_k < 0:
+        raise ValueError("Urine potassium must be non-negative")
+    if plasma_k <= 0 or urine_osm <= 0 or plasma_osm <= 0:
+        raise ValueError("Plasma potassium, urine osmolality and plasma osmolality must be positive")
+    if urine_osm <= plasma_osm:
+        raise ValueError("TTKG is only valid when urine osmolality exceeds plasma osmolality")
+    return round(urine_k * plasma_osm / (plasma_k * urine_osm), 1)

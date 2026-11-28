@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, fena, feurea, urine_anion_gap, lights_criteria, saag, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, fena, feurea, urine_anion_gap, lights_criteria, saag, ttkg, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -1069,10 +1069,40 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Transtubular potassium gradient (TTKG)</h2>
+    <div class="formula">TTKG = (U_K × P_osm) / (P_K × U_osm)</div>
+    <form method="POST" action="/#ttkg">
+      <input type="hidden" name="calc" value="ttkg">
+      <div class="field"><label>Urine K⁺ (mEq/L)</label>
+        <input type="number" step="any" name="tt_uk" value="{{ form.tt_uk or '' }}" placeholder="40"></div>
+      <div class="field"><label>Plasma K⁺ (mEq/L)</label>
+        <input type="number" step="any" name="tt_pk" value="{{ form.tt_pk or '' }}" placeholder="3.0"></div>
+      <div class="field"><label>Urine osmolality (mOsm/kg)</label>
+        <input type="number" step="any" name="tt_uo" value="{{ form.tt_uo or '' }}" placeholder="580"></div>
+      <div class="field"><label>Plasma osmolality (mOsm/kg)</label>
+        <input type="number" step="any" name="tt_po" value="{{ form.tt_po or '' }}" placeholder="290"></div>
+      <div class="field"><label>Serum K⁺ state</label>
+        <select name="tt_state">
+          <option value="low" {% if form.tt_state != 'high' %}selected{% endif %}>Hypokalaemia</option>
+          <option value="high" {% if form.tt_state == 'high' %}selected{% endif %}>Hyperkalaemia</option>
+        </select></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.ttkg is defined %}
+    <div class="result" id="ttkg">
+      <span class="val">{{ results.ttkg }}</span>
+      <div class="interp {{ results.ttkg_cls }}">{{ results.ttkg_interp }}</div>
+    </div>
+    {% elif results.ttkg_error is defined %}
+    <div class="error">{{ results.ttkg_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0031 · 2026-11-28 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh · FENa · FEUrea · Urine AG · Light's · SAAG</span>
+  <span>gen-breadth-0032 · 2026-11-28 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh · FENa · FEUrea · Urine AG · Light's · SAAG · TTKG</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1302,6 +1332,15 @@ def _lc_interp(v):
 def _saag_interp(v):
     if v >= 1.1: return "High gradient (≥ 1.1 g/dL) — portal hypertension: cirrhosis, heart failure, Budd–Chiari; check ascitic protein (≥ 2.5 g/dL suggests cardiac)", "warn"
     return "Low gradient (< 1.1 g/dL) — non-portal: peritoneal carcinomatosis, TB peritonitis, pancreatitis, nephrotic syndrome", "warn"
+
+
+def _ttkg_interp(v, state):
+    if state == "high":
+        if v < 7: return "Low for hyperkalaemia (< 7) — impaired distal K⁺ secretion: hypoaldosteronism, aldosterone resistance, K⁺-sparing drugs; consider fludrocortisone trial", "crit"
+        return "Appropriate renal response (≥ 7) — suspect excess intake, transcellular shift or reduced distal delivery", "normal"
+    if v < 3: return "Low for hypokalaemia (< 3) — kidneys conserving K⁺: GI loss, poor intake or transcellular shift", "normal"
+    if v > 7: return "High for hypokalaemia (> 7) — renal K⁺ wasting: hyperaldosteronism, diuretics, Bartter/Gitelman, Mg deficiency", "crit"
+    return "Indeterminate (3–7) — interpret with urine Na and acid–base status; note TTKG assumes urine Na > 25 mEq/L", "warn"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1631,6 +1670,14 @@ def index():
             results.update(saag=v, saag_interp=interp, saag_cls=cls)
         except Exception as e:
             results["saag_error"] = str(e)
+
+    elif calc == "ttkg":
+        try:
+            v = ttkg(float(form["tt_uk"]), float(form["tt_pk"]), float(form["tt_uo"]), float(form["tt_po"]))
+            interp, cls = _ttkg_interp(v, form.get("tt_state", "low"))
+            results.update(ttkg=v, ttkg_interp=interp, ttkg_cls=cls)
+        except Exception as e:
+            results["ttkg_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

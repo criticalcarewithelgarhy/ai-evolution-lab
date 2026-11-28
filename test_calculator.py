@@ -282,3 +282,12 @@ def test_app_rejects_oversized_post():
     resp = client.post("/", data={"calc": "map", "sbp": "1" * 20000, "dbp": "80"})
     assert resp.status_code == 413 and "too large" in resp.get_data(as_text=True)
     assert client.post("/", data={"calc": "map", "sbp": "120", "dbp": "80"}).status_code == 200
+
+
+def test_app_decimal_comma_gets_specific_error():
+    from app import app
+    client = app.test_client()
+    html = client.post("/", data={"calc": "pf", "pao2": "100", "fio2": "0,5"}).get_data(as_text=True)
+    assert "use a dot for decimals" in html
+    html = client.post("/", data={"calc": "pf", "pao2": "100", "fio2": "abc"}).get_data(as_text=True)
+    assert "must be a number" in html and "dot for decimals" not in html

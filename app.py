@@ -222,6 +222,8 @@ def _num(form, key):
     try:
         return float(raw)
     except ValueError:
+        if "," in raw:
+            raise ValueError(f"Value for {key} contains a comma — use a dot for decimals (e.g. 0.5)") from None
         raise ValueError(f"Value for {key} must be a number") from None
 
 

@@ -476,6 +476,20 @@ def stroke_volume(cardiac_output: float, heart_rate: float) -> float:
     return round(cardiac_output * 1000 / heart_rate, 1)
 
 
+def pulse_pressure_variation(pp_max: float, pp_min: float) -> float:
+    """
+    Pulse pressure variation (PPV, %) = (PPmax − PPmin) / ((PPmax + PPmin) / 2) × 100.
+    PPmax / PPmin = largest / smallest pulse pressure (mmHg) over one respiratory cycle.
+    > 13% predicts fluid responsiveness; 9–13% grey zone (Cannesson 2011).
+    Valid only with controlled ventilation, Vt ≥ 8 mL/kg, sinus rhythm, closed chest.
+    """
+    if pp_min <= 0:
+        raise ValueError("Minimum pulse pressure must be positive")
+    if pp_max < pp_min:
+        raise ValueError("Maximum pulse pressure must be at least minimum")
+    return round((pp_max - pp_min) / ((pp_max + pp_min) / 2) * 100, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

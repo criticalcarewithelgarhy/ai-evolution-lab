@@ -41,6 +41,7 @@ from calculator import (
     pulmonary_vascular_resistance,
     cardiac_power_output,
     stroke_volume,
+    pulse_pressure_variation,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -584,3 +585,18 @@ def test_sv_low_output():
 def test_sv_bad_hr():
     with pytest.raises(ValueError):
         stroke_volume(5, 0)
+
+
+def test_ppv_responsive():
+    # PPmax 50, PPmin 40 → 10 / 45 × 100 = 22.2
+    assert pulse_pressure_variation(50, 40) == 22.2
+
+
+def test_ppv_unresponsive():
+    # PPmax 42, PPmin 40 → 2 / 41 × 100 = 4.88 → 4.9
+    assert pulse_pressure_variation(42, 40) == 4.9
+
+
+def test_ppv_bad_order():
+    with pytest.raises(ValueError):
+        pulse_pressure_variation(30, 40)

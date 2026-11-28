@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, pulmonary_vascular_resistance, cardiac_power_output, stroke_volume, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, pulmonary_vascular_resistance, cardiac_power_output, stroke_volume, pulse_pressure_variation, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -859,6 +859,28 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Pulse Pressure Variation</h2>
+    <div class="formula">PPV = (PPmax − PPmin) / ((PPmax + PPmin) / 2) × 100</div>
+    <form method="POST" action="/#ppv">
+      <input type="hidden" name="calc" value="ppv">
+      <div class="field"><label>Maximum Pulse Pressure (mmHg, over one breath)</label>
+        <input type="number" name="ppv_max" step="0.1" value="{{ form.ppv_max or '' }}" placeholder="50"></div>
+      <div class="field"><label>Minimum Pulse Pressure (mmHg, over one breath)</label>
+        <input type="number" name="ppv_min" step="0.1" value="{{ form.ppv_min or '' }}" placeholder="40"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.ppv is defined %}
+    <div class="result" id="ppv">
+      <span class="val">{{ results.ppv }}</span><span class="unit">%</span>
+      <div class="interp {{ results.ppv_cls }}">{{ results.ppv_interp }}</div>
+      <div class="interp">Valid only: controlled ventilation, Vt ≥ 8 mL/kg, sinus rhythm, closed chest</div>
+    </div>
+    {% elif results.ppv_error is defined %}
+    <div class="error">{{ results.ppv_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -890,7 +912,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0032 · 2026-11-28 · Added: Stroke Volume</span>
+  <span>gen-wild-0033 · 2026-11-28 · Added: Pulse Pressure Variation</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1077,6 +1099,12 @@ def _sv_interp(v):
     if v < 60:   return "40–60 mL — reduced stroke volume", "warn"
     if v <= 100: return "60–100 mL — normal stroke volume", "normal"
     return "> 100 mL — high stroke volume", "warn"
+
+
+def _ppv_interp(v):
+    if v < 9:    return "< 9% — fluid responsiveness unlikely", "normal"
+    if v <= 13:  return "9–13% — grey zone; consider passive leg raise / other test", "warn"
+    return "> 13% — likely fluid responsive", "warn"
 
 
 def _crcl_interp(v):
@@ -1397,6 +1425,14 @@ def index():
             results.update(sv=v, sv_interp=interp, sv_cls=cls)
         except Exception as e:
             results["sv_error"] = str(e)
+
+    elif calc == "ppv":
+        try:
+            v = pulse_pressure_variation(float(form["ppv_max"]), float(form["ppv_min"]))
+            interp, cls = _ppv_interp(v)
+            results.update(ppv=v, ppv_interp=interp, ppv_cls=cls)
+        except Exception as e:
+            results["ppv_error"] = str(e)
 
     elif calc == "crcl":
         try:

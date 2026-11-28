@@ -252,3 +252,13 @@ outcome: accepted
 metrics: gen=0024 lines=397 dead=0 cap=1500 headroom=1103
 note: Added bicarbonate_deficit (0.5 × kg × (target − HCO3), target default 24) with two tests, quantifying alkali replacement to complement the gen 0009–0010 acid-base tools.
 ---
+
+---
+gen: 0026
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: add fractional excretion of sodium
+outcome: accepted
+metrics: gen=0025 lines=410 dead=0 cap=1500 headroom=1090
+note: Added fractional_excretion_sodium ((UNa × PCr)/(PNa × UCr) × 100, validated) with two tests, giving a bedside discriminator of prerenal versus intrinsic AKI alongside creatinine clearance.
+---

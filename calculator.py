@@ -213,3 +213,12 @@ def rsbi(respiratory_rate: float, tidal_volume_ml: float) -> float:
     if respiratory_rate <= 0 or tidal_volume_ml <= 0:
         raise ValueError("Respiratory rate and tidal volume must be positive")
     return round(respiratory_rate / (tidal_volume_ml / 1000), 1)
+
+
+def bicarbonate_deficit(bicarbonate: float, weight: float, target: float = 24.0) -> float:
+    """HCO3 deficit (mEq) = 0.5 * kg * (target - HCO3); target default 24 mEq/L"""
+    if bicarbonate <= 0 or weight <= 0:
+        raise ValueError("Bicarbonate and weight must be positive")
+    if bicarbonate >= target:
+        raise ValueError("Bicarbonate must be below target")
+    return round(0.5 * weight * (target - bicarbonate), 1)

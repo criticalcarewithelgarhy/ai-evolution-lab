@@ -12,6 +12,7 @@ from calculator import (
     corrected_anion_gap,
     creatinine_clearance,
     shock_index,
+    bicarbonate_deficit,
     ards_severity,
     winters_formula,
     delta_ratio,
@@ -280,3 +281,13 @@ def test_rsbi_weaning():
 def test_rsbi_bad_input():
     with pytest.raises(ValueError):
         rsbi(20, 0)
+
+
+def test_bicarbonate_deficit_acidosis():
+    # HCO3 12, 70 kg → 0.5 × 70 × (24 − 12) = 420.0 mEq
+    assert bicarbonate_deficit(12, 70) == 420.0
+
+
+def test_bicarbonate_deficit_bad_input():
+    with pytest.raises(ValueError):
+        bicarbonate_deficit(26, 70)

@@ -320,3 +320,12 @@ outcome: accepted
 metrics: lines=2177 dead=0
 note: Added lactate_clearance() ((initial − repeat)/initial × 100) with UI card flagging < 0% rising, 0–10% inadequate, ≥ 10% adequate (Nguyen 2004, Jones 2010); metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0034 tag push.
 ---
+---
+gen: wild-0035
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: add adrogue madias formula
+outcome: accepted
+metrics: lines=2251 dead=0
+note: Added adrogue_madias() ((infusate Na + K − serum Na)/(TBW + 1), expected ΔNa per 1 L) with UI card showing litres to shift Na by 8 mEq/L and the ≤ 8–10 mEq/L/24 h limit; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0035 tag push.
+---

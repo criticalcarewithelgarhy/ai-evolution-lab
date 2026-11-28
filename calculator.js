@@ -186,6 +186,13 @@ function systemicVascularResistance(map, cvp, co) {
     return Math.round(80 * (map - cvp) / co);
 }
 
+function pulmonaryVascularResistance(mpap, pawp, co) {
+    // PVR (dyn·s/cm⁵): 80 × (mPAP − PAWP) / CO[L/min] — normal 100–250; > 240 (≈ 3 Wood units) suggests pre-capillary PH
+    if (co <= 0) throw new Error("CO must be > 0");
+    if (pawp > mpap) throw new Error("PAWP must be <= mPAP");
+    return Math.round(80 * (mpap - pawp) / co);
+}
+
 function creatinineClearance(age, weight, creatinine, sex) {
     if (creatinine <= 0) throw new Error("Creatinine must be > 0");
     const crcl = ((140 - age) * weight) / (72 * creatinine);
@@ -193,4 +200,4 @@ function creatinineClearance(age, weight, creatinine, sex) {
     return Math.round(adjusted * 10) / 10;
 }
 
-module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, oxygenExtractionRatio, oxygenConsumption, bodySurfaceArea, cardiacIndex, systemicVascularResistance, creatinineClearance };
+module.exports = { DISCLAIMER, meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, oxygenExtractionRatio, oxygenConsumption, bodySurfaceArea, cardiacIndex, systemicVascularResistance, pulmonaryVascularResistance, creatinineClearance };

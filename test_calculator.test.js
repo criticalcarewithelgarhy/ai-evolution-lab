@@ -3,7 +3,7 @@
  * The oracle (test_oracle.test.js) is the locked reference.
  */
 
-const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, oxygenExtractionRatio, oxygenConsumption, bodySurfaceArea, cardiacIndex, systemicVascularResistance, creatinineClearance, DISCLAIMER } =
+const { meanArterialPressure, pfRatio, anionGap, correctedAnionGap, deltaRatio, wintersExpectedPco2, serumOsmolality, osmolalGap, correctedSodium, sfRatio, aaGradient, shockIndex, correctedCalcium, freeWaterDeficit, roxIndex, oxygenationIndex, idealBodyWeight, protectiveTidalVolume, drivingPressure, staticCompliance, mechanicalPower, ventilatoryRatio, deadSpaceFraction, arterialOxygenContent, oxygenDelivery, oxygenExtractionRatio, oxygenConsumption, bodySurfaceArea, cardiacIndex, systemicVascularResistance, pulmonaryVascularResistance, creatinineClearance, DISCLAIMER } =
     require("./calculator");
 
 test("MAP typical", () => {
@@ -283,6 +283,15 @@ test("SVR normal", () => {
 
 test("SVR bad CO", () => {
     expect(() => systemicVascularResistance(65, 8, 0)).toThrow();
+});
+
+test("PVR pulmonary hypertension", () => {
+    // 80 × (35 − 10) / 5 = 400
+    expect(pulmonaryVascularResistance(35, 10, 5)).toBe(400);
+});
+
+test("PVR PAWP above mPAP", () => {
+    expect(() => pulmonaryVascularResistance(15, 20, 5)).toThrow();
 });
 
 test("CrCl male", () => {

@@ -312,3 +312,13 @@ outcome: accepted
 metrics: lines=685 dead=0
 note: corrected_anion_gap accepted albumin up to 10 g/dL, so total protein (~7 g/dL) entered as albumin subtracted a false 7.5 mEq/L and turned a high AG of 20 into a "normal" 12.5; it now raises ValueError above 6.0 g/dL (beyond any recorded value) and the form sets min=0.5/max=6, leaving the raw AG and all valid outputs unchanged (git tag push was refused by the session proxy; commit is on the branch).
 ---
+
+---
+gen: accuracy-0032
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: pf-interp-not-ards-diagnosis
+outcome: accepted
+metrics: lines=692 dead=0
+note: The P/F interpretation labelled a bare ratio as "Severe/Moderate/Mild ARDS", which is clinically invalid (Berlin also requires PEEP ≥ 5 cmH2O, bilateral opacities and onset ≤ 1 week, and the ratio is unreliable off PEEP); it now reports hypoxaemia severity bands with the Berlin qualifier, keeping the inclusive boundaries and leaving all P/F numerical output unchanged (git tag push was refused by the session proxy; commit is on the branch).
+---

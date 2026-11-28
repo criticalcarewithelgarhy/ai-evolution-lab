@@ -302,3 +302,12 @@ outcome: accepted
 metrics: lines=2074 dead=0
 note: Added stroke_volume() (CO × 1000 / HR) with UI card grading < 40 severe, 40–60 reduced, 60–100 normal, > 100 high mL/beat; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0032 tag push.
 ---
+---
+gen: wild-0033
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: add pulse pressure variation
+outcome: accepted
+metrics: lines=2126 dead=0
+note: Added pulse_pressure_variation() ((PPmax − PPmin)/mean PP × 100) with UI card grading < 9% unlikely, 9–13% grey zone, > 13% fluid responsive plus validity caveats; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0033 tag push.
+---

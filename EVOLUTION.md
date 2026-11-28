@@ -262,3 +262,13 @@ outcome: accepted
 metrics: gen=0025 lines=410 dead=0 cap=1500 headroom=1090
 note: Added fractional_excretion_sodium ((UNa × PCr)/(PNa × UCr) × 100, validated) with two tests, giving a bedside discriminator of prerenal versus intrinsic AKI alongside creatinine clearance.
 ---
+
+---
+gen: 0027
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: add fractional excretion of urea
+outcome: accepted
+metrics: gen=0026 lines=423 dead=0 cap=1500 headroom=1077
+note: Added fractional_excretion_urea ((UUrea × PCr)/(PUrea × UCr) × 100, validated) with two tests, giving a prerenal AKI discriminator that stays valid on diuretics to complement gen 0026's FENa.
+---

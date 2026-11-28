@@ -293,3 +293,12 @@ outcome: accepted
 metrics: lines=2023 dead=0
 note: Added cardiac_power_output() (CPO = MAP × CO / 451, W) with UI card flagging < 0.6 W as the strongest mortality predictor in cardiogenic shock; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0031 tag push.
 ---
+---
+gen: wild-0032
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: add stroke volume
+outcome: accepted
+metrics: lines=2074 dead=0
+note: Added stroke_volume() (CO × 1000 / HR) with UI card grading < 40 severe, 40–60 reduced, 60–100 normal, > 100 high mL/beat; metrics.py still crashes on wild- gen labels (measured via its functions) and the git proxy again rejected the gen-wild-0032 tag push.
+---

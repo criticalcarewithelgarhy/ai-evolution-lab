@@ -13,6 +13,7 @@ from calculator import (
     creatinine_clearance,
     shock_index,
     bicarbonate_deficit,
+    fractional_excretion_sodium,
     ards_severity,
     winters_formula,
     delta_ratio,
@@ -291,3 +292,13 @@ def test_bicarbonate_deficit_acidosis():
 def test_bicarbonate_deficit_bad_input():
     with pytest.raises(ValueError):
         bicarbonate_deficit(26, 70)
+
+
+def test_fena_prerenal():
+    # UNa 10, PNa 140, UCr 100, PCr 2.0 → (10 × 2) / (140 × 100) × 100 = 0.14 %
+    assert fractional_excretion_sodium(10, 140, 100, 2.0) == 0.14
+
+
+def test_fena_bad_input():
+    with pytest.raises(ValueError):
+        fractional_excretion_sodium(10, 140, 0, 2.0)

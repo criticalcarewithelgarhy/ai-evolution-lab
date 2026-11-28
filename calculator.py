@@ -222,3 +222,12 @@ def bicarbonate_deficit(bicarbonate: float, weight: float, target: float = 24.0)
     if bicarbonate >= target:
         raise ValueError("Bicarbonate must be below target")
     return round(0.5 * weight * (target - bicarbonate), 1)
+
+
+def fractional_excretion_sodium(
+    urine_na: float, plasma_na: float, urine_cr: float, plasma_cr: float
+) -> float:
+    """FENa (%) = (UNa * PCr) / (PNa * UCr) * 100; < 1% prerenal, > 2% intrinsic AKI"""
+    if min(urine_na, plasma_na, urine_cr, plasma_cr) <= 0:
+        raise ValueError("Urine and plasma sodium and creatinine must be positive")
+    return round(urine_na * plasma_cr / (plasma_na * urine_cr) * 100, 2)

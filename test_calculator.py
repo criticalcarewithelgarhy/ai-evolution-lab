@@ -13,6 +13,7 @@ from calculator import (
     feurea,
     urine_anion_gap,
     lights_criteria,
+    saag,
     mean_arterial_pressure,
     pf_ratio,
     anion_gap,
@@ -634,3 +635,18 @@ def test_lights_criteria_ldh_uln_only():
 def test_lights_criteria_bad_input():
     with pytest.raises(ValueError):
         lights_criteria(2.0, 0, 80, 200)
+
+
+def test_saag_portal_hypertension():
+    # 3.0 − 1.0 = 2.0 g/dL (≥ 1.1 portal hypertension)
+    assert saag(3.0, 1.0) == 2.0
+
+
+def test_saag_non_portal():
+    # 3.2 − 2.5 = 0.7 g/dL (< 1.1 non-portal)
+    assert saag(3.2, 2.5) == 0.7
+
+
+def test_saag_bad_input():
+    with pytest.raises(ValueError):
+        saag(0, 1.0)

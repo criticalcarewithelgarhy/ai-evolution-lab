@@ -478,3 +478,17 @@ def lights_criteria(pleural_protein: float, serum_protein: float, pleural_ldh: f
     return (pleural_protein / serum_protein > 0.5
             or pleural_ldh / serum_ldh > 0.6
             or pleural_ldh > 2 / 3 * serum_ldh_uln)
+
+
+def saag(serum_albumin: float, ascites_albumin: float) -> float:
+    """
+    Serum–ascites albumin gradient (SAAG) = serum albumin − ascitic fluid albumin, both in g/dL.
+    Samples should be drawn on the same day.
+    ≥ 1.1 g/dL → portal hypertension (cirrhosis, heart failure, Budd–Chiari), ~97 % accurate;
+    < 1.1 g/dL → non-portal causes (peritoneal carcinomatosis, TB, pancreatitis, nephrotic syndrome).
+    """
+    if serum_albumin <= 0:
+        raise ValueError("Serum albumin must be positive")
+    if ascites_albumin < 0:
+        raise ValueError("Ascitic albumin must be non-negative")
+    return round(serum_albumin - ascites_albumin, 2)

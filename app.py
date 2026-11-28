@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     creatinine_clearance, glasgow_coma_scale, curb65,
-    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, fena, feurea, urine_anion_gap, lights_criteria, DISCLAIMER,
+    corrected_sodium, corrected_calcium, serum_osmolality, qsofa, shock_index, aa_gradient, winters_formula, delta_ratio, free_water_deficit, ideal_body_weight, rsbi, oxygenation_index, driving_pressure, rox_index, qtc_bazett, osmolal_gap, albumin_corrected_anion_gap, parkland_formula, body_surface_area, egfr_ckd_epi_2021, wells_pe, cha2ds2_vasc, has_bled, meld_na, child_pugh, fena, feurea, urine_anion_gap, lights_criteria, saag, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -1048,10 +1048,31 @@ TEMPLATE = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <div class="card">
+    <h2>Serum–ascites albumin gradient (SAAG)</h2>
+    <div class="formula">SAAG = serum albumin − ascitic albumin</div>
+    <form method="POST" action="/#saag">
+      <input type="hidden" name="calc" value="saag">
+      <div class="field"><label>Serum albumin (g/dL)</label>
+        <input type="number" step="any" name="saag_s" value="{{ form.saag_s or '' }}" placeholder="3.0"></div>
+      <div class="field"><label>Ascitic fluid albumin (g/dL)</label>
+        <input type="number" step="any" name="saag_a" value="{{ form.saag_a or '' }}" placeholder="1.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.saag is defined %}
+    <div class="result" id="saag">
+      <span class="val">{{ results.saag }}</span><span class="unit">g/dL</span>
+      <div class="interp {{ results.saag_cls }}">{{ results.saag_interp }}</div>
+    </div>
+    {% elif results.saag_error is defined %}
+    <div class="error">{{ results.saag_error }}</div>
+    {% endif %}
+  </div>
+
 </div>
 
 <footer>
-  <span>gen-breadth-0030 · 2026-11-27 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh · FENa · FEUrea · Urine AG · Light's</span>
+  <span>gen-breadth-0031 · 2026-11-28 · MAP · P/F · Anion Gap · CrCl · GCS · CURB-65 · Corrected Na · Corrected Ca · Osmolality · qSOFA · Shock Index · A–a Gradient · Winter's Formula · Delta Ratio · Free Water Deficit · IBW · RSBI · OI · Driving Pressure · ROX · QTc · Osmolal Gap · Corrected AG · Parkland · BSA · eGFR · Wells PE · CHA₂DS₂-VASc · HAS-BLED · MELD-Na · Child-Pugh · FENa · FEUrea · Urine AG · Light's · SAAG</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1276,6 +1297,11 @@ def _uag_interp(v):
 def _lc_interp(v):
     if v: return "Meets ≥ 1 criterion — infection, malignancy, PE, inflammatory; if suspected cardiac transudate after diuresis, check serum–pleural albumin gradient (> 1.2 g/dL → transudate)", "warn"
     return "Meets no criteria — transudate: heart failure, cirrhosis, nephrotic syndrome, hypoalbuminaemia", "normal"
+
+
+def _saag_interp(v):
+    if v >= 1.1: return "High gradient (≥ 1.1 g/dL) — portal hypertension: cirrhosis, heart failure, Budd–Chiari; check ascitic protein (≥ 2.5 g/dL suggests cardiac)", "warn"
+    return "Low gradient (< 1.1 g/dL) — non-portal: peritoneal carcinomatosis, TB peritonitis, pancreatitis, nephrotic syndrome", "warn"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -1597,6 +1623,14 @@ def index():
             results.update(lc="Exudate" if v else "Transudate", lc_interp=interp, lc_cls=cls)
         except Exception as e:
             results["lc_error"] = str(e)
+
+    elif calc == "saag":
+        try:
+            v = saag(float(form["saag_s"]), float(form["saag_a"]))
+            interp, cls = _saag_interp(v)
+            results.update(saag=v, saag_interp=interp, saag_cls=cls)
+        except Exception as e:
+            results["saag_error"] = str(e)
 
     return render_template_string(TEMPLATE, disclaimer=DISCLAIMER, results=results, form=form)
 

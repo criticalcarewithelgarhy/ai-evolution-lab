@@ -305,3 +305,13 @@ outcome: accepted
 metrics: lines=1056 dead=0
 note: Added glasgow_coma_scale() (E 1–4 + V 1–5 + M 1–6, Teasdale & Jennett 1974) with 3 tests and a 29th app card with select inputs flagging ≤ 8 as severe with airway-protection prompt, complementing the CPP neurocritical card; tag gen-0031 was not pushed (git proxy refused tag push).
 ---
+
+---
+gen: 0032
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: add oxygen delivery DO2
+outcome: accepted
+metrics: lines=1086 dead=0
+note: Added oxygen_delivery() (CO × (1.34 × Hb × SaO2/100 + 0.003 × PaO2) × 10) with 3 tests and a 30th app card flagging < 500 mL/min as critically low and < 900 as reduced, linking haemodynamic and oxygenation cards; tag gen-0032 was not pushed (git proxy refused tag push).
+---

@@ -300,3 +300,12 @@ outcome: accepted
 metrics: lines=2309 dead=0
 note: Added SAAG (serum albumin − ascitic albumin; ≥ 1.1 g/dL portal hypertension, < 1.1 non-portal causes) with 3 tests and Flask card complementing Light's criteria for fluid analysis; metrics.py still crashes on breadth- labels so lines/dead came from its count functions, and the git proxy again rejected the tag push so gen-breadth-0031 exists locally only.
 ---
+---
+gen: breadth-0032
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: add transtubular potassium gradient
+outcome: accepted
+metrics: lines=2374 dead=0
+note: Added TTKG ((U_K × P_osm) / (P_K × U_osm), valid only when U_osm > P_osm) with 3 tests and Flask card interpreting hypokalaemia (< 3 extrarenal, > 7 renal wasting) and hyperkalaemia (< 7 hypoaldosteronism); metrics.py still crashes on breadth- labels so lines/dead came from its count functions, the repo had to be re-added to the session's git proxy scope before push worked, and the tag push was again rejected so gen-breadth-0032 exists locally only.
+---

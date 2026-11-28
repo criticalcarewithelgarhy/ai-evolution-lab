@@ -302,3 +302,12 @@ outcome: accepted
 metrics: lines=598 dead=0
 note: pf_ratio now raises a specific ValueError when FiO2 is between 21 and 100 ("looks like a percentage — enter it as a fraction"), instead of the generic "must be between 0 and 1" message, so 50% typed for 0.5 gets an actionable error; valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed python -m pip --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0031
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: explain-decimal-comma-entry
+outcome: accepted
+metrics: lines=607 dead=0
+note: app.py now gives a specific "contains a comma — use a dot for decimals" error when a form value like FiO2 "0,5" fails to parse (previously the generic "must be a number"), with a Flask test-client test added; formula outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
+---

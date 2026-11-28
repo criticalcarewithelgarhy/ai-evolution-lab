@@ -42,6 +42,7 @@ from calculator import (
     cardiac_power_output,
     stroke_volume,
     pulse_pressure_variation,
+    lactate_clearance,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -600,3 +601,18 @@ def test_ppv_unresponsive():
 def test_ppv_bad_order():
     with pytest.raises(ValueError):
         pulse_pressure_variation(30, 40)
+
+
+def test_lactate_clearance_adequate():
+    # 4.0 → 3.0 mmol/L: 1 / 4 × 100 = 25.0%
+    assert lactate_clearance(4.0, 3.0) == 25.0
+
+
+def test_lactate_clearance_rising():
+    # 2.0 → 3.0 mmol/L: −1 / 2 × 100 = −50.0%
+    assert lactate_clearance(2.0, 3.0) == -50.0
+
+
+def test_lactate_clearance_bad_initial():
+    with pytest.raises(ValueError):
+        lactate_clearance(0, 2.0)

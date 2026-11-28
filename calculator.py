@@ -490,6 +490,20 @@ def pulse_pressure_variation(pp_max: float, pp_min: float) -> float:
     return round((pp_max - pp_min) / ((pp_max + pp_min) / 2) * 100, 1)
 
 
+def lactate_clearance(initial_lactate: float, repeat_lactate: float) -> float:
+    """
+    Lactate clearance (%) = (initial lactate − repeat lactate) / initial lactate × 100.
+    Lactate in mmol/L; repeat typically 2–6 h after resuscitation begins.
+    ≥ 10% associated with improved survival in septic shock (Nguyen 2004, Jones 2010);
+    negative value = rising lactate.
+    """
+    if initial_lactate <= 0:
+        raise ValueError("Initial lactate must be positive")
+    if repeat_lactate < 0:
+        raise ValueError("Repeat lactate must be non-negative")
+    return round((initial_lactate - repeat_lactate) / initial_lactate * 100, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

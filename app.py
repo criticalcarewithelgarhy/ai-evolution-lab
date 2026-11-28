@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, pulmonary_vascular_resistance, cardiac_power_output, stroke_volume, pulse_pressure_variation, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, pulmonary_vascular_resistance, cardiac_power_output, stroke_volume, pulse_pressure_variation, lactate_clearance, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -881,6 +881,27 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Lactate Clearance</h2>
+    <div class="formula">LC = (Lac_initial − Lac_repeat) / Lac_initial × 100</div>
+    <form method="POST" action="/#lc">
+      <input type="hidden" name="calc" value="lc">
+      <div class="field"><label>Initial Lactate (mmol/L)</label>
+        <input type="number" name="lc_initial" step="0.1" value="{{ form.lc_initial or '' }}" placeholder="4.0"></div>
+      <div class="field"><label>Repeat Lactate (mmol/L, 2–6 h later)</label>
+        <input type="number" name="lc_repeat" step="0.1" value="{{ form.lc_repeat or '' }}" placeholder="3.0"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.lc is defined %}
+    <div class="result" id="lc">
+      <span class="val">{{ results.lc }}</span><span class="unit">%</span>
+      <div class="interp {{ results.lc_cls }}">{{ results.lc_interp }}</div>
+    </div>
+    {% elif results.lc_error is defined %}
+    <div class="error">{{ results.lc_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -912,7 +933,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0033 · 2026-11-28 · Added: Pulse Pressure Variation</span>
+  <span>gen-wild-0034 · 2026-11-28 · Added: Lactate Clearance</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1105,6 +1126,12 @@ def _ppv_interp(v):
     if v < 9:    return "< 9% — fluid responsiveness unlikely", "normal"
     if v <= 13:  return "9–13% — grey zone; consider passive leg raise / other test", "warn"
     return "> 13% — likely fluid responsive", "warn"
+
+
+def _lc_interp(v):
+    if v < 0:    return "< 0% — rising lactate; reassess perfusion and source control", "crit"
+    if v < 10:   return "0–10% — inadequate clearance; associated with higher mortality", "warn"
+    return "≥ 10% — adequate clearance; associated with improved survival", "normal"
 
 
 def _crcl_interp(v):
@@ -1433,6 +1460,14 @@ def index():
             results.update(ppv=v, ppv_interp=interp, ppv_cls=cls)
         except Exception as e:
             results["ppv_error"] = str(e)
+
+    elif calc == "lc":
+        try:
+            v = lactate_clearance(float(form["lc_initial"]), float(form["lc_repeat"]))
+            interp, cls = _lc_interp(v)
+            results.update(lc=v, lc_interp=interp, lc_cls=cls)
+        except Exception as e:
+            results["lc_error"] = str(e)
 
     elif calc == "crcl":
         try:

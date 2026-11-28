@@ -293,3 +293,12 @@ outcome: accepted
 metrics: lines=590 dead=0
 note: app.py now sets MAX_CONTENT_LENGTH to 16 KB with a 413 "Request too large" handler, so oversized POST bodies (e.g. a 20 000-digit field) are refused instead of parsed, with a Flask test-client test added; formula outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
 ---
+---
+gen: robust-0030
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: explain-fio2-percentage-entry
+outcome: accepted
+metrics: lines=598 dead=0
+note: pf_ratio now raises a specific ValueError when FiO2 is between 21 and 100 ("looks like a percentage — enter it as a fraction"), instead of the generic "must be between 0 and 1" message, so 50% typed for 0.5 gets an actionable error; valid outputs unchanged; metrics.py still crashes on "robust-" gen labels (metrics via its count functions), pip needed python -m pip --ignore-installed blinker, the repo had to be attached for pushes, and the proxy again refused the tag push (branch pushed fine).
+---

@@ -14,6 +14,7 @@ from calculator import (
     shock_index,
     bicarbonate_deficit,
     fractional_excretion_sodium,
+    fractional_excretion_urea,
     ards_severity,
     winters_formula,
     delta_ratio,
@@ -302,3 +303,13 @@ def test_fena_prerenal():
 def test_fena_bad_input():
     with pytest.raises(ValueError):
         fractional_excretion_sodium(10, 140, 0, 2.0)
+
+
+def test_feurea_prerenal():
+    # UUrea 300, PUrea 30, UCr 100, PCr 2.0 → (300 × 2) / (30 × 100) × 100 = 20.0 %
+    assert fractional_excretion_urea(300, 30, 100, 2.0) == 20.0
+
+
+def test_feurea_bad_input():
+    with pytest.raises(ValueError):
+        fractional_excretion_urea(300, 0, 100, 2.0)

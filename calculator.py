@@ -231,3 +231,12 @@ def fractional_excretion_sodium(
     if min(urine_na, plasma_na, urine_cr, plasma_cr) <= 0:
         raise ValueError("Urine and plasma sodium and creatinine must be positive")
     return round(urine_na * plasma_cr / (plasma_na * urine_cr) * 100, 2)
+
+
+def fractional_excretion_urea(
+    urine_urea: float, plasma_urea: float, urine_cr: float, plasma_cr: float
+) -> float:
+    """FEUrea (%) = (UUrea * PCr) / (PUrea * UCr) * 100; < 35% prerenal, useful on diuretics"""
+    if min(urine_urea, plasma_urea, urine_cr, plasma_cr) <= 0:
+        raise ValueError("Urine and plasma urea and creatinine must be positive")
+    return round(urine_urea * plasma_cr / (plasma_urea * urine_cr) * 100, 2)

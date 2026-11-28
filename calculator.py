@@ -89,6 +89,10 @@ def corrected_anion_gap(
         # Below any survivable recorded value (~0.6 g/dL); almost always a decimal-slip typo
         # (0.4 for 4.0 adds a false +9 mEq/L, inventing a high-AG acidosis)
         raise ValueError("Albumin must be at least 0.5 g/dL")
+    if albumin > 6.0:
+        # Above any recorded value (~5.5-6 g/dL even in haemoconcentration); usually total
+        # protein (~7 g/dL) entered as albumin, a false -7.5 mEq/L that masks a high-AG acidosis
+        raise ValueError("Albumin must not exceed 6.0 g/dL (total protein entered?)")
     anion_gap(sodium, chloride, bicarbonate)  # reuse electrolyte validation
     ag = sodium - (chloride + bicarbonate)
     return round(ag + 2.5 * (4.0 - albumin), 1)

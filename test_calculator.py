@@ -372,3 +372,13 @@ def test_crcl_adjusted_not_double_rounded():
     html = app.test_client().post("/", data={"calc": "crcl", "age": "18", "weight": "156",
         "creatinine": "0.2", "sex": "male", "height": "172"}).get_data(as_text=True)
     assert "adjusted body weight 103.0 kg: CrCl 873.1" in html
+
+
+@pytest.mark.parametrize("alb", [6.1, 7.0, 8.5])
+def test_corrected_anion_gap_albumin_upper_bound(alb):
+    # Total protein (~7 g/dL) entered as albumin previously subtracted a false 7.5 mEq/L,
+    # turning a high AG of 20 into a "normal" 12.5 and masking a high-AG acidosis
+    from calculator import corrected_anion_gap
+    with pytest.raises(ValueError):
+        corrected_anion_gap(140, 96, 24, alb)
+    assert corrected_anion_gap(140, 104, 24, 6.0) == 7.0

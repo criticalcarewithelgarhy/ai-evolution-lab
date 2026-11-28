@@ -135,7 +135,7 @@ TEMPLATE = """<!DOCTYPE html>
       <div class="field"><label>Bicarbonate HCO₃⁻ (mEq/L)</label>
         <input type="number" step="any" name="hco3" value="{{ form.hco3 or '' }}" placeholder="24"></div>
       <div class="field"><label>Albumin (g/dL, optional — corrects AG)</label>
-        <input type="number" step="any" name="albumin" value="{{ form.albumin or '' }}" placeholder="4.0"></div>
+        <input type="number" step="any" name="albumin" value="{{ form.albumin or '' }}" placeholder="4.0" min="0.5" max="6"></div>
       <button class="btn" type="submit">Calculate</button>
     </form>
     {% if results.ag is defined %}

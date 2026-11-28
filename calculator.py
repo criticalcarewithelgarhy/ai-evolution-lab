@@ -280,6 +280,16 @@ def cerebral_perfusion_pressure(map_mmhg: float, icp: float) -> float:
         raise ValueError("MAP and ICP must be non-negative")
     return round(map_mmhg - icp, 1)
 
+def glasgow_coma_scale(eye: int, verbal: int, motor: int) -> int:
+    """
+    Glasgow Coma Scale (Teasdale & Jennett, 1974) = E (1-4) + V (1-5) + M (1-6); range 3-15.
+    <= 8 is the conventional threshold for severe brain injury / airway protection.
+    """
+    if not (1 <= eye <= 4 and 1 <= verbal <= 5 and 1 <= motor <= 6):
+        raise ValueError("E must be 1-4, V 1-5 and M 1-6")
+    return int(eye + verbal + motor)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

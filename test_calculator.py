@@ -34,6 +34,7 @@ from calculator import (
     parkland_formula,
     bicarbonate_deficit,
     cerebral_perfusion_pressure,
+    glasgow_coma_scale,
     DISCLAIMER,
 )
 
@@ -474,3 +475,19 @@ def test_cpp_bad_inputs():
         cerebral_perfusion_pressure(80, -1)
     with pytest.raises(ValueError):
         cerebral_perfusion_pressure(-5, 10)
+
+
+def test_gcs_normal():
+    assert glasgow_coma_scale(4, 5, 6) == 15
+
+
+def test_gcs_severe():
+    # E2 V2 M4 → 8
+    assert glasgow_coma_scale(2, 2, 4) == 8
+
+
+def test_gcs_bad_inputs():
+    with pytest.raises(ValueError):
+        glasgow_coma_scale(0, 5, 6)
+    with pytest.raises(ValueError):
+        glasgow_coma_scale(4, 5, 7)

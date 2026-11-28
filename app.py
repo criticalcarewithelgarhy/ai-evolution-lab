@@ -11,7 +11,7 @@ from pathlib import Path
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     corrected_anion_gap, corrected_sodium, creatinine_clearance, winters_formula,
-    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, fractional_excretion_urea, ventilatory_ratio, parkland_formula, bicarbonate_deficit, cerebral_perfusion_pressure, DISCLAIMER,
+    delta_ratio, aa_gradient, serum_osmolality, corrected_calcium, predicted_body_weight, shock_index, free_water_deficit, rox_index, qsofa_score, driving_pressure, oxygenation_index, sf_ratio, static_compliance, rsbi, qtc_bazett, fractional_excretion_sodium, fractional_excretion_urea, ventilatory_ratio, parkland_formula, bicarbonate_deficit, cerebral_perfusion_pressure, glasgow_coma_scale, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -295,10 +295,16 @@ TEMPLATE = """{% macro result(key, unit="") %}
       {{ num("cpp_icp", "Intracranial Pressure (mmHg)", "15") }}
   {% endcall %}
 
+  {% call card("gcs", "Glasgow Coma Scale", "GCS = Eye (1–4) + Verbal (1–5) + Motor (1–6)", "/ 15") %}
+      {{ sel("gcs_e", "Eye opening", [("4", "4 · Spontaneous"), ("3", "3 · To sound"), ("2", "2 · To pressure"), ("1", "1 · None")]) }}
+      {{ sel("gcs_v", "Verbal response", [("5", "5 · Oriented"), ("4", "4 · Confused"), ("3", "3 · Words"), ("2", "2 · Sounds"), ("1", "1 · None")]) }}
+      {{ sel("gcs_m", "Motor response", [("6", "6 · Obeys commands"), ("5", "5 · Localising"), ("4", "4 · Normal flexion"), ("3", "3 · Abnormal flexion"), ("2", "2 · Extension"), ("1", "1 · None")]) }}
+  {% endcall %}
+
 </div>
 
 <footer>
-  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa · FEUrea · VR · Parkland · HCO₃⁻ deficit · CPP</span>
+  <span>{{ gen_info }} · Seed: MAP · P/F · Anion Gap · CrCl · Corr AG · Corr Na · Winter's · Δ/Δ · A–a · Osm · Corr Ca · PBW · SI · FWD · ROX · qSOFA · ΔP · OI · S/F · C<sub>stat</sub> · RSBI · QTc · FENa · FEUrea · VR · Parkland · HCO₃⁻ deficit · CPP · GCS</span>
   <span><a href="https://criticalcarewithelgarhy.github.io/ai-evolution-lab/" style="color:var(--muted)">Evolution Dashboard →</a></span>
 </footer>
 </body>
@@ -449,6 +455,11 @@ def _cpp_interp(v):
     if v <= 70: return "60–70 mmHg — within TBI target", "normal"
     return "> 70 mmHg — above target; avoid aggressive augmentation (ARDS risk)", "warn"
 
+def _gcs_interp(v):
+    if v <= 8:  return "3–8 — severe; consider airway protection", "crit"
+    if v <= 12: return "9–12 — moderate impairment", "warn"
+    return "13–15 — mild or normal", "normal"
+
 def _crcl_interp(v):
     if v < 15:   return "Stage 5 CKD — dialysis range", "crit"
     if v < 30:   return "Stage 4 CKD — severe", "crit"
@@ -520,6 +531,8 @@ CALCS = {
             lambda v, f: _bcd_interp(v)),
     "cpp": (lambda f: cerebral_perfusion_pressure(_n(f, "cpp_map"), _n(f, "cpp_icp")),
             lambda v, f: _cpp_interp(v)),
+    "gcs": (lambda f: glasgow_coma_scale(int(f.get("gcs_e", 4)), int(f.get("gcs_v", 5)), int(f.get("gcs_m", 6))),
+            lambda v, f: _gcs_interp(v)),
     "crcl": (lambda f: creatinine_clearance(_n(f, "age"), _n(f, "weight"), _n(f, "creatinine"), f.get("sex", "male")),
              lambda v, f: _crcl_interp(v)),
 }

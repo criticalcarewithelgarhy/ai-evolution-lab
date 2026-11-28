@@ -463,6 +463,19 @@ def cardiac_power_output(map_mmhg: float, cardiac_output: float) -> float:
     return round(map_mmhg * cardiac_output / 451, 2)
 
 
+def stroke_volume(cardiac_output: float, heart_rate: float) -> float:
+    """
+    Stroke volume (SV, mL/beat) = CO × 1000 / HR.
+    cardiac_output in L/min, heart_rate in beats/min.
+    Normal ≈ 60–100 mL/beat; low SV with tachycardia suggests compensated low output.
+    """
+    if cardiac_output < 0:
+        raise ValueError("Cardiac output must be non-negative")
+    if heart_rate <= 0:
+        raise ValueError("Heart rate must be positive")
+    return round(cardiac_output * 1000 / heart_rate, 1)
+
+
 def creatinine_clearance(
     age: float, weight: float, creatinine: float, sex: str
 ) -> float:

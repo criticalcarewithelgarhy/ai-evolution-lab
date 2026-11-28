@@ -40,6 +40,7 @@ from calculator import (
     systemic_vascular_resistance,
     pulmonary_vascular_resistance,
     cardiac_power_output,
+    stroke_volume,
     creatinine_clearance,
     DISCLAIMER,
 )
@@ -569,3 +570,17 @@ def test_cpo_cardiogenic_shock():
 def test_cpo_bad_co():
     with pytest.raises(ValueError):
         cardiac_power_output(80, -1)
+
+
+def test_sv_normal():
+    # CO 5 L/min, HR 70 → 5000 / 70 = 71.43 → 71.4
+    assert stroke_volume(5, 70) == 71.4
+
+
+def test_sv_low_output():
+    assert stroke_volume(3, 120) == 25.0
+
+
+def test_sv_bad_hr():
+    with pytest.raises(ValueError):
+        stroke_volume(5, 0)

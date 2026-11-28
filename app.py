@@ -10,7 +10,7 @@ from flask import Flask, request, render_template_string
 from calculator import (
     mean_arterial_pressure, pf_ratio, anion_gap,
     albumin_corrected_anion_gap, osmolar_gap, corrected_calcium, winters_formula,
-    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, pulmonary_vascular_resistance, cardiac_power_output, creatinine_clearance, DISCLAIMER,
+    delta_ratio, aa_gradient, corrected_sodium, free_water_deficit, ideal_body_weight, shock_index, rox_index, sf_ratio, driving_pressure, static_compliance, oxygenation_index, mechanical_power, fractional_excretion_sodium, fractional_excretion_urea, qtc_bazett, qtc_fridericia, rapid_shallow_breathing_index, ventilatory_ratio, dead_space_fraction, arterial_oxygen_content, oxygen_delivery, oxygen_extraction_ratio, oxygen_consumption, cardiac_index, systemic_vascular_resistance, pulmonary_vascular_resistance, cardiac_power_output, stroke_volume, creatinine_clearance, DISCLAIMER,
 )
 
 app = Flask(__name__)
@@ -838,6 +838,27 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <div class="card">
+    <h2>Stroke Volume</h2>
+    <div class="formula">SV = CO × 1000 / HR</div>
+    <form method="POST" action="/#sv">
+      <input type="hidden" name="calc" value="sv">
+      <div class="field"><label>Cardiac Output (L/min)</label>
+        <input type="number" name="sv_co" step="0.1" value="{{ form.sv_co or '' }}" placeholder="5.0"></div>
+      <div class="field"><label>Heart Rate (bpm)</label>
+        <input type="number" name="sv_hr" value="{{ form.sv_hr or '' }}" placeholder="70"></div>
+      <button class="btn" type="submit">Calculate</button>
+    </form>
+    {% if results.sv is defined %}
+    <div class="result" id="sv">
+      <span class="val">{{ results.sv }}</span><span class="unit">mL/beat</span>
+      <div class="interp {{ results.sv_cls }}">{{ results.sv_interp }}</div>
+    </div>
+    {% elif results.sv_error is defined %}
+    <div class="error">{{ results.sv_error }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Creatinine Clearance</h2>
     <div class="formula">Cockcroft-Gault</div>
     <form method="POST" action="/#crcl">
@@ -869,7 +890,7 @@ TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <footer>
-  <span>gen-wild-0031 · 2026-11-27 · Added: Cardiac Power Output</span>
+  <span>gen-wild-0032 · 2026-11-28 · Added: Stroke Volume</span>
   <span>{{ disclaimer }}</span>
 </footer>
 </body>
@@ -1049,6 +1070,13 @@ def _cpo_interp(v):
     if v < 0.6:  return "< 0.6 W — critically low; strongest predictor of mortality in cardiogenic shock", "crit"
     if v < 0.8:  return "0.6–0.8 W — reduced cardiac power", "warn"
     return "≥ 0.8 W — adequate cardiac power (normal ≈ 1 W at rest)", "normal"
+
+
+def _sv_interp(v):
+    if v < 40:   return "< 40 mL — severely reduced stroke volume", "crit"
+    if v < 60:   return "40–60 mL — reduced stroke volume", "warn"
+    if v <= 100: return "60–100 mL — normal stroke volume", "normal"
+    return "> 100 mL — high stroke volume", "warn"
 
 
 def _crcl_interp(v):
@@ -1361,6 +1389,14 @@ def index():
             results.update(cpo=v, cpo_interp=interp, cpo_cls=cls)
         except Exception as e:
             results["cpo_error"] = str(e)
+
+    elif calc == "sv":
+        try:
+            v = stroke_volume(float(form["sv_co"]), float(form["sv_hr"]))
+            interp, cls = _sv_interp(v)
+            results.update(sv=v, sv_interp=interp, sv_cls=cls)
+        except Exception as e:
+            results["sv_error"] = str(e)
 
     elif calc == "crcl":
         try:

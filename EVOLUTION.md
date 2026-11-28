@@ -242,3 +242,13 @@ outcome: accepted
 metrics: gen=0023 lines=384 dead=0 cap=1500 headroom=1116
 note: Added rsbi (RR / Vt in litres, validated) with two tests, giving a ventilator weaning predictor (< 105) to complete the gen 0016–0021 ventilation toolset.
 ---
+
+---
+gen: 0025
+date: 2026-11-28
+model: claude-sonnet-4-6
+idea: add bicarbonate deficit
+outcome: accepted
+metrics: gen=0024 lines=397 dead=0 cap=1500 headroom=1103
+note: Added bicarbonate_deficit (0.5 × kg × (target − HCO3), target default 24) with two tests, quantifying alkali replacement to complement the gen 0009–0010 acid-base tools.
+---
